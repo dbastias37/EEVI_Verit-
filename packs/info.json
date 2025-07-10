@@ -20,4 +20,15 @@
     "entrega": "Vía email automático",
     "version": "v1.0"
   }
+  ,
+  {
+    "id": "lluvia-otonal-03",
+    "titulo": "Pack Lluvia Otoñal 03",
+    "descripcion": "Sonidos de lluvia para ambientar escenas otoñales.",
+    "imagen": "/static/img/pack2.jpg",
+    "precio": "$5.000 CLP",
+    "formato": "WAV",
+    "entrega": "Vía email automático",
+    "version": "v1.0"
+  }
 ]
