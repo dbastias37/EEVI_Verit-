@@ -1,1 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ pack.titulo }}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>{{ pack.titulo }}</h1>
+  <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
+  <p>{{ pack.descripcion }}</p>
+  <ul>
+    <li><strong>Formato:</strong> {{ pack.formato }}</li>
+    <li><strong>Entrega:</strong> {{ pack.entrega }}</li>
+    <li><strong>Versión:</strong> {{ pack.version }}</li>
+    <li><strong>Precio:</strong> {{ pack.precio }}</li>
+  </ul>
+  <button>Comprar</button>
+  <br><br>
+  <a href="/">← Volver</a>
+</body>
+</html>
 
