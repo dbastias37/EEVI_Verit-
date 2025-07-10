@@ -1,1 +1,23 @@
 
+[
+  {
+    "id": "sonidos-naturaleza-01",
+    "titulo": "Pack Sonidos Naturaleza 01",
+    "descripcion": "Colección de sonidos reales de bosque, viento y agua para dar vida a tus proyectos audiovisuales.",
+    "imagen": "/static/img/pack1.jpg",
+    "precio": "$2.000 CLP",
+    "formato": "WAV + MP3",
+    "entrega": "Vía email automático",
+    "version": "v1.0"
+  },
+  {
+    "id": "ciudad-texturas-02",
+    "titulo": "Pack Ciudad y Texturas 02",
+    "descripcion": "Ambientes urbanos reales: tráfico, gente caminando, sonidos metálicos.",
+    "imagen": "/static/img/pack2.jpg",
+    "precio": "$2.500 CLP",
+    "formato": "WAV",
+    "entrega": "Vía email automático",
+    "version": "v1.0"
+  }
+]
