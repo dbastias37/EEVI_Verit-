@@ -61,6 +61,8 @@ a:hover, button:hover {
   ), #222;
 }
 
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 @media (max-width: 600px) {
   .pack-card {
     width: 100%;
