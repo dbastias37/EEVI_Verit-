@@ -6,17 +6,29 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <h1>🌱 EEVI Verité — Packs disponibles</h1>
-  <div class="packs">
-    {% for pack in packs %}
-    <div class="pack">
-      <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
-      <h2>{{ pack.titulo }}</h2>
-      <p>{{ pack.descripcion }}</p>
-      <p><strong>Precio:</strong> {{ pack.precio }}</p>
-      <a href="/pack/{{ pack.id }}">Ver detalles</a>
+  <header class="header">
+    <div class="logo-text">VERITÉ</div>
+    <nav class="nav">
+      <a href="#" class="nav-link">ABOUT</a>
+      <a href="#" class="nav-link">WORK</a>
+      <a href="#" class="nav-link">QUOTE</a>
+      <a href="#" class="nav-link">PRICING</a>
+      <a href="#" class="nav-link">FAQ</a>
+    </nav>
+  </header>
+  <main>
+    <h1>🌱 EEVI Verité — Packs disponibles</h1>
+    <div class="packs">
+      {% for pack in packs %}
+      <div class="pack">
+        <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
+        <h2>{{ pack.titulo }}</h2>
+        <p>{{ pack.descripcion }}</p>
+        <p><strong>Precio:</strong> {{ pack.precio }}</p>
+        <a href="/pack/{{ pack.id }}">Ver detalles</a>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
+  </main>
 </body>
 </html>

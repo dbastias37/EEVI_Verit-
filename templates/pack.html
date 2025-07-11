@@ -6,20 +6,32 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="pack pack-card">
-    <h1>{{ pack.titulo }}</h1>
-    <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
-    <p>{{ pack.descripcion }}</p>
-    <ul>
-      <li><strong>Formato:</strong> {{ pack.formato }}</li>
-      <li><strong>Entrega:</strong> {{ pack.entrega }}</li>
-      <li><strong>Versión:</strong> {{ pack.version }}</li>
-      <li><strong>Precio:</strong> {{ pack.precio }}</li>
-    </ul>
-    <button>Comprar</button>
-  </div>
-  <br><br>
+  <header class="header">
+    <div class="logo-text">VERITÉ</div>
+    <nav class="nav">
+      <a href="#" class="nav-link">ABOUT</a>
+      <a href="#" class="nav-link">WORK</a>
+      <a href="#" class="nav-link">QUOTE</a>
+      <a href="#" class="nav-link">PRICING</a>
+      <a href="#" class="nav-link">FAQ</a>
+    </nav>
+  </header>
+  <main class="pack-detail">
+    <div class="pack-image">
+      <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
+    </div>
+    <div class="pack-info">
+      <h1>{{ pack.titulo }}</h1>
+      <p class="subtitle">{{ pack.version }}</p>
+      <p class="price">{{ pack.precio }}</p>
+      <button class="purchase">Comprar</button>
+      <p class="description">{{ pack.descripcion }}</p>
+      <ul>
+        <li><strong>Formato:</strong> {{ pack.formato }}</li>
+        <li><strong>Entrega:</strong> {{ pack.entrega }}</li>
+      </ul>
+    </div>
+  </main>
   <a href="/">← Volver</a>
 </body>
 </html>
-
