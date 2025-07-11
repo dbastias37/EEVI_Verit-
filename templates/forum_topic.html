@@ -1,38 +1,28 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Ver tema</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <script src="/static/js/forum.js" defer></script>
-</head>
-<body>
-  <header class="header">
-    <div class="logo-text">VERITÉ</div>
-    <nav class="nav">
-      <a href="#" class="nav-link">ABOUT</a>
-      <a href="#" class="nav-link">WORK</a>
-      <a href="#" class="nav-link">QUOTE</a>
-      <a href="/forum" class="nav-link">VFORUM</a>
-      <a href="#" class="nav-link">FAQ</a>
-    </nav>
-  </header>
-  <main class="forum-container">
-    <section class="posts">
-      {% for p in posts %}
-      <div class="post-card" data-id="{{ p.id }}">
-        <p>{{ p.author }} — {{ p.created_at }}</p>
-        <p>{{ p.content }}</p>
-        <button class="vote-button" onclick="votePost({{ p.id }}, 'up')">▲</button>
-        <button class="vote-button" onclick="votePost({{ p.id }}, 'down')">▼</button>
-      </div>
-      {% endfor %}
-      <form action="/forum/{{ topic_id }}/reply" method="post">
-        <input type="text" name="author" placeholder="Autor" required>
-        <textarea name="content" placeholder="Respuesta" required></textarea>
-        <button type="submit">Responder</button>
-      </form>
-    </section>
-  </main>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}{{ topic.title }}{% endblock %}
+
+{% block content %}
+<div class="forum-container">
+  <section class="posts">
+    <h1>{{ topic.title }}</h1>
+    {% if topic.image %}
+      <img src="{{ topic.image }}" alt="{{ topic.title }}">
+    {% endif %}
+    <p>{{ topic.description }}</p>
+
+    {% for p in posts %}
+    <div class="post-card">
+      <p>{{ p.author }} — {{ p.created_at }}</p>
+      <p>{{ p.content }}</p>
+    </div>
+    {% endfor %}
+
+    <form action="/forum/{{ topic.id }}/reply" method="post">
+      <input type="text" name="author" placeholder="Autor" required>
+      <textarea name="content" placeholder="Respuesta" required></textarea>
+      <button type="submit">Responder</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

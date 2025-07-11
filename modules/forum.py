@@ -16,6 +16,15 @@ def get_topics() -> List[Dict]:
     conn.close()
     return [dict(row) for row in rows]
 
+def get_topic(topic_id: int) -> Dict:
+    conn = _connect()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM topics WHERE id=?', (topic_id,))
+    row = cur.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
 def get_posts(topic_id: int) -> List[Dict]:
     conn = _connect()
     conn.row_factory = sqlite3.Row
@@ -25,11 +34,14 @@ def get_posts(topic_id: int) -> List[Dict]:
     conn.close()
     return [dict(row) for row in rows]
 
-def create_topic(title: str, category: str, author: str) -> int:
+def create_topic(title: str, description: str = None, image: str = None) -> int:
+    """Crea un nuevo tema en la tabla topics."""
     conn = _connect()
     cur = conn.cursor()
-    cur.execute('INSERT INTO topics (title, category, author, created_at) VALUES (?,?,?,?)',
-                (title, category, author, datetime.utcnow()))
+    cur.execute(
+        'INSERT INTO topics (title, description, image, created_at) VALUES (?,?,?,?)',
+        (title, description, image, datetime.utcnow())
+    )
     conn.commit()
     topic_id = cur.lastrowid
     conn.close()
