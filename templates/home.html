@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio Verité{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <h1 class="hero-title">Bienvenido a EEVI Verité</h1>
+    <p>Descubre nuestro ecosistema de herramientas y recursos para la creación audiovisual.</p>
+    <div class="hero-links">
+      <a href="{{ url_for('packs') }}" class="btn">PACKS</a>
+      <a href="{{ url_for('services') }}" class="btn">SERVICES</a>
+      <a href="{{ url_for('forum') }}" class="btn">VFORUM</a>
+      <a href="{{ url_for('academia') }}" class="btn">ACADEMIA</a>
+    </div>
+  </section>
+{% endblock %}
+

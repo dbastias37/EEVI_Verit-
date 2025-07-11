@@ -45,9 +45,13 @@ def cargar_packs():
         return json.load(f)
 
 @app.route('/')
-def index():
+def home():
+    return render_template('home.html')
+
+@app.route('/packs')
+def packs():
     packs = cargar_packs()
-    return render_template('index.html', packs=packs)
+    return render_template('packs.html', packs=packs)
 
 @app.route('/services')
 def services():
