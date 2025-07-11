@@ -80,8 +80,11 @@ def ver_pack(pack_id):
 # ---------------- VFORUM ----------------
 @app.route('/forum')
 def forum():
-    topics = forum_db.get_topics()
-    return render_template('forum_index.html', topics=topics)
+    category = request.args.get('category')
+    topics = forum_db.get_topics(category)
+    categories = forum_db.get_categories()
+    recent = forum_db.get_recent_topics(category)
+    return render_template('forum_index.html', topics=topics, categories=categories, recent_topics=recent, current_category=category)
 
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():

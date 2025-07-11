@@ -27,11 +27,15 @@ def get_categories() -> List[str]:
 def _connect():
     return sqlite3.connect(DB_PATH)
 
-def get_topics() -> List[Dict]:
+def get_topics(category: str = None) -> List[Dict]:
+    """Devuelve la lista de temas, opcionalmente filtrados por categoría."""
     conn = _connect()
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute('SELECT * FROM topics ORDER BY created_at DESC')
+    if category:
+        cur.execute('SELECT * FROM topics WHERE category=? ORDER BY created_at DESC', (category,))
+    else:
+        cur.execute('SELECT * FROM topics ORDER BY created_at DESC')
     rows = cur.fetchall()
     conn.close()
     return [dict(row) for row in rows]
@@ -44,6 +48,19 @@ def get_latest_topic() -> Dict:
     row = cur.fetchone()
     conn.close()
     return dict(row) if row else None
+
+def get_recent_topics(category: str = None, limit: int = 3) -> List[Dict]:
+    """Obtiene los temas más recientes de una categoría o generales."""
+    conn = _connect()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    if category:
+        cur.execute('SELECT * FROM topics WHERE category=? ORDER BY created_at DESC LIMIT ?', (category, limit))
+    else:
+        cur.execute('SELECT * FROM topics ORDER BY created_at DESC LIMIT ?', (limit,))
+    rows = cur.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
 
 def get_topic(topic_id: int) -> Dict:
     conn = _connect()
