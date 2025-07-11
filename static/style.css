@@ -1,24 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
+
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #111;
-  color: #f0f0f0;
-  padding: 2rem;
+  background-color: #000;
+  color: #fff;
+  margin: 0;
+  padding-top: 60px; /* espacio para header fijo */
 }
 
-h1 {
-  text-align: center;
-  margin-bottom: 2rem;
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 100;
 }
 
+.logo-text {
+  font-weight: 900;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: #fff;
+}
+
+.nav {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-link {
+  color: #fff;
+  text-decoration: none;
+  text-transform: uppercase;
+  position: relative;
+  padding: 4px 0;
+  font-size: 0.9rem;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: #fff;
+  transition: width 0.4s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* listado de packs */
 .packs {
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
   justify-content: center;
+  padding: 2rem;
 }
 
 .pack {
-  background: #222;
+  background: #111;
   border-radius: 10px;
   padding: 1rem;
   width: 280px;
@@ -33,7 +83,7 @@ h1 {
 a, button {
   display: inline-block;
   background-color: #666;
-  color: white;
+  color: #fff;
   padding: 0.5rem 1rem;
   border: none;
   margin-top: 1rem;
@@ -45,47 +95,65 @@ a:hover, button:hover {
   background-color: #999;
 }
 
-/* Hover floating effect for pack cards */
-.pack-card {
-7gkcou-codex/agregar-efecto-de-tarjeta-flotante-a-.pack-card
-  position: relative;
-  z-index: 10;
-
- main
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+/* detalle de pack */
+.pack-detail {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  padding: 2rem;
 }
 
-.pack-card:hover {
-  transform: translateY(-10px);
- 7gkcou-codex/agregar-efecto-de-tarjeta-flotante-a-.pack-card
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.35);
-  background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.25) 0%,
-      rgba(255, 255, 255, 0.1) 40%,
-      rgba(255, 255, 255, 0.05) 60%,
-      rgba(255, 255, 255, 0) 100%
-    ),
-    #222;
-  background-size: 150% 150%;
-  background-position: center;
+.pack-image img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.5);
 }
 
-
-  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0.1) 40%,
-    rgba(255, 255, 255, 0.05) 60%,
-    rgba(255, 255, 255, 0) 100%
-  ), #222;
+.pack-info {
+  background: #111;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  max-width: 400px;
 }
 
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+.pack-info h1 {
+  font-weight: 900;
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+}
 
-main
-@media (max-width: 600px) {
-  .pack-card {
+.pack-info .subtitle {
+  color: #ccc;
+  margin-bottom: 0.5rem;
+}
+
+.pack-info .price {
+  color: #5C5CFF;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.pack-info .purchase {
+  background: #5C5CFF;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .pack-detail {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pack-info {
+    max-width: none;
+    width: 100%;
+  }
+
+  .pack-image img {
+    max-width: none;
     width: 100%;
   }
 }
