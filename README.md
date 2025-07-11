@@ -82,4 +82,5 @@ No hay trackers. No hay plugins innecesarios. Todo está escrito con intención.
 
 🜂 Este README no es un resumen. Es una semilla.
 El resto se revelará en la acción.
+Con cada paso de la bestia, nacen nuevas sendas para quienes nos siguen.
 """

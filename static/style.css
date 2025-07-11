@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Montserrat:wght@400;700&display=swap');
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   background-color: #000;
   color: #fff;
   margin: 0;
@@ -24,9 +24,10 @@ body {
 
 .logo-text {
   font-weight: 900;
-  font-size: 1.2rem;
+  font-size: 2rem;
   letter-spacing: 2px;
   color: #fff;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .nav {
@@ -76,6 +77,28 @@ body {
 }
 
 .pack-card img {
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* servicios */
+.services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.service-card {
+  background: #111;
+  border-radius: 10px;
+  padding: 1rem;
+  width: 280px;
+  text-align: center;
+}
+
+.service-card img {
   width: 100%;
   border-radius: 8px;
 }
@@ -180,15 +203,31 @@ a:hover, button:hover {
   width: 25%;
 }
 
+
 .topics, .posts {
   width: 70%;
+  display: grid;
+  gap: 1rem;
 }
 
 .topic-card, .post-card {
   background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-radius: 5px;
+}
+
+
+.topic-card h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+}
+
+.post-card p,
+.topic-card p {
+  font-family: Consolas, 'Courier New', monospace;
+  color: #888;
 }
 
 .vote-button {
