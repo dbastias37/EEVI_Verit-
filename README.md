@@ -90,3 +90,4 @@ Con cada paso de la bestia, nacen nuevas sendas para quienes nos siguen.
 
 ✨ Home renovado con Hero, “Qué es Verité”, último tema dinámico, Packs y Services integrados; categorías VFORUM fijas y limpieza de formulario.
 ✨ Página `/forum/new` estilizada con hero minimalista, explicación ampliada, formulario moderno, line-height ajustado y animaciones on-scroll.
+✨ Movida sección “Últimas categorías” al centro + carrusel motivacional audiovisual

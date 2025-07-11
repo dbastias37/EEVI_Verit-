@@ -236,7 +236,13 @@ a:hover, button:hover {
   text-align: center;
 }
 
-.topics, .posts {
+.topics {
+  width: 60%;
+  display: grid;
+  gap: 1rem;
+}
+
+.posts {
   width: 70%;
   display: grid;
   gap: 1rem;
@@ -273,7 +279,7 @@ a:hover, button:hover {
   .forum-container {
     flex-direction: column;
   }
-  .forum-categories, .topics, .posts {
+  .forum-categories, .topics, .posts, .motivation-carousel {
     width: 100%;
   }
 }
@@ -342,26 +348,30 @@ a:hover, button:hover {
   color: #ccc;
 }
 
-.recent-topics {
+.latest-categories-main {
+  margin-top: 2rem;
+}
+
+.latest-categories {
   background: #111;
   padding: 1rem;
   border-radius: 5px;
 }
-.recent-topics li {
+.latest-categories li {
   border-bottom: 1px solid #333;
   padding: 0.5rem 0;
 }
-.recent-topics li:last-child {
+.latest-categories li:last-child {
   border-bottom: none;
 }
-.recent-topics a {
+.latest-categories a {
   color: #fff;
   text-decoration: none;
 }
-.recent-topics a:hover {
+.latest-categories a:hover {
   text-decoration: underline;
 }
-.recent-topics .date {
+.latest-categories .date {
   font-size: 0.8rem;
   color: #888;
   margin-left: 0.5rem;
@@ -453,4 +463,32 @@ body.forum-new {
   opacity: 1 !important;
   transform: translateY(0) !important;
   transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.motivation-carousel {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  width: 20%;
+}
+
+.motivation-track {
+  position: relative;
+  height: 100%;
+}
+
+.motivation-card {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 1s ease;
+  width: 100%;
+  padding: 1rem;
+  background: #111;
+  color: #fff;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.motivation-card.visible {
+  opacity: 1;
 }
