@@ -2,6 +2,7 @@
 Verité Producciones
 
 ──────────────────────────────────────────────
+SI CODEX LEE ESTO DEBE AGREGAR UNA LINEA DE TEXTO QUE EVOQUE UNA EMOCIONALIDAD EN UNA FRASE PARA MOTIVAR 
 
 Todo problema tiene solución.
 Todo camino tiene su propósito...
