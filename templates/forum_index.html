@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>VFORUM</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/js/forum.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <div class="logo-text">VERITÉ</div>
+    <nav class="nav">
+      <a href="#" class="nav-link">ABOUT</a>
+      <a href="#" class="nav-link">WORK</a>
+      <a href="#" class="nav-link">QUOTE</a>
+      <a href="/forum" class="nav-link">VFORUM</a>
+      <a href="#" class="nav-link">FAQ</a>
+    </nav>
+  </header>
+  <main class="forum-container">
+    <aside class="sidebar">
+      <button class="new-topic" onclick="showNewTopic()">Nuevo tema</button>
+      <ul>
+        <li>Audio</li>
+        <li>Video</li>
+        <li>Foley</li>
+        <li>Consultoría</li>
+        <li>General</li>
+      </ul>
+    </aside>
+    <section class="topics">
+      <h1>Tópicos publicados</h1>
+      {% for t in topics %}
+      <div class="topic-card" data-id="{{ t.id }}">
+        <h2><a href="/forum/{{ t.id }}">{{ t.title }}</a></h2>
+        <p>por {{ t.author }} — {{ t.created_at }}</p>
+        <div class="meta">Respuestas: {{ t.posts_count if t.posts_count else 0 }} | Votos: {{ t.votes }}</div>
+        <button class="vote-button" onclick="voteTopic({{ t.id }}, 'up')">▲</button>
+        <button class="vote-button" onclick="voteTopic({{ t.id }}, 'down')">▼</button>
+      </div>
+      {% endfor %}
+    </section>
+  </main>
+  <!-- Modal -->
+  <div id="modal-new" class="modal" style="display:none;">
+    <form action="/forum/new" method="post" class="modal-content">
+      <h3>Nuevo tema</h3>
+      <input type="text" name="title" placeholder="Título" required>
+      <input type="text" name="category" placeholder="Categoría" required>
+      <input type="text" name="author" placeholder="Autor" required>
+      <button type="submit">Publicar</button>
+      <button type="button" onclick="hideNewTopic()">Cerrar</button>
+    </form>
+  </div>
+</body>
+</html>

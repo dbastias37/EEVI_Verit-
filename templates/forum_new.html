@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nuevo tema</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>Crear nuevo tema</h1>
+  <form action="/forum/new" method="post">
+    <input type="text" name="title" placeholder="Título" required>
+    <input type="text" name="category" placeholder="Categoría" required>
+    <input type="text" name="author" placeholder="Autor" required>
+    <button type="submit">Publicar</button>
+  </form>
+</body>
+</html>
