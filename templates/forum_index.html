@@ -3,17 +3,8 @@
 {% block title %}VFORUM{% endblock %}
 
 {% block content %}
+<h1 class="section-title">VFORUM</h1>
 <div class="forum-container">
-  <aside class="sidebar">
-    <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
-    <div class="categories">
-      <div class="cat-card">Audio</div>
-      <div class="cat-card">Video</div>
-      <div class="cat-card">Foley</div>
-      <div class="cat-card">Consultoría</div>
-      <div class="cat-card">General</div>
-    </div>
-  </aside>
   <section class="topics">
     {% for t in topics %}
     <div class="topic-card">
@@ -25,5 +16,22 @@
     </div>
     {% endfor %}
   </section>
+  <aside class="forum-categories">
+    <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
+    {% for cat in categories %}
+    <a href="/forum?category={{ cat }}" class="category-link">{{ cat }}</a>
+    {% endfor %}
+    <div class="recent-topics">
+      <h3>Últimas de cada categoría</h3>
+      <ul>
+        {% for topic in recent_topics %}
+        <li>
+          <a href="/forum/{{ topic.id }}">{{ topic.title }}</a>
+          <span class="date">{{ topic.created_at }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
 </div>
 {% endblock %}

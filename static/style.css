@@ -36,13 +36,15 @@ body {
 }
 
 .nav-link {
+  background: none;
   color: #fff;
   text-decoration: none;
   text-transform: uppercase;
   position: relative;
-  padding: 4px 0;
+  padding: 0.25rem 0;
   font-size: 1.1rem;
   margin-left: 1.5rem;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .underline-animated::after {
@@ -60,6 +62,11 @@ body {
   width: 100%;
 }
 
+.nav-link:hover {
+  transform: scale(1.1);
+  color: #ccc;
+}
+
 .packs {
   display: flex;
   flex-wrap: wrap;
@@ -74,11 +81,19 @@ body {
   padding: 1rem;
   width: 280px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
 .pack-card img {
   width: 100%;
   border-radius: 8px;
+}
+
+.pack-card.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .services {
@@ -95,11 +110,19 @@ body {
   padding: 1rem;
   width: 280px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
 .service-card img {
   width: 100%;
   border-radius: 8px;
+}
+
+.service-card.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 a, button {
@@ -196,7 +219,7 @@ a:hover, button:hover {
   text-align: center;
 }
 
-.sidebar {
+.forum-categories {
   width: 25%;
 }
 
@@ -250,7 +273,7 @@ a:hover, button:hover {
   .forum-container {
     flex-direction: column;
   }
-  .sidebar, .topics, .posts {
+  .forum-categories, .topics, .posts {
     width: 100%;
   }
 }
@@ -297,4 +320,61 @@ a:hover, button:hover {
   padding: 1rem;
   margin: 2rem auto;
   max-width: 800px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+.latest-topic-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.category-link {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: #fff;
+  margin: 0.5rem 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.category-link:hover {
+  transform: scale(1.05);
+  color: #ccc;
+}
+
+.recent-topics {
+  background: #111;
+  padding: 1rem;
+  border-radius: 5px;
+}
+.recent-topics li {
+  border-bottom: 1px solid #333;
+  padding: 0.5rem 0;
+}
+.recent-topics li:last-child {
+  border-bottom: none;
+}
+.recent-topics a {
+  color: #fff;
+  text-decoration: none;
+}
+.recent-topics a:hover {
+  text-decoration: underline;
+}
+.recent-topics .date {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: 0.5rem;
+}
+
+.read-more {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: #5C5CFF;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.read-more:hover {
+  text-decoration: underline;
+  color: #ccc;
 }

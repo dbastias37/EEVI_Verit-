@@ -11,18 +11,22 @@
   {% if latest %}
   <div class="latest-topic-card">
     <h3><a href="/forum/{{ latest.id }}">{{ latest.title }}</a></h3>
-    <p>{{ latest.category }}</p>
-    <p>{{ latest.created_at }}</p>
+    <p>{{ latest.description[:300] }}{% if latest.description and latest.description|length > 300 %}...{% endif %}</p>
+    <a href="/forum/{{ latest.id }}" class="read-more">Leer más →</a>
+    <p class="date">{{ latest.created_at }}</p>
   </div>
   {% else %}
   <div class="latest-topic-card">
     <h3>Ejemplo de tema</h3>
     <p>Participa en nuestro foro VFORUM</p>
+    <a href="/forum" class="read-more">Leer más →</a>
   </div>
   {% endif %}
 
   <h2 class="section-title">Packs de sonidos</h2>
-  <p class="section-desc">Colecciones reales de foley, ambientes y film-score para tus proyectos audiovisuales.</p>
+  <p class="section-desc">Cada pack surge de grabaciones en terreno y seleccionadas cuidadosamente.</p>
+  <p class="section-desc">Queremos que conectes con la esencia de cada lugar sin recurrir a sonidos genéricos.</p>
+  <p class="section-desc">Nuestra misión es que tus proyectos respiren autenticidad en cada detalle.</p>
   <div class="packs">
     {% for pack in packs %}
     <div class="pack-card">
@@ -36,7 +40,8 @@
   </div>
 
   <h2 class="section-title">Servicios Audiovisuales</h2>
-  <p class="section-desc">Grabación, edición, consultoría y producción a medida.</p>
+  <p class="section-desc">Nos involucramos desde la captura hasta la postproducción para que tu mensaje suene real.</p>
+  <p class="section-desc">Creemos que imagen y sonido deben nacer juntos y crecer en armonía.</p>
   <div class="services">
     {% for s in services %}
     <div class="service-card">
@@ -49,5 +54,6 @@
   </div>
 
   <h2 class="section-title">Por Qué Hacemos Esto</h2>
-  <p class="section-desc">En Verité creemos en el poder del sonido real y la experiencia humana para transformar historias.</p>
+  <p class="section-desc">La industria olvida la humanidad detrás de cada proyecto. Nosotros grabamos lo que vivimos.</p>
+  <p class="section-desc">Con cada servicio y pack apoyamos a creadores reales que buscan contar historias honestas.</p>
 {% endblock %}
