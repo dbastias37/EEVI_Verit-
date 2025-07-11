@@ -378,3 +378,79 @@ a:hover, button:hover {
   text-decoration: underline;
   color: #ccc;
 }
+
+body.forum-new {
+  font-family: 'Inter', sans-serif;
+  background: #000;
+  color: #fff;
+  padding: 3rem;
+}
+.forum-new header {
+  margin-bottom: 2rem;
+}
+.forum-new .logo {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+}
+.forum-new .nav-link {
+  font-size: 1.6rem;
+}
+.forum-new main {
+  background: #111;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.forum-new h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+.forum-new label,
+.forum-new input,
+.forum-new select,
+.forum-new textarea,
+.forum-new button {
+  font-size: 1.6rem;
+  line-height: 1.2;
+}
+.forum-new textarea {
+  min-height: 200px;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+.forum-new select,
+.forum-new input[type="text"] {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+.forum-new button.publish {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.forum-new button.publish:hover {
+  background: #fff;
+  color: #000;
+}
+.forum-new main > *.visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}

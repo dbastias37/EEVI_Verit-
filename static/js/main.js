@@ -11,3 +11,18 @@ document.addEventListener('DOMContentLoaded', () => {
     observer.observe(el);
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const reveal = (el) => {
+    el.classList.add('visible');
+  };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) reveal(e.target); });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.forum-new main > *').forEach(el => {
+    el.style.opacity = 0;
+    el.style.transform = 'translateY(20px)';
+    observer.observe(el);
+  });
+});

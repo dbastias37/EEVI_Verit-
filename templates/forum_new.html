@@ -1,18 +1,53 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nuevo tema</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="forum-new">
+  <header>
+    <a href="{{ url_for('home') }}" class="logo">VERITÉ</a>
+    <nav>
+      <a href="{{ url_for('home') }}" class="nav-link">INICIO</a>
+      <a href="{{ url_for('packs') }}" class="nav-link">PACKS</a>
+      <a href="{{ url_for('services') }}" class="nav-link">SERVICES</a>
+      <a href="{{ url_for('forum') }}" class="nav-link">VFORUM</a>
+      <a href="{{ url_for('academy') }}" class="nav-link">ACADEMIA</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Crear nuevo tema</h1>
+    <section class="forum-intro">
+      <p>
+        Bienvenido a VFORUM, la comunidad oficial de Verité donde creadores audiovisuales colaboran para resolver problemas técnicos,
+        compartir consejos y avanzar juntos en cada proyecto. Aquí encontrarás expertos en grabación en vivo, postproducción, diseño sonoro,
+        workflows DAW, field recording, edición de vídeo y más. Nuestra misión es crear un espacio dinámico y respetuoso donde cada duda
+        se transforme en conocimiento compartido. ¡Participa, aprende y aporta tu experiencia para fortalecer el ecosistema EEVI!
+      </p>
+    </section>
+    <form action="{{ url_for('forum_new') }}" method="post" enctype="multipart/form-data">
+      <label for="title">Título</label>
+      <input id="title" name="title" type="text" required>
 
-{% block title %}Nuevo tema{% endblock %}
+      <label for="category">Categoría</label>
+      <select id="category" name="category" required>
+        {% for cat in categories %}
+          <option value="{{ cat }}">{{ cat }}</option>
+        {% endfor %}
+      </select>
 
-{% block content %}
-<h1>Crear nuevo tema</h1>
-<form action="/forum/new" method="post" enctype="multipart/form-data">
-  <input type="text" name="title" placeholder="Título" required>
-  <select name="category" required>
-    {% for c in categories %}
-    <option value="{{ c }}">{{ c }}</option>
-    {% endfor %}
-  </select>
-  <textarea name="description" placeholder="Descripción" required></textarea>
-  <input type="file" name="image" accept="image/*">
-  <button type="submit">Publicar</button>
-</form>
-{% endblock %}
+      <label for="description">Descripción</label>
+      <textarea id="description" name="description" required></textarea>
+
+      <label for="file">Adjuntar imagen (opcional)</label>
+      <input id="file" name="file" type="file" accept="image/*">
+
+      <button type="submit" class="publish">Publicar</button>
+    </form>
+  </main>
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
