@@ -5,7 +5,7 @@ body {
   background-color: #000;
   color: #fff;
   margin: 0;
-  padding-top: 60px; /* espacio para header fijo */
+  padding-top: 120px;
 }
 
 .header {
@@ -13,7 +13,7 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 120px;
   background: #000;
   display: flex;
   align-items: center;
@@ -24,8 +24,8 @@ body {
 
 .logo-text {
   font-weight: 900;
-  font-size: 2rem;
-  letter-spacing: 2px;
+  font-size: 4rem;
+  letter-spacing: 0.5rem;
   color: #fff;
   font-family: 'Montserrat', sans-serif;
 }
@@ -41,7 +41,8 @@ body {
   text-transform: uppercase;
   position: relative;
   padding: 4px 0;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
+  margin-left: 1.5rem;
 }
 
 .underline-animated::after {
@@ -59,7 +60,6 @@ body {
   width: 100%;
 }
 
-/* listado de packs */
 .packs {
   display: flex;
   flex-wrap: wrap;
@@ -81,7 +81,6 @@ body {
   border-radius: 8px;
 }
 
-/* servicios */
 .services {
   display: flex;
   flex-wrap: wrap;
@@ -118,7 +117,6 @@ a:hover, button:hover {
   background-color: #999;
 }
 
-/* detalle de pack */
 .pack-detail {
   display: flex;
   justify-content: center;
@@ -181,7 +179,6 @@ a:hover, button:hover {
   }
 }
 
-/* ===== VFORUM ===== */
 .forum-container {
   display: flex;
   gap: 2rem;
@@ -203,6 +200,18 @@ a:hover, button:hover {
   width: 25%;
 }
 
+.categories {
+  display: grid;
+  gap: .5rem;
+}
+
+.cat-card {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: .5rem 1rem;
+  text-align: center;
+}
 
 .topics, .posts {
   width: 70%;
@@ -217,7 +226,6 @@ a:hover, button:hover {
   padding: 1rem;
   margin-bottom: 1rem;
 }
-
 
 .topic-card h3 {
   font-family: 'Inter', sans-serif;

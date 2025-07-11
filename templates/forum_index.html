@@ -6,13 +6,13 @@
 <div class="forum-container">
   <aside class="sidebar">
     <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
-    <ul>
-      <li>Audio</li>
-      <li>Video</li>
-      <li>Foley</li>
-      <li>Consultoría</li>
-      <li>General</li>
-    </ul>
+    <div class="categories">
+      <div class="cat-card">Audio</div>
+      <div class="cat-card">Video</div>
+      <div class="cat-card">Foley</div>
+      <div class="cat-card">Consultoría</div>
+      <div class="cat-card">General</div>
+    </div>
   </aside>
   <section class="topics">
     {% for t in topics %}
