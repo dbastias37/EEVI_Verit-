@@ -86,3 +86,5 @@ Con cada paso de la bestia, nacen nuevas sendas para quienes nos siguen.
 """
 
 🔧 Ajustado header a 120px de altura y mejorada interfaz de VFORUM sin viñetas — manteniendo la estética brutalista de EEVI.
+
+✨ Home renovado con Hero, “Qué es Verité”, último tema dinámico, Packs y Services integrados; categorías VFORUM fijas y limpieza de formulario.

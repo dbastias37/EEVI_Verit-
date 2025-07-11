@@ -4,14 +4,50 @@
 
 {% block content %}
   <section class="hero">
-    <h1 class="hero-title">Bienvenido a EEVI Verité</h1>
-    <p>Descubre nuestro ecosistema de herramientas y recursos para la creación audiovisual.</p>
-    <div class="hero-links">
-      <a href="{{ url_for('packs') }}" class="btn">PACKS</a>
-      <a href="{{ url_for('services') }}" class="btn">SERVICES</a>
-      <a href="{{ url_for('forum') }}" class="btn">VFORUM</a>
-      <a href="{{ url_for('academia') }}" class="btn">ACADEMIA</a>
-    </div>
+    <h1>CONTENIDO AUDIOVISUAL DE ALTA CALIDAD</h1>
+    <p>Qué es Verité: ecosistema audiovisual real, grabaciones foley, film-score y educación práctica sin IA.</p>
   </section>
-{% endblock %}
 
+  {% if latest %}
+  <div class="latest-topic-card">
+    <h3><a href="/forum/{{ latest.id }}">{{ latest.title }}</a></h3>
+    <p>{{ latest.category }}</p>
+    <p>{{ latest.created_at }}</p>
+  </div>
+  {% else %}
+  <div class="latest-topic-card">
+    <h3>Ejemplo de tema</h3>
+    <p>Participa en nuestro foro VFORUM</p>
+  </div>
+  {% endif %}
+
+  <h2 class="section-title">Packs de sonidos</h2>
+  <p class="section-desc">Colecciones reales de foley, ambientes y film-score para tus proyectos audiovisuales.</p>
+  <div class="packs">
+    {% for pack in packs %}
+    <div class="pack-card">
+      <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
+      <h2>{{ pack.titulo }}</h2>
+      <p>{{ pack.descripcion }}</p>
+      <p><strong>Precio:</strong> {{ pack.precio }}</p>
+      <a href="/pack/{{ pack.id }}">Ver detalles</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="section-title">Servicios Audiovisuales</h2>
+  <p class="section-desc">Grabación, edición, consultoría y producción a medida.</p>
+  <div class="services">
+    {% for s in services %}
+    <div class="service-card">
+      <img src="{{ s.imagen }}" alt="{{ s.titulo }}">
+      <h2>{{ s.titulo }}</h2>
+      <p>{{ s.descripcion }}</p>
+      <a href="{{ s.enlace }}">Ver detalle</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="section-title">Por Qué Hacemos Esto</h2>
+  <p class="section-desc">En Verité creemos en el poder del sonido real y la experiencia humana para transformar historias.</p>
+{% endblock %}
