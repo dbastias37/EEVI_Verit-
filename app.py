@@ -71,7 +71,7 @@ def ver_pack(pack_id):
 
 # ---------------- VFORUM ----------------
 @app.route('/forum')
-def forum_index():
+def forum():
     topics = forum_db.get_topics()
     return render_template('forum_index.html', topics=topics)
 
