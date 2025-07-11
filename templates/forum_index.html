@@ -5,6 +5,30 @@
 {% block content %}
 <h1 class="section-title">VFORUM</h1>
 <div class="forum-container">
+  <section class="motivation-carousel">
+    <div class="motivation-track">
+      <div class="motivation-card visible">Compartir conocimiento nos hace más fuertes</div>
+      <div class="motivation-card">La cooperación impulsa la creatividad</div>
+      <div class="motivation-card">Cada duda es una oportunidad de aprender</div>
+      <div class="motivation-card">El apoyo mutuo enriquece nuestras obras</div>
+      <div class="motivation-card">Escuchar inspira nuevas visiones</div>
+      <div class="motivation-card">Participa y verás crecer tus ideas</div>
+      <div class="motivation-card">Juntos construimos soluciones reales</div>
+      <div class="motivation-card">El intercambio alimenta la innovación</div>
+      <div class="motivation-card">Preguntar es el primer paso al saber</div>
+      <div class="motivation-card">La comunidad impulsa el progreso</div>
+      <div class="motivation-card">Tus aportes inspiran a otros creadores</div>
+      <div class="motivation-card">Comparte tu experiencia, suma valor</div>
+      <div class="motivation-card">La curiosidad mantiene viva la pasión</div>
+      <div class="motivation-card">El respeto fortalece nuestros lazos</div>
+      <div class="motivation-card">Ayudar también es crecer</div>
+      <div class="motivation-card">Involucrarse abre nuevas puertas</div>
+      <div class="motivation-card">Celebremos cada logro colectivo</div>
+      <div class="motivation-card">Aprender juntos nos hace invencibles</div>
+      <div class="motivation-card">La constancia convierte sueños en realidad</div>
+      <div class="motivation-card">Confía en tu voz para guiar el cambio</div>
+    </div>
+  </section>
   <section class="topics">
     {% for t in topics %}
     <div class="topic-card">
@@ -16,12 +40,8 @@
     </div>
     {% endfor %}
   </section>
-  <aside class="forum-categories">
-    <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
-    {% for cat in categories %}
-    <a href="/forum?category={{ cat }}" class="category-link">{{ cat }}</a>
-    {% endfor %}
-    <div class="recent-topics">
+  <section class="latest-categories-main">
+    <div class="latest-categories">
       <h3>Últimas de cada categoría</h3>
       <ul>
         {% for topic in recent_topics %}
@@ -32,6 +52,12 @@
         {% endfor %}
       </ul>
     </div>
+  </section>
+  <aside class="forum-categories">
+    <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
+    {% for cat in categories %}
+    <a href="/forum?category={{ cat }}" class="category-link">{{ cat }}</a>
+    {% endfor %}
   </aside>
 </div>
 {% endblock %}
