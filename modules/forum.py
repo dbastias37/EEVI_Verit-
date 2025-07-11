@@ -6,16 +6,16 @@ DB_PATH = 'db/forum.db'
 
 # Categorías disponibles para los temas del foro
 CATEGORIES = [
-    "Grabación en vivo",
-    "Diseño de sonido",
+    "Grabación de video",
+    "Diseño sonoro",
     "Foley y efectos",
+    "Edición de vídeo",
     "Edición de audio",
     "Mezcla y masterización",
-    "Micrófonos y equipos",
-    "Flujo de trabajo DAW",
-    "Ambientes y field recording",
-    "Postproducción de vídeo",
-    "Plugins y herramientas",
+    "Micrófonos y equipamiento",
+    "Plugins y Softwares",
+    "Recording",
+    "Postproducción",
     "Formatos y codecs",
     "Consejos de producción",
 ]
@@ -35,6 +35,15 @@ def get_topics() -> List[Dict]:
     rows = cur.fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+def get_latest_topic() -> Dict:
+    conn = _connect()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM topics ORDER BY created_at DESC LIMIT 1')
+    row = cur.fetchone()
+    conn.close()
+    return dict(row) if row else None
 
 def get_topic(topic_id: int) -> Dict:
     conn = _connect()

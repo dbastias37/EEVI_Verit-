@@ -44,9 +44,16 @@ def cargar_packs():
     with open('packs/info.json', 'r', encoding='utf-8') as f:
         return json.load(f)
 
+# Datos de servicios
+def cargar_services():
+    with open('services/info.json', 'r', encoding='utf-8') as f:
+        return json.load(f)
+
 @app.route('/')
 def home():
-    return render_template('home.html')
+    latest = forum_db.get_latest_topic()
+    return render_template('home.html', latest=latest,
+                           packs=cargar_packs(), services=cargar_services())
 
 @app.route('/packs')
 def packs():
@@ -55,7 +62,8 @@ def packs():
 
 @app.route('/services')
 def services():
-    return render_template('services.html')
+    services = cargar_services()
+    return render_template('services.html', services=services)
 
 @app.route('/academia')
 def academia():

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "grabacion-campo",
+    "titulo": "Grabación de campo",
+    "descripcion": "Captura profesional en exteriores.",
+    "imagen": "/static/img/pack1.jpg",
+    "enlace": "#"
+  },
+  {
+    "id": "consultoria-audiovisual",
+    "titulo": "Consultoría audiovisual",
+    "descripcion": "Asesoría para tus proyectos de sonido.",
+    "imagen": "/static/img/pack2.jpg",
+    "enlace": "#"
+  },
+  {
+    "id": "edicion-avanzada",
+    "titulo": "Edición avanzada",
+    "descripcion": "Mejoramos y limpiamos tu audio.",
+    "imagen": "/static/img/pack3.jpg",
+    "enlace": "#"
+  }
+]

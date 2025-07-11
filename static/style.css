@@ -254,3 +254,47 @@ a:hover, button:hover {
     width: 100%;
   }
 }
+
+.hero h1 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: clamp(3rem,6vw,6rem);
+  text-align: center;
+  color: #fff;
+  margin: 2rem 0;
+}
+
+.hero p {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 1.2rem;
+  color: #ccc;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem,5vw,5rem);
+  text-align: center;
+  color: #fff;
+  margin: 2rem 0 1rem;
+}
+
+.section-desc {
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 1.2rem;
+  color: #ccc;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.latest-topic-card {
+  background: #111;
+  border: 1px solid #333;
+  padding: 1rem;
+  margin: 2rem auto;
+  max-width: 800px;
+}
