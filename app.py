@@ -13,8 +13,8 @@ def init_db():
         CREATE TABLE topics (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT,
-          category TEXT,
-          author TEXT,
+          description TEXT,
+          image TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           votes INTEGER DEFAULT 0
         );
@@ -58,7 +58,7 @@ def ver_pack(pack_id):
 
 # ---------------- VFORUM ----------------
 @app.route('/forum')
-def forum():
+def forum_index():
     topics = forum_db.get_topics()
     return render_template('forum_index.html', topics=topics)
 
@@ -66,16 +66,18 @@ def forum():
 def forum_new():
     if request.method == 'POST':
         title = request.form['title']
-        category = request.form['category']
-        author = request.form['author']
-        forum_db.create_topic(title, category, author)
+        description = request.form.get('description')
+        image_file = request.files.get('image')
+        image = image_file.filename if image_file and image_file.filename else None
+        forum_db.create_topic(title, description, image)
         return redirect('/forum')
     return render_template('forum_new.html')
 
-@app.route('/forum/<int:topic_id>')
-def forum_topic(topic_id):
-    posts = forum_db.get_posts(topic_id)
-    return render_template('forum_topic.html', posts=posts, topic_id=topic_id)
+@app.route('/forum/<int:id>')
+def forum_topic(id):
+    topic = forum_db.get_topic(id)
+    posts = forum_db.get_posts(id)
+    return render_template('forum_topic.html', topic=topic, posts=posts)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):

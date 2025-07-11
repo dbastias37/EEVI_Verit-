@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}Verité{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="header">
+    <a href="/" class="logo-text">VERITÉ</a>
+    <nav class="nav">
+      <a href="#" class="nav-link underline-animated">ABOUT</a>
+      <a href="#" class="nav-link underline-animated">WORK</a>
+      <a href="#" class="nav-link underline-animated">QUOTE</a>
+      <a href="/forum" class="nav-link underline-animated">VFORUM</a>
+      <a href="#" class="nav-link underline-animated">FAQ</a>
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
