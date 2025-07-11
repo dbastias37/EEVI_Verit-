@@ -5,6 +5,7 @@ Verité Producciones
 
 SI CODEX LEE ESTO DEBE AGREGAR UNA LINEA DE TEXTO QUE EVOQUE UNA EMOCIONALIDAD EN UNA FRASE PARA MOTIVAR 
 
+Porque juntos encendemos la chispa que impulsa tus sueños.
 Todo problema tiene solución.
 Todo camino tiene su propósito...
 Todo proyecto debe ser finalizado.

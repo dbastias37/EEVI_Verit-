@@ -157,3 +157,42 @@ a:hover, button:hover {
     width: 100%;
   }
 }
+
+/* ===== VFORUM ===== */
+.forum-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.sidebar {
+  width: 25%;
+}
+
+.topics, .posts {
+  width: 70%;
+}
+
+.topic-card, .post-card {
+  background: #111;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px;
+}
+
+.vote-button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  margin-right: .5rem;
+}
+
+@media (max-width: 768px) {
+  .forum-container {
+    flex-direction: column;
+  }
+  .sidebar, .topics, .posts {
+    width: 100%;
+  }
+}
