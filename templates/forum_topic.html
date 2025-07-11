@@ -5,17 +5,17 @@
 {% block content %}
 <div class="forum-container">
   <section class="posts">
-    <h1>{{ topic.title }}</h1>
+    <h1 class="topic-title">{{ topic.title }}</h1>
     <p>{{ topic.category }}</p>
     {% if topic.image %}
       <img src="{{ topic.image }}" alt="{{ topic.title }}">
     {% endif %}
-    <p>{{ topic.description }}</p>
+    <pre class="topic-description">{{ topic.description }}</pre>
 
-    {% for p in posts %}
+    {% for r in replies %}
     <div class="post-card">
-      <p>{{ p.author }} — {{ p.created_at }}</p>
-      <p>{{ p.content }}</p>
+      <p>{{ r.author }} — {{ r.created_at }}</p>
+      <p>{{ r.content }}</p>
     </div>
     {% endfor %}
 

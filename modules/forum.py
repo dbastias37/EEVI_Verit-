@@ -4,17 +4,17 @@ from typing import List, Dict
 
 DB_PATH = 'db/forum.db'
 
-# Categorías disponibles para los temas del foro
-CATEGORIES = [
-    "Grabación de video",
+# Categorías fijas para el foro
+FIXED_CATEGORIES = [
+    "Grabación en vivo",
     "Diseño sonoro",
     "Foley y efectos",
     "Edición de vídeo",
     "Edición de audio",
     "Mezcla y masterización",
     "Micrófonos y equipamiento",
-    "Plugins y Softwares",
-    "Recording",
+    "Workflows DAW y plugins",
+    "Ambientes y field recording",
     "Postproducción",
     "Formatos y codecs",
     "Consejos de producción",
@@ -22,7 +22,7 @@ CATEGORIES = [
 
 def get_categories() -> List[str]:
     """Devuelve la lista de categorías predefinidas."""
-    return CATEGORIES
+    return FIXED_CATEGORIES
 
 def _connect():
     return sqlite3.connect(DB_PATH)
@@ -80,8 +80,24 @@ def get_posts(topic_id: int) -> List[Dict]:
     conn.close()
     return [dict(row) for row in rows]
 
-def create_topic(title: str, category: str, description: str = None, image: str = None) -> int:
-    """Crea un nuevo tema en la tabla topics."""
+# Aliases utilizadas por la aplicación
+def get_all_topics() -> List[Dict]:
+    return get_topics()
+
+def get_topic_by_id(topic_id: int) -> Dict:
+    return get_topic(topic_id)
+
+def get_replies(topic_id: int) -> List[Dict]:
+    return get_posts(topic_id)
+
+def create_topic(form, files) -> int:
+    """Crea un nuevo tema en la tabla topics a partir de un formulario."""
+    title = form['title']
+    category = form['category']
+    description = form.get('description')
+    file = files.get('file')
+    image = file.filename if file and file.filename else None
+
     conn = _connect()
     cur = conn.cursor()
     cur.execute(

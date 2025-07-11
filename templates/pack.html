@@ -1,21 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>{{ pack.titulo }}</title>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-  <header class="header">
-    <div class="logo-text">VERITÉ</div>
-    <nav class="nav">
-      <a href="#" class="nav-link">ABOUT</a>
-      <a href="#" class="nav-link">WORK</a>
-      <a href="#" class="nav-link">QUOTE</a>
-      <a href="{{ url_for('forum') }}" class="nav-link">VFORUM</a>
-      <a href="#" class="nav-link">FAQ</a>
-    </nav>
-  </header>
+{% extends 'base.html' %}
+
+{% block title %}{{ pack.titulo }}{% endblock %}
+
+{% block content %}
   <main class="pack-detail">
     <div class="pack-image">
       <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
@@ -33,5 +20,4 @@
     </div>
   </main>
   <a href="/">← Volver</a>
-</body>
-</html>
+{% endblock %}
