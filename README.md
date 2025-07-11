@@ -84,3 +84,5 @@ No hay trackers. No hay plugins innecesarios. Todo está escrito con intención.
 El resto se revelará en la acción.
 Con cada paso de la bestia, nacen nuevas sendas para quienes nos siguen.
 """
+
+🔧 Ajustado header a 120px de altura y mejorada interfaz de VFORUM sin viñetas — manteniendo la estética brutalista de EEVI.
