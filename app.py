@@ -13,6 +13,7 @@ def init_db():
         CREATE TABLE topics (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT,
+          category TEXT,
           description TEXT,
           image TEXT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,6 +49,14 @@ def index():
     packs = cargar_packs()
     return render_template('index.html', packs=packs)
 
+@app.route('/services')
+def services():
+    return render_template('services.html')
+
+@app.route('/academia')
+def academia():
+    return render_template('proximamente.html')
+
 @app.route('/pack/<string:pack_id>')
 def ver_pack(pack_id):
     packs = cargar_packs()
@@ -66,12 +75,14 @@ def forum_index():
 def forum_new():
     if request.method == 'POST':
         title = request.form['title']
+        category = request.form['category']
         description = request.form.get('description')
         image_file = request.files.get('image')
         image = image_file.filename if image_file and image_file.filename else None
-        forum_db.create_topic(title, description, image)
+        forum_db.create_topic(title, category, description, image)
         return redirect('/forum')
-    return render_template('forum_new.html')
+    categories = forum_db.get_categories()
+    return render_template('forum_new.html', categories=categories)
 
 @app.route('/forum/<int:id>')
 def forum_topic(id):

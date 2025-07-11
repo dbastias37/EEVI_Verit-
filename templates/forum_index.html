@@ -17,7 +17,8 @@
   <section class="topics">
     {% for t in topics %}
     <div class="topic-card">
-      <h2><a href="/forum/{{ t.id }}">{{ t.title }}</a></h2>
+      <h3><a href="/forum/{{ t.id }}">{{ t.title }}</a></h3>
+      <p>{{ t.category }}</p>
       <p>{{ t.created_at }}</p>
       <p>Votos: {{ t.votes }}</p>
       {% if t.description %}<p>{{ t.description }}</p>{% endif %}

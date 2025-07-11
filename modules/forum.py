@@ -4,6 +4,26 @@ from typing import List, Dict
 
 DB_PATH = 'db/forum.db'
 
+# Categorías disponibles para los temas del foro
+CATEGORIES = [
+    "Grabación en vivo",
+    "Diseño de sonido",
+    "Foley y efectos",
+    "Edición de audio",
+    "Mezcla y masterización",
+    "Micrófonos y equipos",
+    "Flujo de trabajo DAW",
+    "Ambientes y field recording",
+    "Postproducción de vídeo",
+    "Plugins y herramientas",
+    "Formatos y codecs",
+    "Consejos de producción",
+]
+
+def get_categories() -> List[str]:
+    """Devuelve la lista de categorías predefinidas."""
+    return CATEGORIES
+
 def _connect():
     return sqlite3.connect(DB_PATH)
 
@@ -34,13 +54,13 @@ def get_posts(topic_id: int) -> List[Dict]:
     conn.close()
     return [dict(row) for row in rows]
 
-def create_topic(title: str, description: str = None, image: str = None) -> int:
+def create_topic(title: str, category: str, description: str = None, image: str = None) -> int:
     """Crea un nuevo tema en la tabla topics."""
     conn = _connect()
     cur = conn.cursor()
     cur.execute(
-        'INSERT INTO topics (title, description, image, created_at) VALUES (?,?,?,?)',
-        (title, description, image, datetime.utcnow())
+        'INSERT INTO topics (title, category, description, image, created_at) VALUES (?,?,?,?,?)',
+        (title, category, description, image, datetime.utcnow())
     )
     conn.commit()
     topic_id = cur.lastrowid
