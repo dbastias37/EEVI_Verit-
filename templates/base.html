@@ -9,13 +9,13 @@
 </head>
 <body>
   <header class="header">
-    <a href="/" class="logo-text">VERITÉ</a>
+    <a href="{{ url_for('home') }}" class="logo-text">VERITÉ</a>
     <nav class="nav">
-      <a href="/" class="nav-link underline-animated">INICIO</a>
-      <a href="/" class="nav-link underline-animated">PACKS</a>
-      <a href="/services" class="nav-link underline-animated">SERVICES</a>
-      <a href="/forum" class="nav-link underline-animated">VFORUM</a>
-      <a href="/academia" class="nav-link underline-animated">ACADEMIA</a>
+      <a href="{{ url_for('home') }}" class="nav-link underline-animated">INICIO</a>
+      <a href="{{ url_for('packs') }}" class="nav-link underline-animated">PACKS</a>
+      <a href="{{ url_for('services') }}" class="nav-link underline-animated">SERVICES</a>
+      <a href="{{ url_for('forum') }}" class="nav-link underline-animated">VFORUM</a>
+      <a href="{{ url_for('academia') }}" class="nav-link underline-animated">ACADEMIA</a>
     </nav>
   </header>
 
