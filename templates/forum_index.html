@@ -30,28 +30,19 @@
     </div>
   </section>
   <section class="topics">
-    {% for t in topics %}
-    <div class="topic-card">
-      <h3><a href="/forum/{{ t.id }}">{{ t.title }}</a></h3>
-      <p>{{ t.category }}</p>
-      <p>{{ t.created_at }}</p>
-      <p>Votos: {{ t.votes }}</p>
-      {% if t.description %}<p>{{ t.description }}</p>{% endif %}
+    {% for cat in categories %}
+    <div class="latest-topic-group">
+      <h3>{{ cat }}</h3>
+      {% for t in topics if t.category==cat %}
+        {% if loop.index0 < 3 %}
+        <div class="latest-topic-card">
+          <h4><a href="/forum/{{ t.id }}">{{ t.title }}</a></h4>
+          <p>{{ t.description[:150] }}{% if t.description and t.description|length>150 %}...{% endif %}</p>
+        </div>
+        {% endif %}
+      {% endfor %}
     </div>
     {% endfor %}
-  </section>
-  <section class="latest-categories-main">
-    <div class="latest-categories">
-      <h3>Últimas de cada categoría</h3>
-      <ul>
-        {% for topic in recent_topics %}
-        <li>
-          <a href="/forum/{{ topic.id }}">{{ topic.title }}</a>
-          <span class="date">{{ topic.created_at }}</span>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
   </section>
   <aside class="forum-categories">
     <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>

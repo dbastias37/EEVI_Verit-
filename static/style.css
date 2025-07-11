@@ -24,7 +24,7 @@ body {
 
 .logo-text {
   font-weight: 900;
-  font-size: 4rem;
+  font-size: 8rem;
   letter-spacing: 0.5rem;
   color: #fff;
   font-family: 'Montserrat', sans-serif;
@@ -284,7 +284,7 @@ a:hover, button:hover {
   }
 }
 
-.hero h1 {
+.hero-title {
   font-family: 'Inter', sans-serif;
   font-weight: 900;
   font-size: clamp(3rem,6vw,6rem);
@@ -333,6 +333,33 @@ a:hover, button:hover {
 .latest-topic-card.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.latest-topic-group {
+  margin-bottom: 2rem;
+}
+
+.forum-intro {
+  background: #111;
+  color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  transition: background 0.3s ease;
+}
+
+.topic-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 2.5rem;
+}
+
+.topic-description {
+  background: #111;
+  padding: 1rem;
+  border-radius: 8px;
+  color: #fff;
+  overflow-x: auto;
 }
 
 .category-link {
@@ -467,9 +494,9 @@ body.forum-new {
 
 .motivation-carousel {
   position: relative;
-  height: 200px;
+  height: 250px;
   overflow: hidden;
-  width: 20%;
+  width: 25%;
 }
 
 .motivation-track {

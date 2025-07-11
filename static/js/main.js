@@ -36,6 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
       cards[idx].classList.remove('visible');
       idx = (idx + 1) % cards.length;
       cards[idx].classList.add('visible');
-    }, 5000);
+    }, 8000);
   }
 });

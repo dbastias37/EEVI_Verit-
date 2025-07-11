@@ -40,38 +40,37 @@ from modules import forum as forum_db
 app = Flask(__name__)
 
 # Ruta para cargar info de los packs
-def cargar_packs():
+def get_all_packs():
     with open('packs/info.json', 'r', encoding='utf-8') as f:
         return json.load(f)
 
 # Datos de servicios
-def cargar_services():
+def get_all_services():
     with open('services/info.json', 'r', encoding='utf-8') as f:
         return json.load(f)
 
 @app.route('/')
 def home():
     latest = forum_db.get_latest_topic()
-    return render_template('home.html', latest=latest,
-                           packs=cargar_packs(), services=cargar_services())
+    packs = get_all_packs()
+    services = get_all_services()
+    return render_template('home.html', latest=latest, packs=packs, services=services)
 
 @app.route('/packs')
 def packs():
-    packs = cargar_packs()
-    return render_template('packs.html', packs=packs)
+    return render_template('packs.html', packs=get_all_packs())
 
 @app.route('/services')
 def services():
-    services = cargar_services()
-    return render_template('services.html', services=services)
+    return render_template('services.html', services=get_all_services())
 
-@app.route('/academia')
-def academia():
-    return render_template('proximamente.html')
+@app.route('/academy')
+def academy():
+    return render_template('academy.html')
 
 @app.route('/pack/<string:pack_id>')
 def ver_pack(pack_id):
-    packs = cargar_packs()
+    packs = get_all_packs()
     pack = next((p for p in packs if p['id'] == pack_id), None)
     if pack:
         return render_template('pack.html', pack=pack)
@@ -79,31 +78,21 @@ def ver_pack(pack_id):
 
 # ---------------- VFORUM ----------------
 @app.route('/forum')
-def forum():
-    category = request.args.get('category')
-    topics = forum_db.get_topics(category)
-    categories = forum_db.get_categories()
-    recent = forum_db.get_recent_topics(category)
-    return render_template('forum_index.html', topics=topics, categories=categories, recent_topics=recent, current_category=category)
+def forum_index():
+    return render_template('forum_index.html', categories=forum_db.get_categories(), topics=forum_db.get_all_topics())
 
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():
     if request.method == 'POST':
-        title = request.form['title']
-        category = request.form['category']
-        description = request.form.get('description')
-        image_file = request.files.get('image')
-        image = image_file.filename if image_file and image_file.filename else None
-        forum_db.create_topic(title, category, description, image)
-        return redirect('/forum')
-    categories = forum_db.get_categories()
-    return render_template('forum_new.html', categories=categories)
+        forum_db.create_topic(request.form, request.files)
+        return redirect(url_for('forum_index'))
+    return render_template('forum_new.html', categories=forum_db.get_categories())
 
 @app.route('/forum/<int:id>')
 def forum_topic(id):
-    topic = forum_db.get_topic(id)
-    posts = forum_db.get_posts(id)
-    return render_template('forum_topic.html', topic=topic, posts=posts)
+    topic = forum_db.get_topic_by_id(id)
+    replies = forum_db.get_replies(id)
+    return render_template('forum_topic.html', topic=topic, replies=replies)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):
