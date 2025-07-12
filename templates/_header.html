@@ -1,5 +1,9 @@
 <header class="header">
-  <a href="{{ url_for('home') }}" class="logo">VERITÉ</a>
+  {% if request.endpoint != 'home' %}
+    <a href="{{ url_for('home') }}" class="logo">VERITÉ</a>
+  {% else %}
+    <span class="logo">VERITÉ</span>
+  {% endif %}
   <nav class="nav">
     <a href="{{ url_for('home') }}" class="nav-link">INICIO</a>
     <a href="{{ url_for('packs') }}" class="nav-link">PACKS</a>
