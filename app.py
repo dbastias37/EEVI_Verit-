@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask import Flask, render_template, request, redirect, jsonify, url_for, session
 import json
 import os
 import sqlite3
@@ -38,6 +38,7 @@ init_db()
 from modules import forum as forum_db
 
 app = Flask(__name__)
+app.secret_key = 'demo-secret-key'
 
 # Ruta para cargar info de los packs
 def get_all_packs():
@@ -80,12 +81,18 @@ def ver_pack(pack_id):
 @app.route('/forum')
 def forum_index():
     latest = forum_db.get_latest_topic()
+    existing = forum_db.get_topics()
+    if not existing and not session.get('forum_redirected'):
+        session['forum_redirected'] = True
+        return redirect(url_for('forum_new'))
+    topics, demo_mode = forum_db.get_all_topics()
     return render_template(
         'forum_index.html',
         categories=forum_db.get_categories(),
-        topics=forum_db.get_all_topics(),
+        topics=topics,
         quotes=forum_db.INSPIRATIONAL_QUOTES,
         demo_id=latest['id'] if latest else 0,
+        demo_mode=demo_mode,
     )
 
 @app.route('/forum/new', methods=['GET', 'POST'])

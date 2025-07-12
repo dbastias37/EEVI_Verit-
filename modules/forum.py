@@ -1,6 +1,6 @@
 import sqlite3
 from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 DB_PATH = 'db/forum.db'
 
@@ -125,8 +125,31 @@ def get_posts(topic_id: int) -> List[Dict]:
     return [dict(row) for row in rows]
 
 # Aliases utilizadas por la aplicación
-def get_all_topics() -> List[Dict]:
-    return get_topics()
+def get_all_topics() -> Tuple[List[Dict], bool]:
+    """Devuelve todos los temas y si se trata de un modo demo."""
+    topics = get_topics()
+    if not topics:
+        topics = [{
+            'id': None,
+            'title': 'Título demo',
+            'body': 'Este es un contenido de demostración. ¡Crea tu primer tema!',
+            'category': None,
+            'created_at': datetime.utcnow(),
+            'likes': 0,
+            'responses': [{
+                'author': 'Demo',
+                'body': 'Respuesta demo',
+                'created_at': datetime.utcnow()
+            }]
+        }]
+        demo_mode = True
+    else:
+        demo_mode = False
+        # Adjuntar votos y respuestas reales
+        for t in topics:
+            t['likes'] = t.get('votes', 0)
+            t['responses'] = get_posts(t['id'])
+    return topics, demo_mode
 
 def get_topic_by_id(topic_id: int) -> Dict:
     return get_topic(topic_id)

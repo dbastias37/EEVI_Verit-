@@ -13,13 +13,24 @@
   <p class="new-topic-desc">Comparte tu duda o aporte con la comunidad.</p>
   <a href="{{ url_for('forum_new') }}" class="btn-new-topic">+ Nuevo Tema</a>
 </div>
-<div class="latest-topic-card">
-  <h3>Demo: Problema con mezcla de audio</h3>
-  <p>Ejemplo de cómo se ve el último tema si aún no hay publicaciones reales.</p>
-  <form action="{{ url_for('delete_topic', id=demo_id) }}" method="post">
-    <input type="hidden" name="password" value="borrar1">
-    <button type="submit" class="btn-delete">Eliminar</button>
-  </form>
+<div class="topic-list">
+  {% for topic in topics %}
+  <div class="topic-card">
+    <h3>{{ topic.title }}</h3>
+    <p>{{ topic.body or topic.description }}</p>
+    <div class="post-actions">
+      <button class="action-btn like">👍 <span>{{ topic.likes }}</span></button>
+      <button class="action-btn comment">💬 {{ topic.responses|length }}</button>
+      <button class="action-btn share">🔗 Compartir</button>
+    </div>
+    {% if topic.id %}
+    <form action="{{ url_for('delete_topic', id=topic.id) }}" method="post">
+      <input type="hidden" name="password" value="borrar1">
+      <button type="submit" class="btn-delete">Eliminar</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
 
