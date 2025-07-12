@@ -97,3 +97,4 @@ Cada paso deja un eco que resuena en la arena digital.
 🔧 Ajustado logo, hero y descripción. Reubicada sección ‘Último tema’ para mejorar la jerarquía visual.
 La criatura crece y cada mejora afianza su presencia entre los nómadas digitales.
 Sus huellas digitales marcan el rumbo de nuevas alianzas creativas.
+El camino despejado permite contemplar nuevas constelaciones de colaboraci\u00f3n.
