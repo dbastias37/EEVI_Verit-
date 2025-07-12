@@ -3,16 +3,9 @@
 {% block title %}Nuevo tema{% endblock %}
 
 {% block content %}
-<div class="forum-new">
-  <h1>Crear nuevo tema</h1>
-  <section class="forum-intro">
-    <p>
-      Bienvenido a VFORUM, la comunidad oficial de Verité donde creadores audiovisuales colaboran para resolver problemas técnicos,
-      compartir consejos y avanzar juntos en cada proyecto. Aquí encontrarás expertos en grabación en vivo, postproducción, diseño sonoro,
-      workflows DAW, field recording, edición de vídeo y más. Nuestra misión es crear un espacio dinámico y respetuoso donde cada duda
-      se transforme en conocimiento compartido. ¡Participa, aprende y aporta tu experiencia para fortalecer el ecosistema EEVI!
-    </p>
-  </section>
+<div class="forum-new-container">
+  <h1 class="section-title">CREAR NUEVO TEMA</h1>
+  <p class="section-desc">Comparte tu reto audiovisual y colabora con la comunidad VFORUM.</p>
   <form action="{{ url_for('forum_new') }}" method="post" enctype="multipart/form-data">
     <label for="title">Título</label>
     <input id="title" name="title" type="text" required>
