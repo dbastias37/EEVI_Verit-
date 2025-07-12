@@ -235,6 +235,12 @@ a:hover, button:hover {
   text-align: center;
 }
 
+.new-topic-container {
+  margin: 2rem auto;
+  max-width: 600px;
+  text-align: center;
+}
+
 .forum-categories {
   width: 25%;
 }

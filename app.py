@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, url_for
 import json
 import os
 import sqlite3
@@ -84,8 +84,8 @@ def forum_index():
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():
     if request.method == 'POST':
-        forum_db.create_topic(request.form, request.files)
-        return redirect(url_for('forum_index'))
+        topic_id = forum_db.create_topic(request.form, request.files)
+        return redirect(url_for('forum_topic', id=topic_id))
     return render_template('forum_new.html', categories=forum_db.get_categories())
 
 @app.route('/forum/<int:id>')
