@@ -3,31 +3,22 @@
 {% block title %}VFORUM{% endblock %}
 
 {% block content %}
-<h1 class="section-title">VFORUM</h1>
-<div class="new-topic-container">
-  <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
+<h1 class="vforum-title">VFORUM</h1>
+<section class="quote-slider">
+  {% for q in quotes %}
+  <div class="quote-slide">{{ q }}</div>
+  {% endfor %}
+</section>
+<div class="vforum-controls" style="text-align:center; margin:2rem 0;">
+  <button class="btn-new-topic">+ Nuevo Tema</button>
 </div>
-<div class="forum-container">
-  <section class="quote-slider">
-    {% for q in quotes %}
-    <div class="quote-slide">{{ q }}</div>
-    {% endfor %}
-  </section>
-  <section class="topics">
-    {% for cat in categories %}
-    <div class="latest-topic-group">
-      <h3>{{ cat }}</h3>
-      {% for t in topics if t.category==cat %}
-        {% if loop.index0 < 3 %}
-        <div class="latest-topic-card">
-          <h4><a href="/forum/{{ t.id }}">{{ t.title }}</a></h4>
-          <p>{{ t.description[:150] }}{% if t.description and t.description|length>150 %}...{% endif %}</p>
-        </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-    {% endfor %}
-  </section>
+<div class="latest-topic-card">
+  <h3>Demo: Problema con mezcla de audio</h3>
+  <p>Ejemplo de cómo se ve el último tema si aún no hay publicaciones reales.</p>
+  <form action="{{ url_for('delete_topic', id=demo_id) }}" method="post">
+    <input type="hidden" name="password" value="borrar1">
+    <button type="submit" class="btn-delete">Eliminar</button>
+  </form>
 </div>
 {% endblock %}
 

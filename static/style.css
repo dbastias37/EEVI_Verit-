@@ -523,24 +523,61 @@ body.forum-new {
   z-index: 2;
 }
 .quote-slider {
-  position: relative;
   width: 100%;
   height: auto;
+  background: #111;
+  border-radius: 1rem;
+  padding: 2rem;
   overflow: hidden;
-  padding: 2rem 0;
 }
 .quote-slide {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
-  color: #fff;
-  font-family: 'Montserrat', sans-serif;
-  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-  line-height: 1.4;
-  text-align: center;
+  animation: fadeInOut 16s infinite;
 }
-.quote-slide.active {
-  opacity: 1;
+@keyframes fadeInOut {
+  0%, 20% { opacity: 0; }
+  25%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.vforum-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 4rem;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.vforum-subtitle {
+  font-size: 1.6rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ccc;
+}
+
+.latest-topic-card {
+  background: #111;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin: 1rem auto;
+  max-width: 800px;
+  color: #fff;
+}
+.latest-topic-card h3 {
+  margin-bottom: 0.5rem;
+}
+.latest-topic-card p {
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+.btn-delete {
+  background: transparent;
+  border: 1px solid #f55;
+  color: #f55;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.btn-delete:hover {
+  background: #f55;
+  color: #000;
 }
