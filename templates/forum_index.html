@@ -4,6 +4,9 @@
 
 {% block content %}
 <h1 class="section-title">VFORUM</h1>
+<div class="new-topic-container">
+  <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
+</div>
 <div class="forum-container">
   <section class="motivation-carousel">
     <div class="motivation-track">
@@ -44,11 +47,5 @@
     </div>
     {% endfor %}
   </section>
-  <aside class="forum-categories">
-    <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
-    {% for cat in categories %}
-    <a href="/forum?category={{ cat }}" class="category-link">{{ cat }}</a>
-    {% endfor %}
-  </aside>
 </div>
 {% endblock %}
