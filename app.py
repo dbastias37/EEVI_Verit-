@@ -79,11 +79,13 @@ def ver_pack(pack_id):
 # ---------------- VFORUM ----------------
 @app.route('/forum')
 def forum_index():
+    latest = forum_db.get_latest_topic()
     return render_template(
         'forum_index.html',
         categories=forum_db.get_categories(),
         topics=forum_db.get_all_topics(),
         quotes=forum_db.INSPIRATIONAL_QUOTES,
+        demo_id=latest['id'] if latest else 0,
     )
 
 @app.route('/forum/new', methods=['GET', 'POST'])
@@ -117,6 +119,12 @@ def vote_post():
     data = request.get_json()
     forum_db.vote_post(data['id'], data['direction'])
     return jsonify(success=True)
+
+@app.route('/forum/<int:id>/delete', methods=['POST'])
+def delete_topic(id):
+    if request.form.get('password') == 'borrar1':
+        forum_db.delete_topic_by_id(id)
+    return redirect(url_for('forum_index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

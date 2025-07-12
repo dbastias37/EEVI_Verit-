@@ -182,3 +182,12 @@ def vote_post(post_id: int, direction: str) -> None:
         cur.execute('UPDATE posts SET votes = votes - 1 WHERE id=?', (post_id,))
     conn.commit()
     conn.close()
+
+def delete_topic_by_id(topic_id: int) -> None:
+    """Elimina un tema y sus posts asociados."""
+    conn = _connect()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM posts WHERE topic_id=?', (topic_id,))
+    cur.execute('DELETE FROM topics WHERE id=?', (topic_id,))
+    conn.commit()
+    conn.close()
