@@ -546,3 +546,58 @@ body.forum-new {
 .motivation-card.visible {
   opacity: 1;
 }
+
+/* Contenedor para el efecto tira de cine */
+.hero-title-container {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+/* Pseudo-elementos que dibujan la tira de cine arriba y abajo */
+.hero-title-container::before,
+.hero-title-container::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: repeating-linear-gradient(
+    to right,
+    #fff 0,
+    #fff 40px,
+    transparent 40px,
+    transparent 80px
+  );
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* Tira superior: desplazamiento suave hacia la izquierda */
+.hero-title-container::before {
+  top: 0;
+  animation: filmRoll 6s linear infinite;
+}
+
+/* Tira inferior: desplazamiento inverso */
+.hero-title-container::after {
+  bottom: 0;
+  animation: filmRollReverse 6s linear infinite;
+}
+
+/* Keyframes para animación de la tira de cine */
+@keyframes filmRoll {
+  from { background-position:   0   0; }
+  to   { background-position: -80px 0; }
+}
+@keyframes filmRollReverse {
+  from { background-position: -80px 0; }
+  to   { background-position:   0   0; }
+}
+
+/* Asegúrate de que tu contenido héroe esté por encima de las tiras */
+.hero-title-container h1,
+.hero-title-container p {
+  position: relative;
+  z-index: 2;
+}

@@ -95,3 +95,4 @@ Con cada paso de la bestia, nacen nuevas sendas para quienes nos siguen.
 Cada paso deja un eco que resuena en la arena digital.
 ✨ feat: Home renovado, VFORUM completo con UI unificada, categorías fijas, carrusel inspiracional y ruta /academy.
 🔧 Ajustado logo, hero y descripción. Reubicada sección ‘Último tema’ para mejorar la jerarquía visual.
+La criatura crece y cada mejora afianza su presencia entre los nómadas digitales.
