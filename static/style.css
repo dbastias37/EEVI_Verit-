@@ -506,6 +506,47 @@ body.forum-new {
   transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
+.forum-new-container {
+  margin: 2rem auto;
+  max-width: 800px;
+  text-align: center;
+}
+.forum-new-container form {
+  background: #111;
+  padding: 2rem;
+  border-radius: 8px;
+  display: grid;
+  gap: 1rem;
+}
+.forum-new-container input[type="text"],
+.forum-new-container select,
+.forum-new-container textarea {
+  width: 100%;
+  padding: 0.8rem;
+  background: #222;
+  color: #fff;
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+.forum-new-container textarea {
+  min-height: 200px;
+}
+.forum-new-container button.publish {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.forum-new-container button.publish:hover {
+  background: #fff;
+  color: #000;
+}
+
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
