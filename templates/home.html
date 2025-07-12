@@ -3,30 +3,11 @@
 {% block title %}Inicio Verité{% endblock %}
 
 {% block content %}
-  <section class="hero">
-    <h1 class="hero-title">CONTENIDO AUDIOVISUAL DE ALTA CALIDAD</h1>
-  </section>
-
-  <section class="que-es">
-    <p>
-      Verité es un ecosistema que promueve la creación audiovisual sin atajos ni filtros artificiales. Registramos cada sonido y cada imagen en terreno, explorando diversas técnicas de grabación en vivo, diseño sonoro y postproducción para ofrecerte resultados auténticos. Nuestro objetivo es que comprendas el proceso completo, desde la captura hasta la edición final, para que puedas integrarlo en tus proyectos sin depender de librerías genéricas. Creemos que el conocimiento compartido fortalece a la comunidad y nos motiva a seguir experimentando y creciendo juntos.
-    </p>
-  </section>
-
-  {% if latest %}
-  <div class="latest-topic-card">
-    <h3><a href="/forum/{{ latest.id }}">{{ latest.title }}</a></h3>
-    <p>{{ latest.description[:300] }}{% if latest.description and latest.description|length > 300 %}...{% endif %}</p>
-    <a href="/forum/{{ latest.id }}" class="read-more">Leer más →</a>
-    <p class="date">{{ latest.created_at }}</p>
+  <div class="hero-container">
+    <h1>CONTENIDO AUDIOVISUAL DE ALTA CALIDAD</h1>
+    <p>Verité promueve la creación audiovisual auténtica. Registramos sonidos e imágenes reales para impulsar tus proyectos sin artificios.</p>
   </div>
-  {% else %}
-  <div class="latest-topic-card">
-    <h3>Ejemplo de tema</h3>
-    <p>Participa en nuestro foro VFORUM</p>
-    <a href="/forum" class="read-more">Leer más →</a>
-  </div>
-  {% endif %}
+
 
   <h2 class="section-title">Packs de sonidos</h2>
   <p class="section-desc">Cada pack surge de grabaciones en terreno y seleccionadas cuidadosamente.</p>
@@ -61,4 +42,13 @@
   <h2 class="section-title">Por Qué Hacemos Esto</h2>
   <p class="section-desc">La industria olvida la humanidad detrás de cada proyecto. Nosotros grabamos lo que vivimos.</p>
   <p class="section-desc">Con cada servicio y pack apoyamos a creadores reales que buscan contar historias honestas.</p>
+
+  <section id="latest-topic">
+    {% if latest %}
+      <h3><a href="/forum/{{ latest.id }}">{{ latest.title }}</a></h3>
+      <p>{{ latest.description[:300] }}{% if latest.description and latest.description|length > 300 %}...{% endif %}</p>
+      <a href="/forum/{{ latest.id }}" class="read-more">Leer más →</a>
+      <p class="date">{{ latest.created_at }}</p>
+    {% endif %}
+  </section>
 {% endblock %}

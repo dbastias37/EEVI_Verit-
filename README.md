@@ -11,6 +11,7 @@ Todo camino tiene su propósito...
 Todo proyecto debe ser finalizado.
 Sigue adelante. Te ayudaremos a avanzar.
 Cada huella es testimonio de lo aprendido en el camino.
+El polvo que levantamos revela sendas inéditas.
 
 ──────────────────────────────────────────────
 
@@ -93,3 +94,4 @@ Con cada paso de la bestia, nacen nuevas sendas para quienes nos siguen.
 ✨ Movida sección “Últimas categorías” al centro + carrusel motivacional audiovisual
 Cada paso deja un eco que resuena en la arena digital.
 ✨ feat: Home renovado, VFORUM completo con UI unificada, categorías fijas, carrusel inspiracional y ruta /academy.
+🔧 Ajustado logo, hero y descripción. Reubicada sección ‘Último tema’ para mejorar la jerarquía visual.
