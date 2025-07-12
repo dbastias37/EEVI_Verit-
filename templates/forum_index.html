@@ -9,8 +9,9 @@
   <div class="quote-slide">{{ q }}</div>
   {% endfor %}
 </section>
-<div class="vforum-controls" style="text-align:center; margin:2rem 0;">
-  <button class="btn-new-topic">+ Nuevo Tema</button>
+<div class="vforum-controls">
+  <p class="new-topic-desc">Comparte tu duda o aporte con la comunidad.</p>
+  <a href="{{ url_for('forum_new') }}" class="btn-new-topic">+ Nuevo Tema</a>
 </div>
 <div class="latest-topic-card">
   <h3>Demo: Problema con mezcla de audio</h3>
