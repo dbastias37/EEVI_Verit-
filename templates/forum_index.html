@@ -8,15 +8,10 @@
   <a href="/forum/new" class="btn-new">+ Nuevo Tema</a>
 </div>
 <div class="forum-container">
-  <section class="motivation-carousel">
-    <div class="motivation-track">
-      {% for q in quotes %}
-      <div class="motivation-card">{{ q }}</div>
-      {% endfor %}
-      {% for q in quotes %}
-      <div class="motivation-card">{{ q }}</div>
-      {% endfor %}
-    </div>
+  <section class="quote-slider">
+    {% for q in quotes %}
+    <div class="quote-slide">{{ q }}</div>
+    {% endfor %}
   </section>
   <section class="topics">
     {% for cat in categories %}
@@ -34,4 +29,8 @@
     {% endfor %}
   </section>
 </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/forum.js"></script>
 {% endblock %}
