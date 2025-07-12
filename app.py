@@ -79,7 +79,12 @@ def ver_pack(pack_id):
 # ---------------- VFORUM ----------------
 @app.route('/forum')
 def forum_index():
-    return render_template('forum_index.html', categories=forum_db.get_categories(), topics=forum_db.get_all_topics())
+    return render_template(
+        'forum_index.html',
+        categories=forum_db.get_categories(),
+        topics=forum_db.get_all_topics(),
+        quotes=forum_db.INSPIRATIONAL_QUOTES,
+    )
 
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():

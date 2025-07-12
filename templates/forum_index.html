@@ -10,26 +10,12 @@
 <div class="forum-container">
   <section class="motivation-carousel">
     <div class="motivation-track">
-      <div class="motivation-card visible">Compartir conocimiento nos hace más fuertes</div>
-      <div class="motivation-card">La cooperación impulsa la creatividad</div>
-      <div class="motivation-card">Cada duda es una oportunidad de aprender</div>
-      <div class="motivation-card">El apoyo mutuo enriquece nuestras obras</div>
-      <div class="motivation-card">Escuchar inspira nuevas visiones</div>
-      <div class="motivation-card">Participa y verás crecer tus ideas</div>
-      <div class="motivation-card">Juntos construimos soluciones reales</div>
-      <div class="motivation-card">El intercambio alimenta la innovación</div>
-      <div class="motivation-card">Preguntar es el primer paso al saber</div>
-      <div class="motivation-card">La comunidad impulsa el progreso</div>
-      <div class="motivation-card">Tus aportes inspiran a otros creadores</div>
-      <div class="motivation-card">Comparte tu experiencia, suma valor</div>
-      <div class="motivation-card">La curiosidad mantiene viva la pasión</div>
-      <div class="motivation-card">El respeto fortalece nuestros lazos</div>
-      <div class="motivation-card">Ayudar también es crecer</div>
-      <div class="motivation-card">Involucrarse abre nuevas puertas</div>
-      <div class="motivation-card">Celebremos cada logro colectivo</div>
-      <div class="motivation-card">Aprender juntos nos hace invencibles</div>
-      <div class="motivation-card">La constancia convierte sueños en realidad</div>
-      <div class="motivation-card">Confía en tu voz para guiar el cambio</div>
+      {% for q in quotes %}
+      <div class="motivation-card">{{ q }}</div>
+      {% endfor %}
+      {% for q in quotes %}
+      <div class="motivation-card">{{ q }}</div>
+      {% endfor %}
     </div>
   </section>
   <section class="topics">

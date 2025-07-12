@@ -27,15 +27,3 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const cards = document.querySelectorAll('.motivation-card');
-  if (cards.length) {
-    let idx = 0;
-    cards[idx].classList.add('visible');
-    setInterval(() => {
-      cards[idx].classList.remove('visible');
-      idx = (idx + 1) % cards.length;
-      cards[idx].classList.add('visible');
-    }, 8000);
-  }
-});

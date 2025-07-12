@@ -20,6 +20,50 @@ FIXED_CATEGORIES = [
     "Consejos de producción",
 ]
 
+# 40 frases motivacionales para el carrusel de VFORUM
+INSPIRATIONAL_QUOTES = [
+    "La cooperación impulsa la creatividad",
+    "Compartir ideas expande el universo de posibilidades",
+    "La innovación nace del diálogo entre mentes",
+    "Confía en la sincronicidad para hallar nuevas rutas",
+    "La imaginación florece en la mirada del otro",
+    "Cada colaborador aporta una chispa distinta",
+    "Los proyectos en conjunto revelan paisajes inauditos",
+    "Explorar tus límites abre espacios de comunión",
+    "Al escuchar surge la verdadera visión",
+    "El trabajo cooperativo transforma la realidad",
+    "Cambia de perspectiva y encuentra nuevas armonías",
+    "Conectar es la fuerza que mueve el arte",
+    "Una red de creadores es un cosmos en expansión",
+    "Cada conversación puede ser un portal de inspiración",
+    "Celebra la diferencia para alcanzar la unidad",
+    "Lo imposible se moldea con la voluntad colectiva",
+    "Juntos trazamos caminos donde antes solo hubo niebla",
+    "Entretejer voces nos hace trascender el ego",
+    "El arte florece cuando se nutre de múltiples miradas",
+    "Una idea compartida germina en mil formas",
+    "Suma tu energía al pulso creativo de la comunidad",
+    "Atrévete a construir más allá de tus límites",
+    "La colaboración es un viaje hacia lo desconocido",
+    "Cuando nos reunimos, el tiempo cobra otro ritmo",
+    "El aprendizaje mutuo amplifica nuestras visiones",
+    "Abrirse a la crítica es abrazar la mejora",
+    "La curiosidad conjunta disuelve fronteras",
+    "Vibra con tus pares y nace una nueva frecuencia",
+    "El cambio surge de la conversación honesta",
+    "Lanza tus dudas al espacio compartido",
+    "Cada experiencia sumada dibuja un mapa mayor",
+    "La coherencia colectiva crea realidades palpables",
+    "Exploramos lo desconocido con valentía compartida",
+    "Transformamos el caos en oportunidades creativas",
+    "Comparte y observa cómo brota la sinergia",
+    "Resonamos con el ritmo de la colaboración continua",
+    "Tus pasos inspiran a quienes caminan a tu lado",
+    "La conexión sincera despierta potenciales ocultos",
+    "Colaborar es multiplicar la energía creativa",
+    "Construir juntos hace que cada proyecto sea único",
+]
+
 def get_categories() -> List[str]:
     """Devuelve la lista de categorías predefinidas."""
     return FIXED_CATEGORIES

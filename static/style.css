@@ -259,7 +259,7 @@ a:hover, button:hover {
 }
 
 .topics {
-  width: 60%;
+  width: 100%;
   display: grid;
   gap: 1rem;
 }
@@ -522,30 +522,31 @@ body.forum-new {
 
 .motivation-carousel {
   position: relative;
-  height: 250px;
   overflow: hidden;
-  width: 25%;
+  width: 100%;
+  margin: 1rem 0 2rem;
+  border: 1px solid #333;
+  border-radius: 12px;
+  background: #111;
 }
 
 .motivation-track {
-  position: relative;
-  height: 100%;
+  display: flex;
+  width: max-content;
+  animation: scrollQuotes 60s linear infinite;
 }
 
 .motivation-card {
-  position: absolute;
-  opacity: 0;
-  transition: opacity 1s ease;
-  width: 100%;
-  padding: 1rem;
-  background: #111;
+  flex: 0 0 auto;
+  padding: 1rem 2rem;
   color: #fff;
-  border-radius: 8px;
-  box-sizing: border-box;
+  white-space: nowrap;
+  font-size: 1rem;
 }
 
-.motivation-card.visible {
-  opacity: 1;
+@keyframes scrollQuotes {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 /* Contenedor héroe */
