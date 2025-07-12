@@ -241,22 +241,8 @@ a:hover, button:hover {
   text-align: center;
 }
 
-.forum-categories {
-  width: 25%;
-}
 
-.categories {
-  display: grid;
-  gap: .5rem;
-}
 
-.cat-card {
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 5px;
-  padding: .5rem 1rem;
-  text-align: center;
-}
 
 .topics {
   width: 100%;
@@ -301,7 +287,7 @@ a:hover, button:hover {
   .forum-container {
     flex-direction: column;
   }
-  .forum-categories, .topics, .posts, .motivation-carousel {
+  .topics, .posts {
     width: 100%;
   }
 }
@@ -520,31 +506,6 @@ body.forum-new {
   transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
-.motivation-carousel {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  margin: 1rem 0 2rem;
-  border: 1px solid #333;
-  border-radius: 12px;
-  background: #111;
-}
-
-.motivation-track {
-  display: flex;
-  width: max-content;
-  animation: scrollQuotes 60s linear infinite;
-}
-
-.motivation-card {
-  flex: 0 0 auto;
-  padding: 1rem 2rem;
-  color: #fff;
-  white-space: nowrap;
-  font-size: 1rem;
-}
-
-@keyframes scrollQuotes {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
@@ -560,4 +521,26 @@ body.forum-new {
 .hero-title-container p {
   position: relative;
   z-index: 2;
+}
+.quote-slider {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  padding: 2rem 0;
+}
+.quote-slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  line-height: 1.4;
+  text-align: center;
+}
+.quote-slide.active {
+  opacity: 1;
 }
