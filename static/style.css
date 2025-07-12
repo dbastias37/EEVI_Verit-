@@ -523,21 +523,27 @@ body.forum-new {
   z-index: 2;
 }
 .quote-slider {
-  width: 100%;
-  height: auto;
+  position: relative;
+  max-width: 800px;
+  margin: 2rem auto;
   background: #111;
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1rem 2rem;
   overflow: hidden;
+  min-height: 80px;
 }
 .quote-slide {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  text-align: center;
   opacity: 0;
-  animation: fadeInOut 16s infinite;
+  transition: opacity 1s ease-in-out;
 }
-@keyframes fadeInOut {
-  0%, 20% { opacity: 0; }
-  25%, 45% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+.quote-slide.active {
+  opacity: 1;
 }
 
 .vforum-title {
@@ -561,6 +567,31 @@ body.forum-new {
   margin: 1rem auto;
   max-width: 800px;
   color: #fff;
+}
+.vforum-controls {
+  background: #111;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin: 1rem auto;
+  max-width: 800px;
+  text-align: center;
+}
+.btn-new-topic {
+  display: inline-block;
+  background: #5C5CFF;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+.btn-new-topic:hover {
+  background: #7777ff;
+}
+.new-topic-desc {
+  margin-bottom: 1rem;
+  color: #ccc;
 }
 .latest-topic-card h3 {
   margin-bottom: 0.5rem;
