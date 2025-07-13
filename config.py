@@ -18,3 +18,9 @@ class TestingConfig(BaseConfig):
     DEBUG = True
     TESTING = True
     ENV = 'testing'
+
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestingConfig,
+}

@@ -1,3 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
+from utils.db import db
 
-db = SQLAlchemy()
+class TimestampMixin:
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())

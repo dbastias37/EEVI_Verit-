@@ -1,16 +1,12 @@
-from datetime import datetime
-from .base import db
-from .user import User, TimestampMixin
-from .project import Project
-
+from .base import db, TimestampMixin
 
 class Comment(db.Model, TimestampMixin):
-    __tablename__ = 'comment'
+    __tablename__ = 'comments'
 
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
+    text = db.Column(db.Text, nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    user = db.relationship(User, backref=db.backref('comments', lazy=True))
-    project = db.relationship(Project, backref=db.backref('comments', lazy=True))
+    project = db.relationship('Project', backref=db.backref('comments', lazy=True))
+    user = db.relationship('User', backref=db.backref('comments', lazy=True))
