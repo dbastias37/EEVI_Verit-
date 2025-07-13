@@ -5,7 +5,7 @@ from services.comment_manager import CommentManager
 from utils.security import login_required
 from utils.validators import is_valid_url
 
-client_bp = Blueprint('client_bp', __name__)
+client_bp = Blueprint('client', __name__)
 
 
 def _projects():
@@ -93,7 +93,7 @@ def dashboard_login():
         from app import check_password
         if check_password(email, password):
             session['user'] = email
-            return redirect(url_for('client_bp.dashboard'))
+            return redirect(url_for('client.dashboard'))
     return render_template('dashboard_login.html')
 
 
@@ -104,7 +104,7 @@ def signup():
         password = request.form['password']
         from app import create_user
         create_user(email, password)
-        return redirect(url_for('client_bp.verify', email=email))
+        return redirect(url_for('client.verify', email=email))
     return render_template('signup.html')
 
 
@@ -121,7 +121,7 @@ def verify():
         if row and row[0] == code:
             cur.execute('UPDATE users SET verified=1 WHERE email=?', (email,))
             conn.commit()
-            return redirect(url_for('client_bp.dashboard_login'))
+            return redirect(url_for('client.dashboard_login'))
         abort(401)
     return render_template('verify.html', email=email)
 
@@ -136,14 +136,14 @@ def upload_profile():
         file.save(path)
         from app import save_profile_pic
         save_profile_pic(user_email, '/' + path)
-    return redirect(url_for('client_bp.dashboard'))
+    return redirect(url_for('client.dashboard'))
 
 
 @client_bp.route('/dashboard/logout', methods=['POST'])
 @login_required
 def logout():
     session.pop('user', None)
-    return redirect(url_for('client_bp.dashboard'))
+    return redirect(url_for('client.dashboard'))
 
 
 @client_bp.route('/project/<int:project_id>/comments', methods=['GET', 'POST'])

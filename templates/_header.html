@@ -1,12 +1,12 @@
 <header class="header">
-  <a href="{{ url_for('home') }}" class="logo">VERITÉ</a>
+  <a href="{{ url_for('client.home') }}" class="logo">VERITÉ</a>
   <nav class="nav">
-    <a href="{{ url_for('home') }}" class="nav-link">INICIO</a>
-    <a href="{{ url_for('packs') }}" class="nav-link">PACKS</a>
-    <a href="{{ url_for('services') }}" class="nav-link">SERVICES</a>
+    <a href="{{ url_for('client.home') }}" class="nav-link">INICIO</a>
+    <a href="{{ url_for('client.packs') }}" class="nav-link">PACKS</a>
+    <a href="{{ url_for('client.services_page') }}" class="nav-link">SERVICES</a>
     <a href="{{ url_for('forum_index') }}" class="nav-link">VFORUM</a>
-    <a href="{{ url_for('academy') }}" class="nav-link">ACADEMIA</a>
-    <a href="{{ url_for('dashboard') }}" class="nav-link">DASHBOARD</a>
+    <a href="{{ url_for('client.academy') }}" class="nav-link">ACADEMIA</a>
+    <a href="{{ url_for('client.dashboard') }}" class="nav-link">DASHBOARD</a>
     <a href="{{ url_for('admin') }}" class="nav-link">ADMIN</a>
   </nav>
 </header>
