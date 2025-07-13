@@ -125,23 +125,3 @@ Cada proyecto se convierte en un oasis donde las visiones de nuestros clientes t
 Las huellas se multiplican, revelando senderos nunca antes explorados.
 Sus ecos perdurarán para guiar a los buscadores de inspiración.
 La sinfonía digital de la bestia nunca cesa, alentando a cada viajero a continuar.
-Sus pasos siguen creando melodías que se mezclan con la arena en constante transformación.
-Cada compás renueva la promesa de un futuro tejido por creadores unidos.
-Su sombra se extiende más allá del horizonte, señalando rutas aún por descubrir.
-Las dunas vibran con la expectación de los retos venideros.
-
-Con cada ajuste, el camino queda más marcado para los viajeros futuros.
-## SQL Migration
-
-Para añadir la proporción de video en la tabla `projects` ejecuta:
-
-```sql
-ALTER TABLE projects ADD COLUMN aspect_ratio REAL DEFAULT 1.7777;
-```
-
-Para añadir un nombre de usuario obligatorio a `users` ejecuta:
-
-```sql
-ALTER TABLE users ADD COLUMN username TEXT;
-```
-Luego corre `python scripts/add_username.py` para asignar valores temporales.

@@ -1,5 +1,4 @@
 from flask import (
-    send_from_directory,
     Flask,
     render_template,
     request,
@@ -11,8 +10,6 @@ from flask import (
     abort,
     g,
 )
-from functools import wraps
-from uuid import uuid4
 import json
 import re
 import os
@@ -20,14 +17,23 @@ import sqlite3
 import time
 import uuid
 from jinja2 import TemplateNotFound
-from models import (
-    get_db, close_db,
-    ProjectManager, CommentManager, PaymentValidator,
-    admin_required, project_access_required, rate_limit_payment
-)
+
 DB_PATH = 'db/forum.db'
 
 
+def get_db():
+    """Return a connection stored in ``g`` or create a new one."""
+    if 'db' not in g:
+        conn = sqlite3.connect(
+            DB_PATH,
+            timeout=10,
+            check_same_thread=False,
+        )
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        g.db = conn
+    return g.db
 
 
 def ensure_projects_schema(cursor):
@@ -45,8 +51,7 @@ def ensure_projects_schema(cursor):
             progress REAL DEFAULT 0,
             status TEXT DEFAULT 'active',
             script TEXT,
-            download TEXT,
-            aspect_ratio REAL DEFAULT 1.7777
+            download TEXT
         );
         """
     )
@@ -57,25 +62,16 @@ def ensure_projects_schema(cursor):
         "category": "TEXT",
         "video_url": "TEXT",
         "client_email": "TEXT",
-        "client_id": "INTEGER DEFAULT NULL",
         "active": "INTEGER DEFAULT 0",
         "paid": "INTEGER DEFAULT 0",
         "progress": "REAL DEFAULT 0",
         "status": "TEXT DEFAULT 'active'",
         "script": "TEXT",
         "download": "TEXT",
-        "aspect_ratio": "REAL DEFAULT 1.7777",
     }
     for col, ctype in required.items():
         if col not in existing:
             cursor.execute(f"ALTER TABLE projects ADD COLUMN {col} {ctype}")
-
-
-def set_default_aspect_ratio(cursor):
-    """Populate aspect_ratio with default value for existing rows."""
-    cursor.execute(
-        "UPDATE projects SET aspect_ratio=1.7777 WHERE aspect_ratio IS NULL OR aspect_ratio=0"
-    )
 
 
 def init_db():
@@ -88,34 +84,14 @@ def init_db():
     with open(schema_path, "r", encoding="utf-8") as f:
         cursor.executescript(f.read())
 
-    # Run migration for client_id if column is missing
-    cursor.execute("PRAGMA table_info(projects)")
-    cols = [r[1] for r in cursor.fetchall()]
-    if "client_id" not in cols:
-        cursor.executescript("ALTER TABLE projects ADD COLUMN client_id INTEGER DEFAULT NULL;")
-
     # Ensure slug column exists for older databases
     try:
         cursor.execute("SELECT slug FROM topics LIMIT 1")
     except sqlite3.OperationalError:
         cursor.execute("ALTER TABLE topics ADD COLUMN slug TEXT UNIQUE")
 
-    # Ensure author column exists for topics
-    try:
-        cursor.execute("SELECT author FROM topics LIMIT 1")
-    except sqlite3.OperationalError:
-        cursor.execute("ALTER TABLE topics ADD COLUMN author TEXT")
-
-    # Ensure username column exists for users
-    try:
-        cursor.execute("SELECT username FROM users LIMIT 1")
-    except sqlite3.OperationalError:
-        cursor.execute("ALTER TABLE users ADD COLUMN username TEXT")
-        cursor.execute("UPDATE users SET username='user_' || hex(randomblob(4)) WHERE username IS NULL OR username=''")
-
     # Ensure projects table and columns exist
     ensure_projects_schema(cursor)
-    set_default_aspect_ratio(cursor)
 
     conn.commit()
     conn.close()
@@ -138,8 +114,11 @@ forum_db.init_db()
 
 
 @app.teardown_appcontext
-def shutdown_db(exception=None):
-    close_db(exception)
+def close_db(exception=None):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
+
 
 def db_conn():
     conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
@@ -148,29 +127,7 @@ def db_conn():
     return conn
 
 
-def login_user(user):
-    session['user'] = user['email']
-    session['user_id'] = user['id']
-    session['username'] = user['username']
-
-
-def login_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if not session.get('user_id'):
-            temp_name = f"user_{uuid4().hex[:8]}"
-            user_id = create_user(None, None, temp_name, is_temp=True)
-            user = {'id': user_id, 'email': None, 'username': temp_name}
-            login_user(user)
-            session['temp'] = True
-            return redirect(url_for('choose_username'))
-        if session.get('temp'):
-            return redirect(url_for('choose_username'))
-        return f(*args, **kwargs)
-    return wrapper
-
-
-def create_user(email, password, username, is_admin=False, is_temp=False):
+def create_user(email, password, is_admin=False):
     # Use a fixed verification code for both admins and regular users
     code = "123456789"
     conn = get_db()
@@ -178,12 +135,11 @@ def create_user(email, password, username, is_admin=False, is_temp=False):
         try:
             with conn:
                 conn.execute(
-                    'INSERT INTO users (email, password, username, is_admin, verification_code, verified) VALUES (?,?,?,?,?,?)',
-                    (email, password, username, int(is_admin), code, int(is_temp)),
+                    'INSERT INTO users (email, password, is_admin, verification_code) VALUES (?,?,?,?)',
+                    (email, password, int(is_admin), code),
                 )
-            user_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
             print(f"Código de verificación para {email}: {code}")
-            return user_id
+            break
         except sqlite3.OperationalError as e:
             if 'database is locked' in str(e):
                 time.sleep(0.1)
@@ -194,7 +150,7 @@ def create_user(email, password, username, is_admin=False, is_temp=False):
 def get_user(email):
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id, email, username, profile_pic, verified, is_admin FROM users WHERE email=?', (email,))
+    cur.execute('SELECT id, email, profile_pic, verified, is_admin FROM users WHERE email=?', (email,))
     row = cur.fetchone()
     conn.close()
     if not row:
@@ -202,10 +158,9 @@ def get_user(email):
     return {
         'id': row[0],
         'email': row[1],
-        'username': row[2],
-        'profile_pic': row[3],
-        'verified': row[4],
-        'is_admin': row[5],
+        'profile_pic': row[2],
+        'verified': row[3],
+        'is_admin': row[4],
     }
 
 
@@ -229,13 +184,12 @@ def save_profile_pic(email, path):
 def get_projects_for_email(email):
     conn = db_conn()
     cur = conn.cursor()
-    query = 'SELECT id,title,progress,status,script,video_url,paid,download,aspect_ratio FROM projects WHERE client_email=?'
+    query = 'SELECT id,title,progress,status,script,video_url,paid,download FROM projects WHERE client_email=?'
     try:
         cur.execute(query, (email,))
     except sqlite3.OperationalError:
         # If columns are missing, try to fix schema and retry
         ensure_projects_schema(cur)
-        set_default_aspect_ratio(cur)
         conn.commit()
         cur.execute(query, (email,))
     rows = cur.fetchall()
@@ -251,7 +205,6 @@ def get_projects_for_email(email):
             'video_url': r[5],
             'paid': bool(r[6]),
             'download': r[7],
-            'aspect_ratio': r[8] if r[8] else 1.7777,
         })
     return projects
 
@@ -259,7 +212,7 @@ def get_projects_for_email(email):
 def get_all_projects():
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id,title,video_url,client_email,paid,aspect_ratio FROM projects')
+    cur.execute('SELECT id,title,video_url,client_email,paid FROM projects')
     rows = cur.fetchall()
     conn.close()
     result = []
@@ -270,7 +223,6 @@ def get_all_projects():
             'video_url': r[2],
             'client_email': r[3],
             'paid': bool(r[4]),
-            'aspect_ratio': r[5] if r[5] else 1.7777,
         })
     return result
 
@@ -353,24 +305,28 @@ def academy():
 
 @app.route('/dashboard')
 def dashboard():
-    user_id = session.get("user_id")
-    if not user_id:
-        return render_template("dashboard.html", user=None)
-    conn = get_db()
-    user = conn.execute("SELECT id,email,username,profile_pic FROM users WHERE id=?", (user_id,)).fetchone()
-    pm = ProjectManager()
-    projects = pm.list_by_client(user_id)
-    for p in projects:
-        p["embed_url"] = get_drive_preview_url(p.get("video_url", ""))
-    active = [p for p in projects if p.get("status") == "active"]
-    closed = [p for p in projects if p.get("status") == "closed"]
-    stats = {"active": len(active), "completed": len(closed), "scripts": len(projects), "pending": sum(1 for p in projects if not p.get("payment_validated"))}
+    user_email = session.get('user')
+    if not user_email:
+        return render_template('dashboard.html', user=None)
+
+    user = get_user(user_email)
+    projects = get_projects_for_email(user_email)
+    for proj in projects:
+        proj['embed_url'] = get_drive_preview_url(proj.get('video_url', ''))
+    active = [p for p in projects if p['status'] == 'active']
+    completed = [p for p in projects if p['status'] == 'completed']
+    stats = {
+        'active': len(active),
+        'completed': len(completed),
+        'scripts': len(projects),
+        'pending': sum(1 for p in projects if not p['paid'])
+    }
     return render_template(
-        "dashboard.html",
+        'dashboard.html',
         user=user,
         projects=projects,
         active_projects=active,
-        completed_projects=closed,
+        completed_projects=completed,
         stats=stats,
     )
 
@@ -381,8 +337,7 @@ def dashboard_login():
         email = request.form['email']
         password = request.form['password']
         if check_password(email, password):
-            user = get_user(email)
-            login_user(user)
+            session['user'] = email
             return redirect(url_for('dashboard'))
     return render_template('dashboard_login.html')
 
@@ -392,10 +347,9 @@ def signup():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        username = request.form['username']
         for _ in range(3):
             try:
-                create_user(email, password, username)
+                create_user(email, password)
                 return redirect(url_for('verify', email=email))
             except sqlite3.OperationalError as e:
                 if 'database is locked' in str(e):
@@ -441,29 +395,7 @@ def upload_profile():
 @app.route('/dashboard/logout', methods=['POST'])
 def logout():
     session.pop('user', None)
-    session.pop('user_id', None)
-    session.pop('username', None)
-    session.pop('temp', None)
     return redirect(url_for('dashboard'))
-
-
-@app.route('/choose-username', methods=['GET', 'POST'])
-def choose_username():
-    user_id = session.get('user_id')
-    if not user_id:
-        return redirect(url_for('signup'))
-    if request.method == 'POST':
-        username = request.form['username']
-        conn = get_db()
-        try:
-            with conn:
-                conn.execute('UPDATE users SET username=?, verified=1 WHERE id=?', (username, user_id))
-            session['username'] = username
-            session.pop('temp', None)
-            return redirect(url_for('forum_index'))
-        except sqlite3.IntegrityError:
-            flash('Nombre de usuario en uso', 'danger')
-    return render_template('choose_username.html')
 
 @app.route('/pack/<string:pack_id>')
 def ver_pack(pack_id):
@@ -505,55 +437,6 @@ def admin_signup():
     return render_template('admin_signup.html')
 
 
-@app.route('/admin/projects')
-@admin_required
-def admin_projects():
-    status = request.args.get('status')
-    client = request.args.get('client')
-    conn = get_db()
-    query = 'SELECT * FROM projects WHERE 1=1'
-    params = []
-    if status:
-        query += ' AND status=?'
-        params.append(status)
-    if client:
-        query += ' AND client_id=?'
-        params.append(client)
-    cur = conn.execute(query, params)
-    projects = [dict(r) for r in cur.fetchall()]
-    return render_template('admin/projects.html', projects=projects)
-
-@app.route('/admin/project/create', methods=['GET', 'POST'])
-@admin_required
-def admin_project_create():
-    if request.method == 'POST':
-        pm = ProjectManager()
-        pm.create(
-            request.form['title'],
-            request.form.get('category'),
-            request.form.get('video_url'),
-            int(request.form['client_id']),
-            request.form.get('priority', 'normal'),
-        )
-        return redirect(url_for('admin_projects'))
-    users = get_db().execute('SELECT id, email FROM users WHERE is_admin=0').fetchall()
-    return render_template('admin/project_create.html', users=users)
-
-@app.route('/admin/project/<int:project_id>')
-@admin_required
-def admin_project_detail(project_id):
-    conn = get_db()
-    proj = conn.execute('SELECT * FROM projects WHERE id=?', (project_id,)).fetchone()
-    comments = CommentManager().list_for_project(project_id)
-    attempts = conn.execute('SELECT * FROM payment_attempts WHERE project_id=? ORDER BY attempted_at DESC', (project_id,)).fetchall()
-    return render_template('admin/project_detail.html', project=proj, comments=comments, attempts=attempts)
-
-@app.route('/admin/project/<int:project_id>/status', methods=['POST'])
-@admin_required
-def admin_project_status(project_id):
-    new = (request.get_json() or {}).get('status')
-    ProjectManager().change_status(project_id, new)
-    return jsonify(success=True)
 @app.route('/admin/project/add', methods=['POST'])
 def admin_add_project():
     if not session.get('admin'):
@@ -597,41 +480,6 @@ def admin_delete_video(project_id):
     delete_video(project_id)
     return redirect(url_for('admin'))
 
-# Cliente y Admin mejorados
-@app.route('/project/<int:project_id>/comment', methods=['POST'])
-@project_access_required
-def add_comment(project_id):
-    data = request.get_json() or {}
-    CommentManager().add(project_id, session.get('user_id'), data.get('text', ''))
-    return jsonify(success=True)
-
-@app.route('/comment/<int:comment_id>/delete', methods=['DELETE'])
-@project_access_required
-def delete_comment(comment_id):
-    CommentManager().delete(comment_id, session.get('user_id'))
-    return jsonify(success=True)
-
-@app.route('/project/<int:project_id>/payment/validate', methods=['POST'])
-@project_access_required
-@rate_limit_payment()
-def validate_payment(project_id):
-    code = (request.get_json() or {}).get('code')
-    ok = PaymentValidator().validate(project_id, session.get('user_id'), code)
-    return jsonify(success=ok)
-
-@app.route('/project/<int:project_id>/download')
-@project_access_required
-def download_project(project_id):
-    cur = get_db().execute('SELECT download, payment_validated FROM projects WHERE id=?', (project_id,))
-    row = cur.fetchone()
-    if not row or not row['payment_validated']:
-        abort(403)
-    path = row['download']
-    if not path:
-        abort(404)
-    directory = os.path.dirname(path) or '.'
-    filename = os.path.basename(path)
-    return send_from_directory(directory, filename, as_attachment=True)
 # ---------------- VFORUM ----------------
 @app.route('/forum')
 def forum_index():
@@ -648,18 +496,16 @@ def forum_index():
     )
 
 @app.route('/forum/new', methods=['GET', 'POST'])
-@login_required
 def forum_new():
     if request.method == 'POST':
-        topic_id = forum_db.create_topic(request.form, request.files, session['username'])
+        topic_id = forum_db.create_topic(request.form, request.files)
         return redirect(url_for('forum_topic_view', topic_id=topic_id))
     return render_template('forum_new.html', categories=forum_db.get_categories())
 
 @app.route('/forum/tema/<int:topic_id>', methods=['GET', 'POST'])
-@login_required
 def forum_topic_view(topic_id):
     if request.method == 'POST':
-        author = session['username']
+        author = request.form['author']
         content = request.form['response']
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
@@ -677,9 +523,8 @@ def forum_topic_view(topic_id):
     return render_template('forum_topic.html', topic=topic, responses=responses)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
-@login_required
 def forum_reply(topic_id):
-    author = session['username']
+    author = request.form['author']
     content = request.form['content']
     forum_db.create_post(topic_id, author, content)
     return redirect(url_for('forum_topic_view', topic_id=topic_id))

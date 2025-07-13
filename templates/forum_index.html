@@ -17,7 +17,7 @@
   {% for topic in topics %}
   <div class="topic-card">
     <h3><a href="{{ url_for('forum_topic_view', topic_id=topic.id) }}">{{ topic.title }}</a></h3>
-    <p class="topic-meta">{{ topic.category or 'Sin categoría' }} • {{ topic.created_at }} • {{ topic.author }}</p>
+    <p class="topic-meta">{{ topic.category or 'Sin categoría' }} • {{ topic.created_at }} • {{ topic.author or 'Anónimo' }}</p>
     <p>{{ topic.description }}</p>
   </div>
   {% endfor %}
