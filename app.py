@@ -183,7 +183,7 @@ def forum_index():
 def forum_new():
     if request.method == 'POST':
         topic_id = forum_db.create_topic(request.form, request.files)
-        return redirect(url_for('forum_topic', topic_id=topic_id))
+        return redirect(url_for('forum_topic_view', topic_id=topic_id))
     return render_template('forum_new.html', categories=forum_db.get_categories())
 
 @app.route('/forum/<int:topic_id>')
@@ -197,12 +197,21 @@ def forum_topic(topic_id):
                            topic=topic,
                            responses=responses)
 
+@app.route('/forum/tema/<int:topic_id>')
+def forum_topic_view(topic_id):
+    topic = get_topic_by_id(topic_id)
+    if topic is None:
+        flash("\u26a0\ufe0f Tema no encontrado.", "warning")
+        return redirect(url_for('forum_index'))
+    responses = get_responses_for_topic(topic_id)
+    return render_template('forum_topic_view.html', topic=topic, responses=responses)
+
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):
     author = request.form['author']
     content = request.form['content']
     forum_db.create_post(topic_id, author, content)
-    return redirect(f'/forum/{topic_id}')
+    return redirect(url_for('forum_topic_view', topic_id=topic_id))
 
 @app.route('/forum/vote-topic', methods=['POST'])
 def vote_topic():
