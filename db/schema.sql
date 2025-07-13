@@ -1,0 +1,55 @@
+CREATE TABLE IF NOT EXISTS topics (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT,
+  slug TEXT UNIQUE,
+  category TEXT,
+  description TEXT,
+  image TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  votes INTEGER DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS posts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  topic_id INTEGER,
+  author TEXT,
+  content TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  votes INTEGER DEFAULT 0,
+  FOREIGN KEY(topic_id) REFERENCES topics(id)
+);
+CREATE TABLE IF NOT EXISTS responses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    topic_id INTEGER NOT NULL,
+    author TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(topic_id) REFERENCES topics(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS votes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    response_id INTEGER NOT NULL,
+    delta INTEGER NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(response_id) REFERENCES responses(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    password TEXT,
+    is_admin INTEGER DEFAULT 0,
+    verified INTEGER DEFAULT 0,
+    verification_code TEXT,
+    profile_pic TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT,
+    category TEXT,
+    video_url TEXT,
+    client_email TEXT,
+    active INTEGER DEFAULT 0,
+    paid INTEGER DEFAULT 0,
+    progress REAL DEFAULT 0,
+    download TEXT
+);

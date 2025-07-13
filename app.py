@@ -8,85 +8,21 @@ from jinja2 import TemplateNotFound
 DB_PATH = 'db/forum.db'
 
 def init_db():
-    new_db = not os.path.exists(DB_PATH)
+    """Initialize or upgrade the forum database using ``schema.sql``."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    if new_db:
-        cursor.executescript(
-            """
-        CREATE TABLE topics (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          title TEXT,
-          slug TEXT UNIQUE,
-          category TEXT,
-          description TEXT,
-          image TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          votes INTEGER DEFAULT 0
-        );
-        CREATE TABLE posts (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          topic_id INTEGER,
-          author TEXT,
-          content TEXT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          votes INTEGER DEFAULT 0,
-          FOREIGN KEY(topic_id) REFERENCES topics(id)
-        );
-        """
-        )
-    else:
-        # Asegurar columna slug para bases de datos antiguas
-        try:
-            cursor.execute("SELECT slug FROM topics LIMIT 1")
-        except sqlite3.OperationalError:
-            cursor.execute("ALTER TABLE topics ADD COLUMN slug TEXT UNIQUE")
 
-    # Asegurar tablas de respuestas y votos
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS responses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            topic_id INTEGER NOT NULL,
-            author TEXT NOT NULL,
-            content TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(topic_id) REFERENCES topics(id) ON DELETE CASCADE
-        );
-        """
-    )
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS votes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            response_id INTEGER NOT NULL,
-            delta INTEGER NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY(response_id) REFERENCES responses(id) ON DELETE CASCADE
-        );
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE,
-            password TEXT,
-            is_admin INTEGER DEFAULT 0,
-            verified INTEGER DEFAULT 0,
-            verification_code TEXT,
-            profile_pic TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-        CREATE TABLE IF NOT EXISTS projects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            category TEXT,
-            video_url TEXT,
-            client_email TEXT,
-            active INTEGER DEFAULT 0,
-            paid INTEGER DEFAULT 0,
-            progress REAL DEFAULT 0,
-            download TEXT
-        );
-        """
-    )
+    # Execute the entire schema in one call
+    schema_path = os.path.join(os.path.dirname(__file__), "db", "schema.sql")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        cursor.executescript(f.read())
+
+    # Ensure slug column exists for older databases
+    try:
+        cursor.execute("SELECT slug FROM topics LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE topics ADD COLUMN slug TEXT UNIQUE")
+
     conn.commit()
     conn.close()
 
