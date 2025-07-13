@@ -14,6 +14,7 @@
       <h4>{{ p.title }}</h4>
       <form action="{{ url_for('admin_update_project', project_id=p.id) }}" method="post">
         <input type="text" name="video_url" value="{{ p.video_url }}" placeholder="URL de video" style="width:100%;margin-bottom:.5rem;">
+        <input type="email" name="client_email" value="{{ p.client_email }}" placeholder="Cliente" style="width:100%;margin-bottom:.5rem;">
         <button type="submit">Guardar</button>
       </form>
       <form action="{{ url_for('admin_activate_payment', project_id=p.id) }}" method="post" style="margin-top:.5rem;">
