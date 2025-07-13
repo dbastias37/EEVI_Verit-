@@ -18,14 +18,24 @@ import time
 import uuid
 from jinja2 import TemplateNotFound
 
-DB_PATH = 'db/forum.db'
+from config import DevelopmentConfig, ProductionConfig, TestingConfig
+
+app = Flask(__name__)
+
+env = os.environ.get("APP_ENV", "development").lower()
+config_map = {
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+    "testing": TestingConfig,
+}
+app.config.from_object(config_map.get(env, DevelopmentConfig))
 
 
 def get_db():
     """Return a connection stored in ``g`` or create a new one."""
     if 'db' not in g:
         conn = sqlite3.connect(
-            DB_PATH,
+            app.config['DB_PATH'],
             timeout=10,
             check_same_thread=False,
         )
@@ -76,7 +86,7 @@ def ensure_projects_schema(cursor):
 
 def init_db():
     """Initialize or upgrade the forum database using ``schema.sql``."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(app.config['DB_PATH'])
     cursor = conn.cursor()
 
     # Execute the entire schema in one call
@@ -97,8 +107,6 @@ def init_db():
     conn.close()
 
 # Inicializa la base de datos si no existe
-init_db()
-
 from modules import forum as forum_db
 from modules.forum import (
     get_topic,
@@ -108,8 +116,7 @@ from modules.forum import (
     get_response_topic,
 )
 
-app = Flask(__name__)
-app.secret_key = 'demo-secret-key'
+init_db()
 forum_db.init_db()
 
 
@@ -121,7 +128,7 @@ def close_db(exception=None):
 
 
 def db_conn():
-    conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
+    conn = sqlite3.connect(app.config['DB_PATH'], timeout=10, check_same_thread=False)
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA synchronous=NORMAL;")
     return conn
@@ -507,7 +514,7 @@ def forum_topic_view(topic_id):
     if request.method == 'POST':
         author = request.form['author']
         content = request.form['response']
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(app.config['DB_PATH'])
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO responses (topic_id, author, content) VALUES (?, ?, ?)",
@@ -568,4 +575,4 @@ def render_page(page):
         abort(404)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=app.config['DEBUG'])
