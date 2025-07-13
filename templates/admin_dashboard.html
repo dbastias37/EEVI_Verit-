@@ -4,12 +4,12 @@
 <div class="dashboard-container">
   <div class="dashboard-header">
     <h2>Panel Admin</h2>
-    <form action="{{ url_for('admin_logout') }}" method="post" style="display:inline;">
+    <form action="{{ url_for('admin_bp.admin_logout') }}" method="post" style="display:inline;">
       <button type="submit">Salir</button>
     </form>
   </div>
   <div class="dashboard-login" style="margin-bottom:1rem;">
-    <form action="{{ url_for('admin_add_project') }}" method="post">
+    <form action="{{ url_for('admin_bp.admin_add_project') }}" method="post">
       <input type="text" name="title" placeholder="Título" required>
       <input type="text" name="category" placeholder="Categoría" required>
       <input type="text" name="video_url" placeholder="URL" required>
@@ -21,19 +21,19 @@
     {% for p in projects %}
     <div class="project-card">
       <h4>{{ p.title }}</h4>
-      <form action="{{ url_for('admin_update_project', project_id=p.id) }}" method="post">
+      <form action="{{ url_for('admin_bp.admin_update_project', project_id=p.id) }}" method="post">
         <input type="text" name="video_url" value="{{ p.video_url }}" placeholder="URL de video" style="width:100%;margin-bottom:.5rem;">
         <input type="email" name="client_email" value="{{ p.client_email }}" placeholder="Cliente" style="width:100%;margin-bottom:.5rem;">
         <button type="submit">Guardar</button>
       </form>
-      <form action="{{ url_for('admin_activate_payment', project_id=p.id) }}" method="post" style="margin-top:.5rem;">
+      <form action="{{ url_for('admin_bp.admin_activate_payment', project_id=p.id) }}" method="post" style="margin-top:.5rem;">
         {% if not p.paid %}
         <button type="submit" class="pay-btn">Activar 50%</button>
         {% else %}
         <span>Pago activado</span>
         {% endif %}
       </form>
-      <form action="{{ url_for('admin_delete_video', project_id=p.id) }}" method="post" onsubmit="return confirmDelete();" style="margin-top:.5rem;">
+      <form action="{{ url_for('admin_bp.admin_delete_video', project_id=p.id) }}" method="post" onsubmit="return confirmDelete();" style="margin-top:.5rem;">
         <button type="submit">Eliminar Video</button>
       </form>
     </div>
