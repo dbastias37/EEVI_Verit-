@@ -51,7 +51,8 @@ def ensure_projects_schema(cursor):
             progress REAL DEFAULT 0,
             status TEXT DEFAULT 'active',
             script TEXT,
-            download TEXT
+            download TEXT,
+            aspect_ratio REAL DEFAULT 1.7777
         );
         """
     )
@@ -68,10 +69,18 @@ def ensure_projects_schema(cursor):
         "status": "TEXT DEFAULT 'active'",
         "script": "TEXT",
         "download": "TEXT",
+        "aspect_ratio": "REAL DEFAULT 1.7777",
     }
     for col, ctype in required.items():
         if col not in existing:
             cursor.execute(f"ALTER TABLE projects ADD COLUMN {col} {ctype}")
+
+
+def set_default_aspect_ratio(cursor):
+    """Populate aspect_ratio with default value for existing rows."""
+    cursor.execute(
+        "UPDATE projects SET aspect_ratio=1.7777 WHERE aspect_ratio IS NULL OR aspect_ratio=0"
+    )
 
 
 def init_db():
@@ -92,6 +101,7 @@ def init_db():
 
     # Ensure projects table and columns exist
     ensure_projects_schema(cursor)
+    set_default_aspect_ratio(cursor)
 
     conn.commit()
     conn.close()
@@ -184,12 +194,13 @@ def save_profile_pic(email, path):
 def get_projects_for_email(email):
     conn = db_conn()
     cur = conn.cursor()
-    query = 'SELECT id,title,progress,status,script,video_url,paid,download FROM projects WHERE client_email=?'
+    query = 'SELECT id,title,progress,status,script,video_url,paid,download,aspect_ratio FROM projects WHERE client_email=?'
     try:
         cur.execute(query, (email,))
     except sqlite3.OperationalError:
         # If columns are missing, try to fix schema and retry
         ensure_projects_schema(cur)
+        set_default_aspect_ratio(cur)
         conn.commit()
         cur.execute(query, (email,))
     rows = cur.fetchall()
@@ -205,6 +216,7 @@ def get_projects_for_email(email):
             'video_url': r[5],
             'paid': bool(r[6]),
             'download': r[7],
+            'aspect_ratio': r[8] if r[8] else 1.7777,
         })
     return projects
 
@@ -212,7 +224,7 @@ def get_projects_for_email(email):
 def get_all_projects():
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id,title,video_url,client_email,paid FROM projects')
+    cur.execute('SELECT id,title,video_url,client_email,paid,aspect_ratio FROM projects')
     rows = cur.fetchall()
     conn.close()
     result = []
@@ -223,6 +235,7 @@ def get_all_projects():
             'video_url': r[2],
             'client_email': r[3],
             'paid': bool(r[4]),
+            'aspect_ratio': r[5] if r[5] else 1.7777,
         })
     return result
 

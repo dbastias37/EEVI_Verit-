@@ -766,6 +766,7 @@ body.forum-new {
 .project-card { background:#111; padding:1rem; border-radius:8px; border:1px solid var(--border-silver); transition:transform 0.2s ease, box-shadow 0.2s ease; }
 .project-card:hover { transform:translateY(-4px); box-shadow:0 4px 8px rgba(255,255,255,0.1); }
 .project-card iframe { width:100%; border:1px solid var(--border-silver); border-radius:6px; min-height:200px; }
+.video-wrapper iframe { border:none; }
 .video-preview { background:#000; border:1px solid var(--border-silver); border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.4); }
 .progress { background:#333; height:8px; border-radius:4px; margin-bottom:.5rem; overflow:hidden; }
 .progress-bar { background:var(--gradient-silver); height:100%; border-radius:4px; transition:width 0.3s ease; }
