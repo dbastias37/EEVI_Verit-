@@ -16,6 +16,7 @@ def init_db():
         CREATE TABLE topics (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT,
+          slug TEXT UNIQUE,
           category TEXT,
           description TEXT,
           image TEXT,
@@ -33,6 +34,12 @@ def init_db():
         );
         """
         )
+    else:
+        # Asegurar columna slug para bases de datos antiguas
+        try:
+            cursor.execute("SELECT slug FROM topics LIMIT 1")
+        except sqlite3.OperationalError:
+            cursor.execute("ALTER TABLE topics ADD COLUMN slug TEXT UNIQUE")
 
     # Asegurar tablas de respuestas y votos
     cursor.execute(
@@ -233,17 +240,24 @@ def forum_index():
 def forum_new():
     if request.method == 'POST':
         topic_id = forum_db.create_topic(request.form, request.files)
-        return redirect(url_for('forum_topic_view', topic_id=topic_id))
+        topic = forum_db.get_topic_by_id(topic_id)
+        return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
     return render_template('forum_new.html', categories=forum_db.get_categories())
 
 
 @app.route('/forum/tema/<int:topic_id>')
-def forum_topic_view(topic_id):
+def forum_topic_view_by_id(topic_id):
     topic = get_topic(topic_id)
     if not topic:
         return render_template('404.html'), 404
-    # Intentamos cargar respuestas (o recibimos lista vacía)
-    responses = get_responses_for_topic(topic_id)
+    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']), code=301)
+
+@app.route('/forum/tema/<topic_slug>')
+def forum_topic_view(topic_slug):
+    topic = forum_db.get_topic_by_slug(topic_slug)
+    if not topic:
+        return render_template('404.html'), 404
+    responses = get_responses_for_topic(topic['id'])
     return render_template('forum_topic.html', topic=topic, responses=responses)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
@@ -251,7 +265,8 @@ def forum_reply(topic_id):
     author = request.form['author']
     content = request.form['content']
     forum_db.create_post(topic_id, author, content)
-    return redirect(url_for('forum_topic_view', topic_id=topic_id))
+    topic = forum_db.get_topic_by_id(topic_id)
+    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
 
 
 @app.route('/forum/<int:topic_id>/response', methods=['POST'])
@@ -259,7 +274,8 @@ def create_response_route(topic_id):
     author = request.form.get('author') or session.get('user', 'Anónimo')
     content = request.form.get('content')
     create_response(topic_id, author, content)
-    return redirect(url_for('forum_topic_view', topic_id=topic_id))
+    topic = forum_db.get_topic_by_id(topic_id)
+    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
 
 
 @app.route('/forum/response/<int:response_id>/vote', methods=['POST'])
@@ -267,7 +283,8 @@ def vote_response_route(response_id):
     delta = int(request.form.get('delta', 0))
     vote_response(response_id, delta)
     topic_id = get_response_topic(response_id)
-    return redirect(url_for('forum_topic_view', topic_id=topic_id))
+    topic = forum_db.get_topic_by_id(topic_id)
+    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
 
 @app.route('/forum/vote-topic', methods=['POST'])
 def vote_topic():

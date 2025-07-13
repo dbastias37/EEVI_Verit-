@@ -1,4 +1,5 @@
 import sqlite3
+import re
 from datetime import datetime
 from typing import List, Dict, Tuple
 from flask import current_app
@@ -20,6 +21,11 @@ def get_db():
     )
     conn.commit()
     return conn
+
+# Genera un slug URL seguro basado en el título
+def slugify(text: str) -> str:
+    slug = re.sub(r'[^a-zA-Z0-9]+', '-', text).strip('-').lower()
+    return slug
 
 # Helper para convertir cadenas de fecha en objetos datetime
 def _parse_datetime(value):
@@ -164,6 +170,20 @@ def get_topic(topic_id: int) -> Dict:
     d['created_at'] = _parse_datetime(d.get('created_at'))
     return d
 
+def get_topic_by_slug(slug: str) -> Dict:
+    """Obtiene un tema por su slug."""
+    conn = _connect()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM topics WHERE slug=?', (slug,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        return None
+    d = dict(row)
+    d['created_at'] = _parse_datetime(d.get('created_at'))
+    return d
+
 def get_posts(topic_id: int) -> List[Dict]:
     conn = _connect()
     conn.row_factory = sqlite3.Row
@@ -208,17 +228,18 @@ def get_all_topics() -> Tuple[List[Dict], bool]:
 def get_topic_by_id(topic_id: int):
     conn = sqlite3.connect(DB_PATH)
     cur  = conn.cursor()
-    cur.execute("SELECT id, title, description, category, created_at FROM topics WHERE id = ?", (topic_id,))
+    cur.execute("SELECT id, slug, title, description, category, created_at FROM topics WHERE id = ?", (topic_id,))
     row = cur.fetchone()
     conn.close()
     if not row:
         return None
     return {
         'id':          row[0],
-        'title':       row[1],
-        'description': row[2],
-        'category':    row[3],
-        'created_at':  _parse_datetime(row[4]),
+        'slug':        row[1],
+        'title':       row[2],
+        'description': row[3],
+        'category':    row[4],
+        'created_at':  _parse_datetime(row[5]),
     }
 
 def get_replies(topic_id: int) -> List[Dict]:
@@ -312,11 +333,13 @@ def create_topic(form, files) -> int:
     file = files.get('file')
     image = file.filename if file and file.filename else None
 
+    slug = slugify(title)
+
     conn = _connect()
     cur = conn.cursor()
     cur.execute(
-        'INSERT INTO topics (title, category, description, image, created_at) VALUES (?,?,?,?,?)',
-        (title, category, description, image, datetime.utcnow())
+        'INSERT INTO topics (title, slug, category, description, image, created_at) VALUES (?,?,?,?,?,?)',
+        (title, slug, category, description, image, datetime.utcnow())
     )
     conn.commit()
     topic_id = cur.lastrowid
