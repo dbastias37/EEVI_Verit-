@@ -32,14 +32,28 @@ def init_db():
         );
         """
         )
+
+    # Asegurar tablas de respuestas y votos
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS responses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             topic_id INTEGER NOT NULL,
+            author TEXT NOT NULL,
             content TEXT NOT NULL,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(topic_id) REFERENCES topics(id) ON DELETE CASCADE
+        );
+        """
+    )
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            response_id INTEGER NOT NULL,
+            delta INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(response_id) REFERENCES responses(id) ON DELETE CASCADE
         );
         """
     )
@@ -50,7 +64,13 @@ def init_db():
 init_db()
 
 from modules import forum as forum_db
-from modules.forum import get_topic_by_id, get_responses_for_topic
+from modules.forum import (
+    get_topic_by_id,
+    get_responses_for_topic,
+    create_response,
+    vote_response,
+    get_response_topic,
+)
 
 app = Flask(__name__)
 app.secret_key = 'demo-secret-key'
@@ -227,7 +247,7 @@ def forum_topic_view(topic_id):
         flash("\u26a0\ufe0f Tema no encontrado.", "warning")
         return redirect(url_for('forum_index'))
     responses = get_responses_for_topic(topic_id)
-    return render_template('forum_topic_view.html', topic=topic, responses=responses)
+    return render_template('forum_topic.html', topic=topic, responses=responses)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):
@@ -235,6 +255,22 @@ def forum_reply(topic_id):
     content = request.form['content']
     forum_db.create_post(topic_id, author, content)
     return redirect(url_for('forum_topic', topic_id=topic_id))
+
+
+@app.route('/forum/<int:topic_id>/response', methods=['POST'])
+def create_response_route(topic_id):
+    author = request.form.get('author') or session.get('user', 'Anónimo')
+    content = request.form.get('content')
+    create_response(topic_id, author, content)
+    return redirect(url_for('forum_topic_view', topic_id=topic_id))
+
+
+@app.route('/forum/response/<int:response_id>/vote', methods=['POST'])
+def vote_response_route(response_id):
+    delta = int(request.form.get('delta', 0))
+    vote_response(response_id, delta)
+    topic_id = get_response_topic(response_id)
+    return redirect(url_for('forum_topic_view', topic_id=topic_id))
 
 @app.route('/forum/vote-topic', methods=['POST'])
 def vote_topic():
