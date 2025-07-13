@@ -63,8 +63,26 @@ def init_db():
 # Inicializa la base de datos si no existe
 init_db()
 
+# Crear tabla de respuestas si no existe
+db = sqlite3.connect(DB_PATH)
+db.execute(
+    """
+  CREATE TABLE IF NOT EXISTS responses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    topic_id INTEGER NOT NULL,
+    author TEXT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(topic_id) REFERENCES topics(id) ON DELETE CASCADE
+  );
+  """
+)
+db.commit()
+db.close()
+
 from modules import forum as forum_db
 from modules.forum import (
+    get_topic,
     get_topic_by_id,
     get_responses_for_topic,
     create_response,
@@ -242,10 +260,10 @@ def forum_topic(topic_id):
 
 @app.route('/forum/tema/<int:topic_id>')
 def forum_topic_view(topic_id):
-    topic = get_topic_by_id(topic_id)
-    if topic is None:
-        flash("\u26a0\ufe0f Tema no encontrado.", "warning")
-        return redirect(url_for('forum_index'))
+    topic = get_topic(topic_id)
+    if not topic:
+        return render_template('404.html'), 404
+    # Intentamos cargar respuestas (o recibimos lista vacía)
     responses = get_responses_for_topic(topic_id)
     return render_template('forum_topic.html', topic=topic, responses=responses)
 

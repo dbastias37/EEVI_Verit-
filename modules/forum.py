@@ -5,6 +5,10 @@ from flask import current_app
 
 DB_PATH = 'db/forum.db'
 
+def get_db():
+    """Devuelve una conexión SQLite a la base de datos del foro."""
+    return sqlite3.connect(DB_PATH)
+
 # Helper para convertir cadenas de fecha en objetos datetime
 def _parse_datetime(value):
     if isinstance(value, str):
@@ -84,7 +88,7 @@ def get_categories() -> List[str]:
     return FIXED_CATEGORIES
 
 def _connect():
-    return sqlite3.connect(DB_PATH)
+    return get_db()
 
 def get_topics(category: str = None) -> List[Dict]:
     """Devuelve la lista de temas, opcionalmente filtrados por categoría."""
@@ -224,30 +228,22 @@ def get_response_score(response_id: int) -> int:
 
 
 def get_responses_for_topic(topic_id: int) -> List[Dict]:
-    """Devuelve las respuestas de un tema con su puntuación."""
-    conn = _connect()
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
+    """Obtiene las respuestas de un tema, protegiendo la consulta."""
     try:
-        cur.execute('SELECT * FROM responses WHERE topic_id=? ORDER BY created_at ASC', (topic_id,))
+        cur = get_db().cursor()
+        # Si la tabla no existe, capturamos y devolvemos lista vacía
+        cur.execute(
+            "SELECT id, author, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at ASC",
+            (topic_id,)
+        )
         rows = cur.fetchall()
-        result = []
-        for r in rows:
-            score = get_response_score(r['id'])
-            result.append({
-                'id': r['id'],
-                'topic_id': r['topic_id'],
-                'author': r['author'],
-                'content': r['content'],
-                'created_at': _parse_datetime(r['created_at']),
-                'score': score,
-            })
-        return result
+        return [
+            {"id": r[0], "author": r[1], "content": r[2], "created_at": r[3]}
+            for r in rows
+        ]
     except Exception as e:
-        current_app.logger.warning(f"Could not fetch responses: {e}")
+        # loguear opcionalmente: current_app.logger.warning(f"No responses table: {e}")
         return []
-    finally:
-        conn.close()
 
 
 def create_response(topic_id: int, author: str, content: str) -> int:
