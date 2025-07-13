@@ -47,9 +47,9 @@
 
   <section id="latest-topic">
     {% if latest %}
-      <h3><a href="/forum/tema/{{ latest.id }}">{{ latest.title }}</a></h3>
+      <h3><a href="/forum/tema/{{ latest.slug }}">{{ latest.title }}</a></h3>
       <p>{{ latest.description[:300] }}{% if latest.description and latest.description|length > 300 %}...{% endif %}</p>
-      <a href="/forum/tema/{{ latest.id }}" class="read-more">Leer más →</a>
+      <a href="/forum/tema/{{ latest.slug }}" class="read-more">Leer más →</a>
       <p class="date">{{ latest.created_at }}</p>
     {% endif %}
   </section>

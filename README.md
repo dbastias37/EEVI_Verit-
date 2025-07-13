@@ -116,3 +116,4 @@ Las estrellas testimonian la expansion constante de la bestia.
 Sus ecos digitales inspiran rutas inexploradas en la vastedad del ciberdesierto.
 
 🔗 Ahora EEVI puede servir cualquier template estático añadiendo <page>.html en la carpeta templates sin modificar rutas de Flask.
+Cada nuevo enlace es un paso más profundo en el infinito desierto digital.
