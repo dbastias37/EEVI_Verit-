@@ -836,3 +836,12 @@ body.forum-new {
 
 .btn{background:#6b63ff;color:#fff;padding:0.5rem 1rem;text-decoration:none;border:none;display:inline-block;margin:0.5rem;}
 
+.comments{margin-top:1rem;}
+.comments-list{margin-bottom:0.5rem;}
+.comment{border-bottom:1px solid #444;padding:0.25rem 0;}
+.comment .date{margin-left:0.5rem;font-size:0.8rem;color:#999;}
+.comment-form{display:flex;gap:0.5rem;}
+.comment-form input{flex:1;}
+.comments-admin{list-style:none;padding:0;margin:1rem 0;}
+.comments-admin li{padding:0.25rem 0;border-bottom:1px solid #444;}
+

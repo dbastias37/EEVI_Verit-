@@ -136,6 +136,21 @@ def init_db():
     # Ensure projects table and columns exist
     ensure_projects_schema(cursor)
 
+    # Ensure comments table exists for older databases
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            text TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(project_id) REFERENCES projects(id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
+        );
+        """
+    )
+
     conn.commit()
     conn.close()
 
@@ -333,6 +348,58 @@ def delete_video(project_id):
     conn.close()
 
 
+def add_comment(project_id, user_id, text):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO comments (project_id, user_id, text) VALUES (?,?,?)',
+        (project_id, user_id, text),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_comments(project_id):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute(
+        'SELECT u.email, c.text, c.created_at '
+        'FROM comments c JOIN users u ON c.user_id=u.id '
+        'WHERE c.project_id=? ORDER BY c.created_at',
+        (project_id,),
+    )
+    rows = cur.fetchall()
+    conn.close()
+    result = []
+    for row in rows:
+        user = row[0].split('@')[0]
+        result.append({'user': user, 'text': row[1], 'date': row[2]})
+    return result
+
+
+def get_all_comments():
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute(
+        'SELECT p.title, u.email, c.text, c.created_at '
+        'FROM comments c '
+        'JOIN users u ON c.user_id=u.id '
+        'JOIN projects p ON c.project_id=p.id '
+        'ORDER BY c.created_at DESC'
+    )
+    rows = cur.fetchall()
+    conn.close()
+    return [
+        {
+            'project': row[0],
+            'user_email': row[1],
+            'text': row[2],
+            'date': row[3],
+        }
+        for row in rows
+    ]
+
+
 def get_drive_preview_url(share_url):
     """Return Google Drive embed URL from a public share link."""
     if not share_url:
@@ -466,6 +533,20 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('dashboard'))
 
+
+@app.route('/project/<int:project_id>/comments', methods=['GET', 'POST'])
+def project_comments(project_id):
+    if request.method == 'POST':
+        user_email = session.get('user')
+        if not user_email:
+            abort(401)
+        user = get_user(user_email)
+        text = request.form.get('text') or (request.get_json() or {}).get('text')
+        if text:
+            add_comment(project_id, user['id'], text)
+        return jsonify(success=True)
+    return jsonify(get_comments(project_id))
+
 @app.route('/pack/<string:pack_id>')
 def ver_pack(pack_id):
     packs = get_all_packs()
@@ -481,7 +562,8 @@ def admin():
     if not admin_email:
         return render_template('admin_login.html')
     projects = get_all_projects()
-    return render_template('admin_dashboard.html', projects=projects)
+    comments = get_all_comments()
+    return render_template('admin_dashboard.html', projects=projects, comments=comments)
 
 
 @app.route('/admin/login', methods=['GET', 'POST'])

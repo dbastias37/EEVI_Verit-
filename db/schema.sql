@@ -62,3 +62,13 @@ CREATE TABLE IF NOT EXISTS projects (
     download TEXT,
     FOREIGN KEY(client_id) REFERENCES clients(id)
 );
+
+CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(project_id) REFERENCES projects(id),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
