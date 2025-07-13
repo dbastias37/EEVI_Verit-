@@ -1,0 +1,52 @@
+:root {
+  --bg-primary: #2d3748;
+  --bg-secondary: #4a5568;
+  --text-primary: #e2e8f0;
+  --text-secondary: #a0aec0;
+}
+
+/* Utility classes */
+.inline-form { display: inline; }
+.mb-1 { margin-bottom: 1rem; }
+.mt-half { margin-top: .5rem; }
+.full-input { width: 100%; margin-bottom: .5rem; }
+
+/* Layout */
+.dashboard-container {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-secondary);
+  padding: 1rem;
+  border-radius: 4px;
+}
+.dashboard-login {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1rem;
+  border-radius: 4px;
+}
+.project-card {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 1rem;
+  border-radius: 4px;
+}
+.comments-admin li {
+  border-bottom: 1px solid var(--text-secondary);
+  padding: .25rem 0;
+}
+.btn, button {
+  background: var(--text-secondary);
+  color: var(--text-primary);
+  border: none;
+  padding: .5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn:hover, button:hover { background: #718096; }
