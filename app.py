@@ -1,4 +1,5 @@
 from flask import (
+    send_from_directory,
     Flask,
     render_template,
     request,
@@ -19,23 +20,14 @@ import sqlite3
 import time
 import uuid
 from jinja2 import TemplateNotFound
-
+from models import (
+    get_db, close_db,
+    ProjectManager, CommentManager, PaymentValidator,
+    admin_required, project_access_required, rate_limit_payment
+)
 DB_PATH = 'db/forum.db'
 
 
-def get_db():
-    """Return a connection stored in ``g`` or create a new one."""
-    if 'db' not in g:
-        conn = sqlite3.connect(
-            DB_PATH,
-            timeout=10,
-            check_same_thread=False,
-        )
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode=WAL;")
-        conn.execute("PRAGMA synchronous=NORMAL;")
-        g.db = conn
-    return g.db
 
 
 def ensure_projects_schema(cursor):
@@ -139,11 +131,8 @@ forum_db.init_db()
 
 
 @app.teardown_appcontext
-def close_db(exception=None):
-    db = g.pop('db', None)
-    if db is not None:
-        db.close()
-
+def shutdown_db(exception=None):
+    close_db(exception)
 
 def db_conn():
     conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
@@ -357,30 +346,19 @@ def academy():
 
 @app.route('/dashboard')
 def dashboard():
-    user_email = session.get('user')
-    if not user_email:
-        return render_template('dashboard.html', user=None)
-
-    user = get_user(user_email)
-    projects = get_projects_for_email(user_email)
-    for proj in projects:
-        proj['embed_url'] = get_drive_preview_url(proj.get('video_url', ''))
-    active = [p for p in projects if p['status'] == 'active']
-    completed = [p for p in projects if p['status'] == 'completed']
-    stats = {
-        'active': len(active),
-        'completed': len(completed),
-        'scripts': len(projects),
-        'pending': sum(1 for p in projects if not p['paid'])
-    }
-    return render_template(
-        'dashboard.html',
-        user=user,
-        projects=projects,
-        active_projects=active,
-        completed_projects=completed,
-        stats=stats,
-    )
+    user_id = session.get("user_id")
+    if not user_id:
+        return render_template("client/dashboard.html", user=None)
+    conn = get_db()
+    user = conn.execute("SELECT id,email,username,profile_pic FROM users WHERE id=?", (user_id,)).fetchone()
+    pm = ProjectManager()
+    projects = pm.list_by_client(user_id)
+    for p in projects:
+        p["embed_url"] = get_drive_preview_url(p.get("video_url", ""))
+    active = [p for p in projects if p.get("status") == "active"]
+    closed = [p for p in projects if p.get("status") == "closed"]
+    stats = {"active": len(active), "completed": len(closed), "scripts": len(projects), "pending": sum(1 for p in projects if not p.get("payment_validated"))}
+    return render_template("client/dashboard.html", user=user, projects=projects, active_projects=active, completed_projects=closed, stats=stats,)
 
 
 @app.route('/dashboard/login', methods=['GET', 'POST'])
@@ -513,6 +491,55 @@ def admin_signup():
     return render_template('admin_signup.html')
 
 
+@app.route('/admin/projects')
+@admin_required
+def admin_projects():
+    status = request.args.get('status')
+    client = request.args.get('client')
+    conn = get_db()
+    query = 'SELECT * FROM projects WHERE 1=1'
+    params = []
+    if status:
+        query += ' AND status=?'
+        params.append(status)
+    if client:
+        query += ' AND client_id=?'
+        params.append(client)
+    cur = conn.execute(query, params)
+    projects = [dict(r) for r in cur.fetchall()]
+    return render_template('admin/projects.html', projects=projects)
+
+@app.route('/admin/project/create', methods=['GET', 'POST'])
+@admin_required
+def admin_project_create():
+    if request.method == 'POST':
+        pm = ProjectManager()
+        pm.create(
+            request.form['title'],
+            request.form.get('category'),
+            request.form.get('video_url'),
+            int(request.form['client_id']),
+            request.form.get('priority', 'normal'),
+        )
+        return redirect(url_for('admin_projects'))
+    users = get_db().execute('SELECT id, email FROM users WHERE is_admin=0').fetchall()
+    return render_template('admin/project_create.html', users=users)
+
+@app.route('/admin/project/<int:project_id>')
+@admin_required
+def admin_project_detail(project_id):
+    conn = get_db()
+    proj = conn.execute('SELECT * FROM projects WHERE id=?', (project_id,)).fetchone()
+    comments = CommentManager().list_for_project(project_id)
+    attempts = conn.execute('SELECT * FROM payment_attempts WHERE project_id=? ORDER BY attempted_at DESC', (project_id,)).fetchall()
+    return render_template('admin/project_detail.html', project=proj, comments=comments, attempts=attempts)
+
+@app.route('/admin/project/<int:project_id>/status', methods=['POST'])
+@admin_required
+def admin_project_status(project_id):
+    new = (request.get_json() or {}).get('status')
+    ProjectManager().change_status(project_id, new)
+    return jsonify(success=True)
 @app.route('/admin/project/add', methods=['POST'])
 def admin_add_project():
     if not session.get('admin'):
@@ -556,6 +583,41 @@ def admin_delete_video(project_id):
     delete_video(project_id)
     return redirect(url_for('admin'))
 
+# Cliente y Admin mejorados
+@app.route('/project/<int:project_id>/comment', methods=['POST'])
+@project_access_required
+def add_comment(project_id):
+    data = request.get_json() or {}
+    CommentManager().add(project_id, session.get('user_id'), data.get('text', ''))
+    return jsonify(success=True)
+
+@app.route('/comment/<int:comment_id>/delete', methods=['DELETE'])
+@project_access_required
+def delete_comment(comment_id):
+    CommentManager().delete(comment_id, session.get('user_id'))
+    return jsonify(success=True)
+
+@app.route('/project/<int:project_id>/payment/validate', methods=['POST'])
+@project_access_required
+@rate_limit_payment()
+def validate_payment(project_id):
+    code = (request.get_json() or {}).get('code')
+    ok = PaymentValidator().validate(project_id, session.get('user_id'), code)
+    return jsonify(success=ok)
+
+@app.route('/project/<int:project_id>/download')
+@project_access_required
+def download_project(project_id):
+    cur = get_db().execute('SELECT download, payment_validated FROM projects WHERE id=?', (project_id,))
+    row = cur.fetchone()
+    if not row or not row['payment_validated']:
+        abort(403)
+    path = row['download']
+    if not path:
+        abort(404)
+    directory = os.path.dirname(path) or '.'
+    filename = os.path.basename(path)
+    return send_from_directory(directory, filename, as_attachment=True)
 # ---------------- VFORUM ----------------
 @app.route('/forum')
 def forum_index():

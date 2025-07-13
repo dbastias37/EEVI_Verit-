@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Proyectos Admin{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+  <h2>Proyectos</h2>
+  <a href="{{ url_for('admin_project_create') }}">Crear nuevo</a>
+  <table>
+    <tr><th>ID</th><th>Título</th><th>Cliente</th><th>Estado</th><th>Prioridad</th></tr>
+    {% for p in projects %}
+    <tr>
+      <td><a href="{{ url_for('admin_project_detail', project_id=p.id) }}">{{ p.id }}</a></td>
+      <td>{{ p.title }}</td>
+      <td>{{ p.client_id }}</td>
+      <td>{{ p.status }}</td>
+      <td>{{ p.priority }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
