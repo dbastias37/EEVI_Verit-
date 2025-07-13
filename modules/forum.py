@@ -234,11 +234,16 @@ def get_responses_for_topic(topic_id: int) -> List[Dict]:
         # Si la tabla no existe, capturamos y devolvemos lista vacía
         cur.execute(
             "SELECT id, author, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at ASC",
-            (topic_id,)
+            (topic_id,),
         )
         rows = cur.fetchall()
         return [
-            {"id": r[0], "author": r[1], "content": r[2], "created_at": r[3]}
+            {
+                "id": r[0],
+                "author": r[1],
+                "content": r[2],
+                "created_at": _parse_datetime(r[3]),
+            }
             for r in rows
         ]
     except Exception as e:
