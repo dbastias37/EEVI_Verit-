@@ -1,7 +1,7 @@
 -- Migration for new project management features
 
 -- Add columns to projects
-ALTER TABLE projects ADD COLUMN client_id INTEGER;
+ALTER TABLE projects ADD COLUMN client_id INTEGER DEFAULT NULL;
 ALTER TABLE projects ADD COLUMN status TEXT CHECK(status IN ('draft','active','closed','archived')) DEFAULT 'draft';
 ALTER TABLE projects ADD COLUMN payment_validated INTEGER DEFAULT 0;
 ALTER TABLE projects ADD COLUMN payment_code VARCHAR(100);
