@@ -20,8 +20,6 @@
       <p class="no-resp">Sé el primero en responder este tema.</p>
     {% endfor %}
     <form class="reply-form" action="{{ url_for('forum_reply', topic_id=topic.id) }}" method="post">
-      <label for="author">Nombre</label>
-      <input id="author" name="author" type="text" required>
       <label for="content">Respuesta</label>
       <textarea id="content" name="content" required></textarea>
       <button type="submit" class="reply-btn">Enviar respuesta</button>

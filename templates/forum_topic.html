@@ -21,10 +21,6 @@
     <p class="no-resp">No hay respuestas aún. Sé el primero en responder:</p>
     {% endfor %}
     <form action="{{ url_for('forum_topic_view', topic_id=topic.id) }}" method="post">
-      <div class="form-group">
-        <label for="author">Tu nombre</label>
-        <input id="author" name="author" type="text" required class="input-author" placeholder="Tu nombre…">
-      </div>
       <textarea name="response" required class="response-input" placeholder="Tu respuesta…"></textarea>
       <button type="submit">Responder</button>
     </form>
