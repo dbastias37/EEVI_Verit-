@@ -343,7 +343,7 @@ def get_response_topic(response_id: int):
     finally:
         conn.close()
 
-def create_topic(form, files) -> int:
+def create_topic(form, files, author: str) -> int:
     """Crea un nuevo tema en la tabla topics a partir de un formulario."""
     title = form['title']
     category = form['category']
@@ -356,8 +356,8 @@ def create_topic(form, files) -> int:
     conn = _connect()
     cur = conn.cursor()
     cur.execute(
-        'INSERT INTO topics (title, slug, category, description, image, created_at) VALUES (?,?,?,?,?,?)',
-        (title, slug, category, description, image, datetime.utcnow())
+        'INSERT INTO topics (title, slug, category, description, author, image, created_at) VALUES (?,?,?,?,?,?,?)',
+        (title, slug, category, description, author, image, datetime.utcnow())
     )
     conn.commit()
     topic_id = cur.lastrowid

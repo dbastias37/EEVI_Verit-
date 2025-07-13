@@ -10,6 +10,8 @@ from flask import (
     abort,
     g,
 )
+from functools import wraps
+from uuid import uuid4
 import json
 import re
 import os
@@ -99,6 +101,19 @@ def init_db():
     except sqlite3.OperationalError:
         cursor.execute("ALTER TABLE topics ADD COLUMN slug TEXT UNIQUE")
 
+    # Ensure author column exists for topics
+    try:
+        cursor.execute("SELECT author FROM topics LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE topics ADD COLUMN author TEXT")
+
+    # Ensure username column exists for users
+    try:
+        cursor.execute("SELECT username FROM users LIMIT 1")
+    except sqlite3.OperationalError:
+        cursor.execute("ALTER TABLE users ADD COLUMN username TEXT")
+        cursor.execute("UPDATE users SET username='user_' || hex(randomblob(4)) WHERE username IS NULL OR username=''")
+
     # Ensure projects table and columns exist
     ensure_projects_schema(cursor)
     set_default_aspect_ratio(cursor)
@@ -137,7 +152,29 @@ def db_conn():
     return conn
 
 
-def create_user(email, password, is_admin=False):
+def login_user(user):
+    session['user'] = user['email']
+    session['user_id'] = user['id']
+    session['username'] = user['username']
+
+
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if not session.get('user_id'):
+            temp_name = f"user_{uuid4().hex[:8]}"
+            user_id = create_user(None, None, temp_name, is_temp=True)
+            user = {'id': user_id, 'email': None, 'username': temp_name}
+            login_user(user)
+            session['temp'] = True
+            return redirect(url_for('choose_username'))
+        if session.get('temp'):
+            return redirect(url_for('choose_username'))
+        return f(*args, **kwargs)
+    return wrapper
+
+
+def create_user(email, password, username, is_admin=False, is_temp=False):
     # Use a fixed verification code for both admins and regular users
     code = "123456789"
     conn = get_db()
@@ -145,11 +182,12 @@ def create_user(email, password, is_admin=False):
         try:
             with conn:
                 conn.execute(
-                    'INSERT INTO users (email, password, is_admin, verification_code) VALUES (?,?,?,?)',
-                    (email, password, int(is_admin), code),
+                    'INSERT INTO users (email, password, username, is_admin, verification_code, verified) VALUES (?,?,?,?,?,?)',
+                    (email, password, username, int(is_admin), code, int(is_temp)),
                 )
+            user_id = conn.execute('SELECT last_insert_rowid()').fetchone()[0]
             print(f"Código de verificación para {email}: {code}")
-            break
+            return user_id
         except sqlite3.OperationalError as e:
             if 'database is locked' in str(e):
                 time.sleep(0.1)
@@ -160,7 +198,7 @@ def create_user(email, password, is_admin=False):
 def get_user(email):
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id, email, profile_pic, verified, is_admin FROM users WHERE email=?', (email,))
+    cur.execute('SELECT id, email, username, profile_pic, verified, is_admin FROM users WHERE email=?', (email,))
     row = cur.fetchone()
     conn.close()
     if not row:
@@ -168,9 +206,10 @@ def get_user(email):
     return {
         'id': row[0],
         'email': row[1],
-        'profile_pic': row[2],
-        'verified': row[3],
-        'is_admin': row[4],
+        'username': row[2],
+        'profile_pic': row[3],
+        'verified': row[4],
+        'is_admin': row[5],
     }
 
 
@@ -350,7 +389,8 @@ def dashboard_login():
         email = request.form['email']
         password = request.form['password']
         if check_password(email, password):
-            session['user'] = email
+            user = get_user(email)
+            login_user(user)
             return redirect(url_for('dashboard'))
     return render_template('dashboard_login.html')
 
@@ -360,9 +400,10 @@ def signup():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        username = request.form['username']
         for _ in range(3):
             try:
-                create_user(email, password)
+                create_user(email, password, username)
                 return redirect(url_for('verify', email=email))
             except sqlite3.OperationalError as e:
                 if 'database is locked' in str(e):
@@ -408,7 +449,29 @@ def upload_profile():
 @app.route('/dashboard/logout', methods=['POST'])
 def logout():
     session.pop('user', None)
+    session.pop('user_id', None)
+    session.pop('username', None)
+    session.pop('temp', None)
     return redirect(url_for('dashboard'))
+
+
+@app.route('/choose-username', methods=['GET', 'POST'])
+def choose_username():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('signup'))
+    if request.method == 'POST':
+        username = request.form['username']
+        conn = get_db()
+        try:
+            with conn:
+                conn.execute('UPDATE users SET username=?, verified=1 WHERE id=?', (username, user_id))
+            session['username'] = username
+            session.pop('temp', None)
+            return redirect(url_for('forum_index'))
+        except sqlite3.IntegrityError:
+            flash('Nombre de usuario en uso', 'danger')
+    return render_template('choose_username.html')
 
 @app.route('/pack/<string:pack_id>')
 def ver_pack(pack_id):
@@ -509,16 +572,18 @@ def forum_index():
     )
 
 @app.route('/forum/new', methods=['GET', 'POST'])
+@login_required
 def forum_new():
     if request.method == 'POST':
-        topic_id = forum_db.create_topic(request.form, request.files)
+        topic_id = forum_db.create_topic(request.form, request.files, session['username'])
         return redirect(url_for('forum_topic_view', topic_id=topic_id))
     return render_template('forum_new.html', categories=forum_db.get_categories())
 
 @app.route('/forum/tema/<int:topic_id>', methods=['GET', 'POST'])
+@login_required
 def forum_topic_view(topic_id):
     if request.method == 'POST':
-        author = request.form['author']
+        author = session['username']
         content = request.form['response']
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
@@ -536,8 +601,9 @@ def forum_topic_view(topic_id):
     return render_template('forum_topic.html', topic=topic, responses=responses)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
+@login_required
 def forum_reply(topic_id):
-    author = request.form['author']
+    author = session['username']
     content = request.form['content']
     forum_db.create_post(topic_id, author, content)
     return redirect(url_for('forum_topic_view', topic_id=topic_id))
