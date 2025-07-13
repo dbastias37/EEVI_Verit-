@@ -1,11 +1,38 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, session, flash, abort
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    jsonify,
+    url_for,
+    session,
+    flash,
+    abort,
+    g,
+)
 import json
 import os
 import sqlite3
+import time
 import uuid
 from jinja2 import TemplateNotFound
 
 DB_PATH = 'db/forum.db'
+
+
+def get_db():
+    """Return a connection stored in ``g`` or create a new one."""
+    if 'db' not in g:
+        conn = sqlite3.connect(
+            DB_PATH,
+            timeout=10,
+            check_same_thread=False,
+        )
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+        g.db = conn
+    return g.db
 
 
 def ensure_projects_schema(cursor):
@@ -85,21 +112,37 @@ app.secret_key = 'demo-secret-key'
 forum_db.init_db()
 
 
+@app.teardown_appcontext
+def close_db(exception=None):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
+
+
 def db_conn():
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10, check_same_thread=False)
+    conn.execute("PRAGMA journal_mode=WAL;")
+    conn.execute("PRAGMA synchronous=NORMAL;")
+    return conn
 
 
 def create_user(email, password, is_admin=False):
     code = uuid.uuid4().hex
-    conn = db_conn()
-    cur = conn.cursor()
-    cur.execute(
-        'INSERT INTO users (email, password, is_admin, verification_code) VALUES (?,?,?,?)',
-        (email, password, int(is_admin), code),
-    )
-    conn.commit()
-    conn.close()
-    print(f"Código de verificación para {email}: {code}")
+    conn = get_db()
+    for _ in range(3):
+        try:
+            with conn:
+                conn.execute(
+                    'INSERT INTO users (email, password, is_admin, verification_code) VALUES (?,?,?,?)',
+                    (email, password, int(is_admin), code),
+                )
+            print(f"Código de verificación para {email}: {code}")
+            break
+        except sqlite3.OperationalError as e:
+            if 'database is locked' in str(e):
+                time.sleep(0.1)
+                continue
+            raise
 
 
 def get_user(email):
@@ -289,8 +332,18 @@ def signup():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        create_user(email, password)
-        return redirect(url_for('verify', email=email))
+        for _ in range(3):
+            try:
+                create_user(email, password)
+                return redirect(url_for('verify', email=email))
+            except sqlite3.OperationalError as e:
+                if 'database is locked' in str(e):
+                    time.sleep(0.1)
+                    continue
+                flash('Error al registrar usuario', 'danger')
+                break
+        else:
+            flash('Base de datos ocupada, intenta de nuevo', 'danger')
     return render_template('signup.html')
 
 
