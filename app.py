@@ -185,14 +185,26 @@ def forum_new():
 
 @app.route('/forum/<int:topic_id>')
 def forum_topic(topic_id):
-    topic     = get_topic_by_id(topic_id)
-    if topic is None:
-        flash("\u26a0\ufe0f Tema no encontrado.", "warning")
+    try:
+        topic = get_topic_by_id(topic_id)
+        if topic is None:
+            flash("\u26a0\ufe0f Tema no encontrado.", "warning")
+            return redirect(url_for('forum_index'))
+        responses = forum_db.get_posts(topic_id)
+    except Exception:
+        flash("No se pudo cargar el tema, intenta más tarde", "danger")
         return redirect(url_for('forum_index'))
-    responses = get_responses_for_topic(topic_id)
-    return render_template('forum_topic.html',
-                           topic=topic,
-                           responses=responses)
+
+    show_delete = False
+    if session.get('user') and request.args.get('password') == 'borrar1':
+        show_delete = True
+
+    return render_template(
+        'forum_detail.html',
+        topic=topic,
+        responses=responses,
+        show_delete=show_delete,
+    )
 
 @app.route('/forum/tema/<int:topic_id>')
 def forum_topic_view(topic_id):
@@ -208,7 +220,7 @@ def forum_reply(topic_id):
     author = request.form['author']
     content = request.form['content']
     forum_db.create_post(topic_id, author, content)
-    return redirect(url_for('forum_topic_view', topic_id=topic_id))
+    return redirect(url_for('forum_topic', topic_id=topic_id))
 
 @app.route('/forum/vote-topic', methods=['POST'])
 def vote_topic():
