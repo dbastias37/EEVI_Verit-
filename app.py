@@ -71,35 +71,18 @@ def init_db():
 # Inicializa la base de datos si no existe
 init_db()
 
-# Crear tabla de respuestas si no existe
-db = sqlite3.connect(DB_PATH)
-db.execute(
-    """
-  CREATE TABLE IF NOT EXISTS responses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    topic_id INTEGER NOT NULL,
-    author TEXT NOT NULL,
-    content TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(topic_id) REFERENCES topics(id) ON DELETE CASCADE
-  );
-  """
-)
-db.commit()
-db.close()
-
 from modules import forum as forum_db
 from modules.forum import (
     get_topic,
     get_topic_by_id,
     get_responses_for_topic,
-    create_response,
     vote_response,
     get_response_topic,
 )
 
 app = Flask(__name__)
 app.secret_key = 'demo-secret-key'
+forum_db.init_db()
 
 # Almacenamiento en memoria para usuarios y proyectos de prueba
 users = {}
@@ -240,24 +223,26 @@ def forum_index():
 def forum_new():
     if request.method == 'POST':
         topic_id = forum_db.create_topic(request.form, request.files)
-        topic = forum_db.get_topic_by_id(topic_id)
-        return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
+        return redirect(url_for('forum_topic_view', topic_id=topic_id))
     return render_template('forum_new.html', categories=forum_db.get_categories())
 
-
-@app.route('/forum/tema/<int:topic_id>')
-def forum_topic_view_by_id(topic_id):
+@app.route('/forum/tema/<int:topic_id>', methods=['GET', 'POST'])
+def forum_topic_view(topic_id):
+    if request.method == 'POST':
+        content = request.form['response']
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO responses (topic_id, content) VALUES (?, ?)",
+            (topic_id, content)
+        )
+        conn.commit()
+        conn.close()
+        return redirect(url_for('forum_topic_view', topic_id=topic_id))
     topic = get_topic(topic_id)
     if not topic:
         return render_template('404.html'), 404
-    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']), code=301)
-
-@app.route('/forum/tema/<topic_slug>')
-def forum_topic_view(topic_slug):
-    topic = forum_db.get_topic_by_slug(topic_slug)
-    if not topic:
-        return render_template('404.html'), 404
-    responses = get_responses_for_topic(topic['id'])
+    responses = get_responses_for_topic(topic_id)
     return render_template('forum_topic.html', topic=topic, responses=responses)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
@@ -265,17 +250,9 @@ def forum_reply(topic_id):
     author = request.form['author']
     content = request.form['content']
     forum_db.create_post(topic_id, author, content)
-    topic = forum_db.get_topic_by_id(topic_id)
-    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
+    return redirect(url_for('forum_topic_view', topic_id=topic_id))
 
 
-@app.route('/forum/<int:topic_id>/response', methods=['POST'])
-def create_response_route(topic_id):
-    author = request.form.get('author') or session.get('user', 'Anónimo')
-    content = request.form.get('content')
-    create_response(topic_id, author, content)
-    topic = forum_db.get_topic_by_id(topic_id)
-    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
 
 
 @app.route('/forum/response/<int:response_id>/vote', methods=['POST'])
@@ -283,8 +260,7 @@ def vote_response_route(response_id):
     delta = int(request.form.get('delta', 0))
     vote_response(response_id, delta)
     topic_id = get_response_topic(response_id)
-    topic = forum_db.get_topic_by_id(topic_id)
-    return redirect(url_for('forum_topic_view', topic_slug=topic['slug']))
+    return redirect(url_for('forum_topic_view', topic_id=topic_id))
 
 @app.route('/forum/vote-topic', methods=['POST'])
 def vote_topic():

@@ -6,6 +6,24 @@ from flask import current_app
 
 DB_PATH = 'db/forum.db'
 
+# Inicializa la base de datos del foro creando la tabla de respuestas
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+          CREATE TABLE IF NOT EXISTS responses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            topic_id INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(topic_id) REFERENCES topics(id)
+          )
+        """
+    )
+    conn.commit()
+    conn.close()
+
 def get_db():
     """Devuelve una conexión SQLite a la base de datos del foro."""
     conn = sqlite3.connect(DB_PATH)
@@ -260,21 +278,19 @@ def get_response_score(response_id: int) -> int:
         conn.close()
 
 
-def get_responses_for_topic(topic_id: int) -> List[Dict]:
-    """Obtiene las respuestas de un tema, protegiendo la consulta."""
-    conn = get_db()
+def get_responses_for_topic(topic_id):
+    conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     try:
         cur.execute(
             "SELECT id, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at",
-            (topic_id,)
+            (topic_id,),
         )
         rows = cur.fetchall()
-        return rows
     except sqlite3.OperationalError:
-        return []
-    finally:
-        conn.close()
+        rows = []
+    conn.close()
+    return rows
 
 
 def create_response(topic_id: int, author: str, content: str) -> int:
