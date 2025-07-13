@@ -84,8 +84,16 @@ app = Flask(__name__)
 app.secret_key = 'demo-secret-key'
 forum_db.init_db()
 
-# Almacenamiento en memoria para usuarios y proyectos de prueba
-users = {}
+# Credenciales de administrador de prueba
+ADMIN_EMAIL = 'admin@verite.cl'
+ADMIN_PASSWORD = 'admin123'
+
+# Usuarios de demostraci\u00f3n
+users = {
+    'demo@demo.cl': {'email': 'demo@demo.cl', 'profile_pic': None},
+    'client2@demo.cl': {'email': 'client2@demo.cl', 'profile_pic': None},
+    'client3@demo.cl': {'email': 'client3@demo.cl', 'profile_pic': None},
+}
 PROJECTS = [
     {
         'id': 1,
@@ -203,6 +211,59 @@ def ver_pack(pack_id):
     if pack:
         return render_template('pack.html', pack=pack)
     return "Pack no encontrado", 404
+
+# ---------------- ADMIN ----------------
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if session.get('admin') == ADMIN_EMAIL:
+        return render_template('admin_dashboard.html', projects=PROJECTS)
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+            session['admin'] = email
+            return redirect(url_for('admin'))
+    return render_template('admin_login.html')
+
+
+@app.route('/admin/logout', methods=['POST'])
+def admin_logout():
+    session.pop('admin', None)
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/project/<int:project_id>/update', methods=['POST'])
+def admin_update_project(project_id):
+    if session.get('admin') != ADMIN_EMAIL:
+        return redirect(url_for('admin'))
+    video_url = request.form.get('video_url', '')
+    for p in PROJECTS:
+        if p['id'] == project_id:
+            p['video_url'] = video_url
+            break
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/project/<int:project_id>/activate', methods=['POST'])
+def admin_activate_payment(project_id):
+    if session.get('admin') != ADMIN_EMAIL:
+        return redirect(url_for('admin'))
+    for p in PROJECTS:
+        if p['id'] == project_id:
+            p['paid'] = True
+            break
+    return redirect(url_for('admin'))
+
+
+@app.route('/admin/project/<int:project_id>/delete', methods=['POST'])
+def admin_delete_video(project_id):
+    if session.get('admin') != ADMIN_EMAIL:
+        return redirect(url_for('admin'))
+    for p in PROJECTS:
+        if p['id'] == project_id:
+            p['video_url'] = ''
+            break
+    return redirect(url_for('admin'))
 
 # ---------------- VFORUM ----------------
 @app.route('/forum')
