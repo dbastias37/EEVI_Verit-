@@ -1,23 +1,29 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ topic.title }}{% endblock %}
+{% block title %}{{ topic.title if topic else 'Tema no encontrado' }}{% endblock %}
 
 {% block content %}
-<div class="forum-topic-container">
-  <button onclick="window.location.href='{{ url_for('forum_index') }}'" class="back-btn">← Volver al foro</button>
-  <h1 class="topic-title">{{ topic.title }}</h1>
-  <p class="topic-meta">Categoría: {{ topic.category }} • {{ topic.created_at.strftime('%d %b %Y, %H:%M') }}</p>
-  <div class="topic-body">{{ topic.description }}</div>
-  <hr/>
-  <h2 class="responses-title">Respuestas</h2>
-  {% for r in responses %}
-    <div class="response-card">
-      <p class="response-body">{{ r.content or r.body }}</p>
-      <p class="response-meta">por {{ r.author }} • {{ r.created_at.strftime('%d %b %Y, %H:%M') }}</p>
-    </div>
+  {% if topic %}
+  <div class="forum-topic-container">
+    <button onclick="window.location.href='{{ url_for('forum_index') }}'" class="back-btn">← Volver al foro</button>
+    <h1 class="topic-title">{{ topic.title }}</h1>
+    <p class="topic-meta">Categoría: {{ topic.category }} • {{ topic.created_at.strftime('%d %b %Y, %H:%M') }}</p>
+    <div class="topic-body">{{ topic.description }}</div>
+    <hr/>
+    <h2 class="responses-title">Respuestas</h2>
+    {% for r in responses %}
+      <div class="response-card">
+        <p class="response-body">{{ r.content or r.body }}</p>
+        <p class="response-meta">por {{ r.author }} • {{ r.created_at.strftime('%d %b %Y, %H:%M') }}</p>
+      </div>
+    {% else %}
+      <p class="no-resp">Sé el primero en responder este tema.</p>
+    {% endfor %}
+    <a href="{{ url_for('forum_new') }}" class="reply-btn">Añadir respuesta</a>
+  </div>
   {% else %}
-    <p class="no-resp">Sé el primero en responder este tema.</p>
-  {% endfor %}
-  <a href="{{ url_for('forum_new') }}" class="reply-btn">Añadir respuesta</a>
-</div>
+  <div class="alert alert-warning">
+    No encontramos ese tema. <a href="{{ url_for('forum_index') }}">Volver al foro</a>
+  </div>
+  {% endif %}
 {% endblock %}

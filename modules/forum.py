@@ -151,15 +151,35 @@ def get_all_topics() -> Tuple[List[Dict], bool]:
             t['responses'] = get_posts(t['id'])
     return topics, demo_mode
 
-def get_topic_by_id(topic_id: int) -> Dict:
-    return get_topic(topic_id)
+def get_topic_by_id(topic_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    cur  = conn.cursor()
+    cur.execute("SELECT id, title, description, category, created_at FROM topics WHERE id = ?", (topic_id,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        return None
+    return {
+        'id':          row[0],
+        'title':       row[1],
+        'description': row[2],
+        'category':    row[3],
+        'created_at':  row[4],
+    }
 
 def get_replies(topic_id: int) -> List[Dict]:
     return get_posts(topic_id)
 
-def get_responses_for_topic(topic_id: int) -> List[Dict]:
-    """Alias para obtener las respuestas de un tema."""
-    return get_replies(topic_id)
+def get_responses_for_topic(topic_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    cur  = conn.cursor()
+    cur.execute("SELECT id, content, created_at FROM responses WHERE topic_id = ?", (topic_id,))
+    rows = cur.fetchall()
+    conn.close()
+    return [
+        {'id': r[0], 'content': r[1], 'created_at': r[2]}
+        for r in rows
+    ]
 
 def create_topic(form, files) -> int:
     """Crea un nuevo tema en la tabla topics a partir de un formulario."""
