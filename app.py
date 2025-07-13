@@ -32,7 +32,6 @@ def create_app():
     migrate.init_app(app, db)
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(client_bp)
-    app.add_url_rule('/', endpoint='home', view_func=client_bp.view_functions['home'])
     app.teardown_appcontext(close_db)
 
     with app.app_context():
