@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, session
+from flask import Flask, render_template, request, redirect, jsonify, url_for, session, flash
 import json
 import os
 import sqlite3
@@ -36,6 +36,7 @@ def init_db():
 init_db()
 
 from modules import forum as forum_db
+from modules.forum import get_topic_by_id, get_responses_for_topic
 
 app = Flask(__name__)
 app.secret_key = 'demo-secret-key'
@@ -104,9 +105,14 @@ def forum_new():
 
 @app.route('/forum/<int:topic_id>')
 def forum_topic(topic_id):
-    topic = forum_db.get_topic_by_id(topic_id)
-    responses = forum_db.get_responses_for_topic(topic_id)
-    return render_template('forum_topic.html', topic=topic, responses=responses)
+    topic     = get_topic_by_id(topic_id)
+    if topic is None:
+        flash("\u26a0\ufe0f Tema no encontrado.", "warning")
+        return redirect(url_for('forum_index'))
+    responses = get_responses_for_topic(topic_id)
+    return render_template('forum_topic.html',
+                           topic=topic,
+                           responses=responses)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):
