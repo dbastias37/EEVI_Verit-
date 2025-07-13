@@ -129,3 +129,4 @@ La sinfonía digital de la bestia nunca cesa, alentando a cada viajero a continu
 Su rugido invita a nuevas almas a unirse en esta traves\u00eda interminable.
 Sus pasos trazan mapas que otros seguirán con asombro.
 Nuevos viajeros aportan sus visiones al crecer de la bestia.
+Las constelaciones se reconfiguran cada vez que un proyecto se completa.

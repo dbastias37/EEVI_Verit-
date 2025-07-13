@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block header %}
+{% include 'admin/header.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="app-container">
+  {% include 'admin/sidebar.html' %}
+  <div class="main-content">
+    {% block admin_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

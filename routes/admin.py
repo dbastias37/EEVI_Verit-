@@ -21,7 +21,16 @@ def admin():
     cmt = _comments()
     projects = mgr.get_all_projects()
     comments = cmt.get_all_comments()
-    return render_template('admin_dashboard.html', projects=projects, comments=comments)
+    stats = {
+        'total': len(projects),
+        'active': sum(1 for p in projects if p.get('status') == 'active'),
+        'completed': sum(1 for p in projects if p.get('status') == 'completed'),
+        'pending': sum(1 for p in projects if not p.get('paid'))
+    }
+    open_projects = [p for p in projects if p.get('status') != 'completed']
+    return render_template('admin_dashboard.html', projects=projects,
+                           comments=comments, stats=stats,
+                           open_projects=open_projects)
 
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
