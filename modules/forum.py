@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 from typing import List, Dict, Tuple
+from flask import current_app
 
 DB_PATH = 'db/forum.db'
 
@@ -172,14 +173,23 @@ def get_replies(topic_id: int) -> List[Dict]:
 
 def get_responses_for_topic(topic_id: int):
     conn = sqlite3.connect(DB_PATH)
-    cur  = conn.cursor()
-    cur.execute("SELECT id, content, created_at FROM responses WHERE topic_id = ?", (topic_id,))
-    rows = cur.fetchall()
-    conn.close()
-    return [
-        {'id': r[0], 'content': r[1], 'created_at': r[2]}
-        for r in rows
-    ]
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "SELECT id, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at ASC",
+            (topic_id,)
+        )
+        rows = cur.fetchall()
+        return [
+            {"id": r[0], "content": r[1], "created_at": r[2]}
+            for r in rows
+        ]
+    except sqlite3.OperationalError as e:
+        # Si la tabla no existe o hay otro problema, devolver lista vacía
+        current_app.logger.warning(f"Could not fetch responses: {e}")
+        return []
+    finally:
+        conn.close()
 
 def create_topic(form, files) -> int:
     """Crea un nuevo tema en la tabla topics a partir de un formulario."""

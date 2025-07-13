@@ -23,10 +23,10 @@
   {% for r in responses %}
   <div class="reply-card">
     <p>{{ r.content }}</p>
-    <p class="reply-meta">{{ r.author }} • {{ r.created_at.strftime('%d %b %Y – %H:%M') }}</p>
+    <p class="reply-meta">{{ r.created_at }}</p>
   </div>
   {% else %}
-  <p class="no-resp">Sé el primero en responder este tema.</p>
+  <p class="no-resp">No hay respuestas aún.</p>
   {% endfor %}
   <form class="reply-form" action="{{ url_for('forum_reply', topic_id=topic.id) }}" method="post">
     <input type="hidden" name="author" value="{{ session.get('user', 'Anónimo') }}">

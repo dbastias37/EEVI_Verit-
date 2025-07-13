@@ -6,10 +6,12 @@ import sqlite3
 DB_PATH = 'db/forum.db'
 
 def init_db():
-    if not os.path.exists(DB_PATH):
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.executescript("""
+    new_db = not os.path.exists(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    if new_db:
+        cursor.executescript(
+            """
         CREATE TABLE topics (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT,
@@ -28,9 +30,21 @@ def init_db():
           votes INTEGER DEFAULT 0,
           FOREIGN KEY(topic_id) REFERENCES topics(id)
         );
-        """)
-        conn.commit()
-        conn.close()
+        """
+        )
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS responses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            topic_id INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(topic_id) REFERENCES topics(id) ON DELETE CASCADE
+        );
+        """
+    )
+    conn.commit()
+    conn.close()
 
 # Inicializa la base de datos si no existe
 init_db()
@@ -190,7 +204,7 @@ def forum_topic(topic_id):
         if topic is None:
             flash("\u26a0\ufe0f Tema no encontrado.", "warning")
             return redirect(url_for('forum_index'))
-        responses = forum_db.get_posts(topic_id)
+        responses = get_responses_for_topic(topic_id)
     except Exception:
         flash("No se pudo cargar el tema, intenta más tarde", "danger")
         return redirect(url_for('forum_index'))
