@@ -23,10 +23,10 @@
   </div>
 
   <div class="stats">
-    <div class="stat-card">Proyectos activos: {{ stats.active }}</div>
-    <div class="stat-card">Proyectos terminados: {{ stats.completed }}</div>
-    <div class="stat-card">Guiones: {{ stats.scripts }}</div>
-    <div class="stat-card">Pagos pendientes: {{ stats.pending }}</div>
+    <div class="stat-card"><span class="stat-icon">🎬</span> {{ stats.active }} Activos</div>
+    <div class="stat-card"><span class="stat-icon">🎞️</span> {{ stats.completed }} Terminados</div>
+    <div class="stat-card"><span class="stat-icon">📽️</span> {{ stats.scripts }} Guiones</div>
+    <div class="stat-card"><span class="stat-icon">💾</span> {{ stats.pending }} Pagos</div>
   </div>
 
   <h3>Proyectos Activos</h3>
@@ -37,7 +37,7 @@
       <div class="progress">
         <div class="progress-bar" style="width: {{ p.progress * 100 }}%"></div>
       </div>
-      <iframe src="{{ p.video_url }}" allow="autoplay" allowfullscreen></iframe>
+      <iframe class="video-preview" src="{{ p.video_url }}" allow="autoplay" allowfullscreen></iframe>
       {% if not p.paid %}<button class="pay-btn">Pagar 50% restante</button>{% endif %}
     </div>
     {% endfor %}
@@ -69,7 +69,7 @@
     </form>
   </div>
 
-  <div id="script-modal" class="modal" style="display:none;">
+  <div id="script-modal" class="modal">
     <div class="modal-content">
       <span class="close-modal">&times;</span>
       <pre id="script-text"></pre>

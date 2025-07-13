@@ -5,12 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.script-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       scriptText.textContent = btn.dataset.script;
-      modal.style.display = 'block';
+      modal.classList.add('show');
     });
   });
 
   document.querySelectorAll('.close-modal').forEach(span => {
-    span.addEventListener('click', () => { modal.style.display = 'none'; });
+    span.addEventListener('click', () => { modal.classList.remove('show'); });
+  });
+
+  document.querySelectorAll('.pay-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const original = btn.textContent;
+      btn.textContent = 'Procesando...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.disabled = false;
+      }, 2000);
+    });
   });
 
   document.getElementById('theme-toggle')?.addEventListener('click', () => {
