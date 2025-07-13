@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, jsonify, url_for, s
 import json
 import os
 import sqlite3
+import uuid
 from jinja2 import TemplateNotFound
 
 DB_PATH = 'db/forum.db'
@@ -63,6 +64,27 @@ def init_db():
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(response_id) REFERENCES responses(id) ON DELETE CASCADE
         );
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE,
+            password TEXT,
+            is_admin INTEGER DEFAULT 0,
+            verified INTEGER DEFAULT 0,
+            verification_code TEXT,
+            profile_pic TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS projects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            category TEXT,
+            video_url TEXT,
+            client_email TEXT,
+            active INTEGER DEFAULT 0,
+            paid INTEGER DEFAULT 0,
+            progress REAL DEFAULT 0,
+            download TEXT
+        );
         """
     )
     conn.commit()
@@ -84,67 +106,132 @@ app = Flask(__name__)
 app.secret_key = 'demo-secret-key'
 forum_db.init_db()
 
-# Credenciales de administrador de prueba
-ADMIN_EMAIL = 'admin@verite.cl'
-ADMIN_PASSWORD = 'admin123'
 
-# Usuarios de demostraci\u00f3n
-users = {
-    'demo@demo.cl': {'email': 'demo@demo.cl', 'profile_pic': None},
-    'cliente@demo.cl': {'email': 'cliente@demo.cl', 'profile_pic': None}
-}
+def db_conn():
+    return sqlite3.connect(DB_PATH)
 
-# Credenciales de usuarios
-USER_CREDENTIALS = {
-    'demo@demo.cl': '12345678',
-    'cliente@demo.cl': '12345678'
-}
-PROJECTS = [
-    {
-        'id': 1,
-        'title': 'Video Corporativo',
-        'progress': 0.6,
-        'status': 'active',
-        'script': 'Guion para video corporativo con entrevistas.\nEscena 1: ...',
-        'video_url': 'https://drive.google.com/file/d/xyz/preview',
-        'paid': False,
-        'download': '#',
-        'client_email': 'demo@demo.cl'
-    },
-    {
-        'id': 2,
-        'title': 'Cortometraje Documental',
-        'progress': 0.85,
-        'status': 'active',
-        'script': 'Guion de cortometraje documental.\nIntroduccion: ...',
-        'video_url': 'https://drive.google.com/file/d/abc/preview',
-        'paid': True,
-        'download': '#',
-        'client_email': 'demo@demo.cl'
-    },
-    {
-        'id': 3,
-        'title': 'Animacion Musical',
-        'progress': 1.0,
-        'status': 'completed',
-        'script': 'Guion para animacion musical.\nEscena de apertura ...',
-        'video_url': 'https://drive.google.com/file/d/def/preview',
-        'paid': True,
-        'download': '#',
-        'client_email': 'demo@demo.cl'
-    },
-    {
-        'id': 4,
-        'title': 'Video de Prueba',
-        'progress': 0.2,
-        'status': 'active',
-        'script': 'Guion de prueba\nEscena 1: ...',
-        'video_url': '',
-        'paid': False,
-        'download': '#',
-        'client_email': 'cliente@demo.cl'
+
+def create_user(email, password, is_admin=False):
+    code = uuid.uuid4().hex
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO users (email, password, is_admin, verification_code) VALUES (?,?,?,?)',
+        (email, password, int(is_admin), code),
+    )
+    conn.commit()
+    conn.close()
+    print(f"Código de verificación para {email}: {code}")
+
+
+def get_user(email):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('SELECT id, email, profile_pic, verified, is_admin FROM users WHERE email=?', (email,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        return None
+    return {
+        'id': row[0],
+        'email': row[1],
+        'profile_pic': row[2],
+        'verified': row[3],
+        'is_admin': row[4],
     }
-]
+
+
+def check_password(email, password):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('SELECT password, verified FROM users WHERE email=?', (email,))
+    row = cur.fetchone()
+    conn.close()
+    return row and row[0] == password and row[1]
+
+
+def save_profile_pic(email, path):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('UPDATE users SET profile_pic=? WHERE email=?', (path, email))
+    conn.commit()
+    conn.close()
+
+
+def get_projects_for_email(email):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('SELECT id,title,progress,status,script,video_url,paid,download FROM projects WHERE client_email=?', (email,))
+    rows = cur.fetchall()
+    conn.close()
+    projects = []
+    for r in rows:
+        projects.append({
+            'id': r[0],
+            'title': r[1],
+            'progress': r[2],
+            'status': r[3],
+            'script': r[4],
+            'video_url': r[5],
+            'paid': bool(r[6]),
+            'download': r[7],
+        })
+    return projects
+
+
+def get_all_projects():
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('SELECT id,title,video_url,client_email,paid FROM projects')
+    rows = cur.fetchall()
+    conn.close()
+    result = []
+    for r in rows:
+        result.append({
+            'id': r[0],
+            'title': r[1],
+            'video_url': r[2],
+            'client_email': r[3],
+            'paid': bool(r[4]),
+        })
+    return result
+
+
+def add_project(title, category, url, client_email):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute(
+        'INSERT INTO projects (title, category, video_url, client_email) VALUES (?,?,?,?)',
+        (title, category, url, client_email),
+    )
+    conn.commit()
+    conn.close()
+
+
+def update_project_video(project_id, url, client_email=None):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('UPDATE projects SET video_url=? WHERE id=?', (url, project_id))
+    if client_email:
+        cur.execute('UPDATE projects SET client_email=? WHERE id=?', (client_email, project_id))
+    conn.commit()
+    conn.close()
+
+
+def activate_payment(project_id):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('UPDATE projects SET paid=1 WHERE id=?', (project_id,))
+    conn.commit()
+    conn.close()
+
+
+def delete_video(project_id):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('UPDATE projects SET video_url="" WHERE id=?', (project_id,))
+    conn.commit()
+    conn.close()
 
 # Ruta para cargar info de los packs
 def get_all_packs():
@@ -175,43 +262,70 @@ def services():
 def academy():
     return render_template('academy.html')
 
-# ---------------- DASHBOARD ----------------
-def get_user(email):
-    return users.get(email)
-
-@app.route('/dashboard', methods=['GET', 'POST'])
+@app.route('/dashboard')
 def dashboard():
     user_email = session.get('user')
-    if request.method == 'POST' and not user_email:
-        email = request.form['email']
-        password = request.form['password']
-        expected = USER_CREDENTIALS.get(email)
-        if expected is None or password != expected:
-            return render_template('dashboard.html', user=None)
-        users.setdefault(email, {'email': email, 'profile_pic': None})
-        session['user'] = email
-        user_email = email
     if not user_email:
         return render_template('dashboard.html', user=None)
 
     user = get_user(user_email)
-    visible_projects = [p for p in PROJECTS if p.get('client_email') == user_email]
-    active = [p for p in visible_projects if p['status'] == 'active']
-    completed = [p for p in visible_projects if p['status'] == 'completed']
+    projects = get_projects_for_email(user_email)
+    active = [p for p in projects if p['status'] == 'active']
+    completed = [p for p in projects if p['status'] == 'completed']
     stats = {
         'active': len(active),
         'completed': len(completed),
-        'scripts': len(visible_projects),
-        'pending': sum(1 for p in visible_projects if not p['paid'])
+        'scripts': len(projects),
+        'pending': sum(1 for p in projects if not p['paid'])
     }
     return render_template(
         'dashboard.html',
         user=user,
-        projects=visible_projects,
+        projects=projects,
         active_projects=active,
         completed_projects=completed,
         stats=stats,
     )
+
+
+@app.route('/dashboard/login', methods=['GET', 'POST'])
+def dashboard_login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        if check_password(email, password):
+            session['user'] = email
+            return redirect(url_for('dashboard'))
+    return render_template('dashboard_login.html')
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        create_user(email, password)
+        return redirect(url_for('verify', email=email))
+    return render_template('signup.html')
+
+
+@app.route('/verify', methods=['GET', 'POST'])
+def verify():
+    email = request.args.get('email') or request.form.get('email')
+    if request.method == 'POST':
+        code = request.form['code']
+        conn = db_conn()
+        cur = conn.cursor()
+        cur.execute('SELECT verification_code FROM users WHERE email=?', (email,))
+        row = cur.fetchone()
+        if row and row[0] == code:
+            cur.execute('UPDATE users SET verified=1 WHERE email=?', (email,))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('dashboard_login'))
+        conn.close()
+        flash('Código incorrecto', 'danger')
+    return render_template('verify.html', email=email)
 
 @app.route('/dashboard/upload', methods=['POST'])
 def upload_profile():
@@ -222,7 +336,7 @@ def upload_profile():
     if file and file.filename:
         path = os.path.join('static', 'uploads', file.filename)
         file.save(path)
-        users[user_email]['profile_pic'] = '/' + path
+        save_profile_pic(user_email, '/' + path)
     return redirect(url_for('dashboard'))
 
 @app.route('/dashboard/logout', methods=['POST'])
@@ -239,17 +353,47 @@ def ver_pack(pack_id):
     return "Pack no encontrado", 404
 
 # ---------------- ADMIN ----------------
-@app.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin')
 def admin():
-    if session.get('admin') == ADMIN_EMAIL:
-        return render_template('admin_dashboard.html', projects=PROJECTS)
+    admin_email = session.get('admin')
+    if not admin_email:
+        return render_template('admin_login.html')
+    projects = get_all_projects()
+    return render_template('admin_dashboard.html', projects=projects)
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        if email == ADMIN_EMAIL and password == ADMIN_PASSWORD:
+        user = get_user(email)
+        if user and user['is_admin'] and check_password(email, password):
             session['admin'] = email
             return redirect(url_for('admin'))
-    return render_template('admin_login.html')
+    return render_template('admin_login_form.html')
+
+
+@app.route('/admin/signup', methods=['GET', 'POST'])
+def admin_signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        create_user(email, password, True)
+        return redirect(url_for('verify', email=email))
+    return render_template('admin_signup.html')
+
+
+@app.route('/admin/project/add', methods=['POST'])
+def admin_add_project():
+    if not session.get('admin'):
+        return redirect(url_for('admin'))
+    title = request.form['title']
+    category = request.form['category']
+    video_url = request.form['video_url']
+    client_email = request.form['client_email']
+    add_project(title, category, video_url, client_email)
+    return redirect(url_for('admin'))
 
 
 @app.route('/admin/logout', methods=['POST'])
@@ -260,38 +404,27 @@ def admin_logout():
 
 @app.route('/admin/project/<int:project_id>/update', methods=['POST'])
 def admin_update_project(project_id):
-    if session.get('admin') != ADMIN_EMAIL:
+    if not session.get('admin'):
         return redirect(url_for('admin'))
     video_url = request.form.get('video_url', '')
     client_email = request.form.get('client_email', '')
-    for p in PROJECTS:
-        if p['id'] == project_id:
-            p['video_url'] = video_url
-            if client_email:
-                p['client_email'] = client_email
-            break
+    update_project_video(project_id, video_url, client_email)
     return redirect(url_for('admin'))
 
 
 @app.route('/admin/project/<int:project_id>/activate', methods=['POST'])
 def admin_activate_payment(project_id):
-    if session.get('admin') != ADMIN_EMAIL:
+    if not session.get('admin'):
         return redirect(url_for('admin'))
-    for p in PROJECTS:
-        if p['id'] == project_id:
-            p['paid'] = True
-            break
+    activate_payment(project_id)
     return redirect(url_for('admin'))
 
 
 @app.route('/admin/project/<int:project_id>/delete', methods=['POST'])
 def admin_delete_video(project_id):
-    if session.get('admin') != ADMIN_EMAIL:
+    if not session.get('admin'):
         return redirect(url_for('admin'))
-    for p in PROJECTS:
-        if p['id'] == project_id:
-            p['video_url'] = ''
-            break
+    delete_video(project_id)
     return redirect(url_for('admin'))
 
 # ---------------- VFORUM ----------------

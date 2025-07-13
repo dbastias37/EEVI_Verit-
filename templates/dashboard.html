@@ -6,12 +6,8 @@
 <div class="dashboard-container">
   {% if not user %}
   <div class="dashboard-login">
-    <h2>Acceso al Dashboard</h2>
-    <form method="POST">
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="password" placeholder="Contrase\u00f1a" required>
-      <button type="submit">Entrar</button>
-    </form>
+    <a href="{{ url_for('signup') }}" class="btn">Crear usuario</a>
+    <a href="{{ url_for('dashboard_login') }}" class="btn">Log in</a>
   </div>
   {% else %}
   <div class="dashboard-header">

@@ -833,3 +833,6 @@ body.forum-new {
   color: #bbb;
   font-style: italic;
 }
+
+.btn{background:#6b63ff;color:#fff;padding:0.5rem 1rem;text-decoration:none;border:none;display:inline-block;margin:0.5rem;}
+
