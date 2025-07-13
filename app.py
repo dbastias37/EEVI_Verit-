@@ -55,18 +55,29 @@ def ensure_projects_schema(cursor):
     """Create the projects table and add any missing columns."""
     cursor.execute(
         """
+        CREATE TABLE IF NOT EXISTS clients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT,
+            email TEXT UNIQUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+    )
+    cursor.execute(
+        """
         CREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             category TEXT,
             video_url TEXT,
-            client_email TEXT,
+            client_id INTEGER,
             active INTEGER DEFAULT 0,
             paid INTEGER DEFAULT 0,
             progress REAL DEFAULT 0,
             status TEXT DEFAULT 'active',
             script TEXT,
-            download TEXT
+            download TEXT,
+            FOREIGN KEY(client_id) REFERENCES clients(id)
         );
         """
     )
@@ -76,7 +87,7 @@ def ensure_projects_schema(cursor):
         "title": "TEXT",
         "category": "TEXT",
         "video_url": "TEXT",
-        "client_email": "TEXT",
+        "client_id": "INTEGER",
         "active": "INTEGER DEFAULT 0",
         "paid": "INTEGER DEFAULT 0",
         "progress": "REAL DEFAULT 0",
@@ -87,6 +98,23 @@ def ensure_projects_schema(cursor):
     for col, ctype in required.items():
         if col not in existing:
             cursor.execute(f"ALTER TABLE projects ADD COLUMN {col} {ctype}")
+
+    # Migrate existing data from client_email to client_id if necessary
+    if "client_email" in existing and "client_id" in existing:
+        cursor.execute(
+            "SELECT DISTINCT client_email FROM projects WHERE client_email IS NOT NULL AND client_email != ''"
+        )
+        emails = [row[0] for row in cursor.fetchall()]
+        for email in emails:
+            username = email.split("@")[0]
+            cursor.execute(
+                "INSERT OR IGNORE INTO clients (username, email) VALUES (?, ?)",
+                (username, email),
+            )
+        cursor.execute(
+            "UPDATE projects SET client_id = (SELECT id FROM clients WHERE email = projects.client_email) WHERE client_email IS NOT NULL AND client_email != '' AND client_id IS NULL"
+        )
+        cursor.execute("ALTER TABLE projects DROP COLUMN client_email")
 
 
 def init_db():
@@ -193,10 +221,34 @@ def save_profile_pic(email, path):
     conn.close()
 
 
+def get_or_create_client(email, username=None):
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('SELECT id FROM clients WHERE email=?', (email,))
+    row = cur.fetchone()
+    if row:
+        conn.close()
+        return row[0]
+    if not username:
+        username = email.split('@')[0]
+    cur.execute(
+        'INSERT INTO clients (username, email) VALUES (?, ?)',
+        (username, email),
+    )
+    client_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return client_id
+
+
 def get_projects_for_email(email):
     conn = db_conn()
     cur = conn.cursor()
-    query = 'SELECT id,title,progress,status,script,video_url,paid,download FROM projects WHERE client_email=?'
+    query = (
+        'SELECT p.id,p.title,p.progress,p.status,p.script,'
+        'p.video_url,p.paid,p.download FROM projects p '
+        'JOIN clients c ON p.client_id=c.id WHERE c.email=?'
+    )
     try:
         cur.execute(query, (email,))
     except sqlite3.OperationalError:
@@ -224,7 +276,10 @@ def get_projects_for_email(email):
 def get_all_projects():
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id,title,video_url,client_email,paid FROM projects')
+    cur.execute(
+        'SELECT p.id,p.title,p.video_url,c.email, p.paid '
+        'FROM projects p JOIN clients c ON p.client_id=c.id'
+    )
     rows = cur.fetchall()
     conn.close()
     result = []
@@ -240,11 +295,12 @@ def get_all_projects():
 
 
 def add_project(title, category, url, client_email):
+    client_id = get_or_create_client(client_email)
     conn = db_conn()
     cur = conn.cursor()
     cur.execute(
-        'INSERT INTO projects (title, category, video_url, client_email) VALUES (?,?,?,?)',
-        (title, category, url, client_email),
+        'INSERT INTO projects (title, category, video_url, client_id) VALUES (?,?,?,?)',
+        (title, category, url, client_id),
     )
     conn.commit()
     conn.close()
@@ -255,7 +311,8 @@ def update_project_video(project_id, url, client_email=None):
     cur = conn.cursor()
     cur.execute('UPDATE projects SET video_url=? WHERE id=?', (url, project_id))
     if client_email:
-        cur.execute('UPDATE projects SET client_email=? WHERE id=?', (client_email, project_id))
+        client_id = get_or_create_client(client_email)
+        cur.execute('UPDATE projects SET client_id=? WHERE id=?', (client_id, project_id))
     conn.commit()
     conn.close()
 

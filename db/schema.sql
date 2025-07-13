@@ -42,16 +42,23 @@ CREATE TABLE IF NOT EXISTS users (
     profile_pic TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    email TEXT UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
     category TEXT,
     video_url TEXT,
-    client_email TEXT,
+    client_id INTEGER,
     active INTEGER DEFAULT 0,
     paid INTEGER DEFAULT 0,
     progress REAL DEFAULT 0,
     status TEXT DEFAULT 'active',
     script TEXT,
-    download TEXT
+    download TEXT,
+    FOREIGN KEY(client_id) REFERENCES clients(id)
 );

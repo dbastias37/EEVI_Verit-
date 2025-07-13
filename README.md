@@ -15,6 +15,7 @@ El polvo que levantamos revela sendas inéditas.
 La brisa arrastra nuestras historias hacia nuevos horizontes.
 Cada paso resuena en los ecos digitales de nuestro viaje.
 
+Nuestros relatos se entretejen con la luz de cada proyecto completado.
 ──────────────────────────────────────────────
 
 📜 MANIFIESTO DE EEVI
