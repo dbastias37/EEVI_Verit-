@@ -39,6 +39,12 @@
     </div>
     {% endfor %}
   </div>
+  <h3>Comentarios recientes</h3>
+  <ul class="comments-admin">
+    {% for c in comments %}
+    <li><strong>{{ c.user_email }}</strong> en <em>{{ c.project }}</em>: {{ c.text }} <span class="date">{{ c.date }}</span></li>
+    {% endfor %}
+  </ul>
 </div>
 {% endblock %}
 {% block scripts %}

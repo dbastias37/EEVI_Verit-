@@ -41,6 +41,13 @@
         style="width:100%;height:400px;"
       ></iframe>
       {% if not p.paid %}<button class="pay-btn">Pagar 50% restante</button>{% endif %}
+      <div class="comments" data-project="{{ p.id }}">
+        <div class="comments-list"></div>
+        <form class="comment-form">
+          <input type="text" name="text" placeholder="Nuevo comentario" required>
+          <button type="submit">Enviar</button>
+        </form>
+      </div>
     </div>
     {% endfor %}
   </div>
