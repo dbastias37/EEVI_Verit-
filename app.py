@@ -90,20 +90,12 @@ ADMIN_PASSWORD = 'admin123'
 
 # Usuarios de demostraci\u00f3n
 users = {
-    'demo@demo.cl': {'email': 'demo@demo.cl', 'profile_pic': None},
-    'client2@demo.cl': {'email': 'client2@demo.cl', 'profile_pic': None},
-    'client3@demo.cl': {'email': 'client3@demo.cl', 'profile_pic': None},
+    'demo@demo.cl': {'email': 'demo@demo.cl', 'profile_pic': None}
 }
 
-# Credenciales y proyectos asignados
+# Credenciales de usuarios
 USER_CREDENTIALS = {
-    'demo@demo.cl': '12345678',
-    'client2@demo.cl': 'cliente123',
-    'client3@demo.cl': '12345678',
-}
-
-PROJECT_ACCESS = {
-    'client2@demo.cl': [1, 3],
+    'demo@demo.cl': '12345678'
 }
 PROJECTS = [
     {
@@ -114,7 +106,8 @@ PROJECTS = [
         'script': 'Guion para video corporativo con entrevistas.\nEscena 1: ...',
         'video_url': 'https://drive.google.com/file/d/xyz/preview',
         'paid': False,
-        'download': '#'
+        'download': '#',
+        'client_email': 'demo@demo.cl'
     },
     {
         'id': 2,
@@ -124,7 +117,8 @@ PROJECTS = [
         'script': 'Guion de cortometraje documental.\nIntroduccion: ...',
         'video_url': 'https://drive.google.com/file/d/abc/preview',
         'paid': True,
-        'download': '#'
+        'download': '#',
+        'client_email': 'demo@demo.cl'
     },
     {
         'id': 3,
@@ -134,7 +128,8 @@ PROJECTS = [
         'script': 'Guion para animacion musical.\nEscena de apertura ...',
         'video_url': 'https://drive.google.com/file/d/def/preview',
         'paid': True,
-        'download': '#'
+        'download': '#',
+        'client_email': 'demo@demo.cl'
     }
 ]
 
@@ -187,8 +182,7 @@ def dashboard():
         return render_template('dashboard.html', user=None)
 
     user = get_user(user_email)
-    allowed_ids = PROJECT_ACCESS.get(user_email, [p['id'] for p in PROJECTS])
-    visible_projects = [p for p in PROJECTS if p['id'] in allowed_ids]
+    visible_projects = [p for p in PROJECTS if p.get('client_email') == user_email]
     active = [p for p in visible_projects if p['status'] == 'active']
     completed = [p for p in visible_projects if p['status'] == 'completed']
     stats = {
@@ -256,9 +250,12 @@ def admin_update_project(project_id):
     if session.get('admin') != ADMIN_EMAIL:
         return redirect(url_for('admin'))
     video_url = request.form.get('video_url', '')
+    client_email = request.form.get('client_email', '')
     for p in PROJECTS:
         if p['id'] == project_id:
             p['video_url'] = video_url
+            if client_email:
+                p['client_email'] = client_email
             break
     return redirect(url_for('admin'))
 
