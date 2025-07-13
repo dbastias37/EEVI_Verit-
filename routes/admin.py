@@ -3,7 +3,8 @@ from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.security import admin_required
 
-admin_bp = Blueprint('admin_bp', __name__)
+# Blueprint with short name used for endpoint prefix
+admin_bp = Blueprint('admin', __name__)
 
 
 def _manager():
@@ -32,7 +33,7 @@ def admin_login():
         user = get_user(email)
         if user and user['is_admin'] and check_password(email, password):
             session['admin'] = email
-            return redirect(url_for('admin_bp.admin'))
+            return redirect(url_for('admin.admin'))
     return render_template('admin_login_form.html')
 
 
@@ -56,14 +57,14 @@ def admin_add_project():
     video_url = request.form['video_url']
     client_email = request.form['client_email']
     mgr.add_project(title, category, video_url, client_email)
-    return redirect(url_for('admin_bp.admin'))
+    return redirect(url_for('admin.admin'))
 
 
 @admin_bp.route('/logout', methods=['POST'])
 @admin_required
 def admin_logout():
     session.pop('admin', None)
-    return redirect(url_for('admin_bp.admin'))
+    return redirect(url_for('admin.admin'))
 
 
 @admin_bp.route('/project/<int:project_id>/update', methods=['POST'])
@@ -73,7 +74,7 @@ def admin_update_project(project_id):
     video_url = request.form.get('video_url', '')
     client_email = request.form.get('client_email', '')
     mgr.update_project_video(project_id, video_url, client_email)
-    return redirect(url_for('admin_bp.admin'))
+    return redirect(url_for('admin.admin'))
 
 
 @admin_bp.route('/project/<int:project_id>/activate', methods=['POST'])
@@ -81,7 +82,7 @@ def admin_update_project(project_id):
 def admin_activate_payment(project_id):
     mgr = _manager()
     mgr.activate_payment(project_id)
-    return redirect(url_for('admin_bp.admin'))
+    return redirect(url_for('admin.admin'))
 
 
 @admin_bp.route('/project/<int:project_id>/delete', methods=['POST'])
@@ -89,5 +90,5 @@ def admin_activate_payment(project_id):
 def admin_delete_video(project_id):
     mgr = _manager()
     mgr.delete_video(project_id)
-    return redirect(url_for('admin_bp.admin'))
+    return redirect(url_for('admin.admin'))
 

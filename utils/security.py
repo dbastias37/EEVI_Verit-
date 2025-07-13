@@ -15,6 +15,6 @@ def admin_required(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         if not session.get('admin'):
-            return redirect(url_for('admin_bp.admin'))
+            return redirect(url_for('admin.admin'))
         return f(*args, **kwargs)
     return wrapper
