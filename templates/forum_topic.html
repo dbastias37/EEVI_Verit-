@@ -13,21 +13,14 @@
     <h2 class="responses-title">Respuestas</h2>
     {% for r in responses %}
     <div class="response-card">
-      <div class="meta">{{ r.author }} • {{ r.created_at.strftime('%d %b %Y, %H:%M') }}</div>
-      <p class="content">{{ r.content }}</p>
-      <div class="voting">
-        <form action="{{ url_for('vote_response', response_id=r.id) }}" method="post">
-          <button name="delta" value="1">👍</button>
-          <span class="score">{{ r.score }}</span>
-          <button name="delta" value="-1">👎</button>
-        </form>
-      </div>
+      <p class="content">{{ r[1] }}</p>
+      <p class="meta">{{ r[2] }}</p>
     </div>
     {% else %}
     <p class="no-resp">No hay respuestas aún. Sé el primero en responder:</p>
     {% endfor %}
-    <form action="{{ url_for('create_response', topic_id=topic.id) }}" method="post">
-      <textarea name="content" required placeholder="Tu respuesta…"></textarea>
+    <form action="{{ url_for('forum_topic_view', topic_id=topic.id) }}" method="post">
+      <textarea name="response" required placeholder="Tu respuesta…"></textarea>
       <button type="submit">Responder</button>
     </form>
   </div>
