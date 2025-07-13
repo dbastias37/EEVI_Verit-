@@ -3,6 +3,8 @@ class BaseConfig:
     SECRET_KEY = 'demo-secret-key'
     DEBUG = False
     ENV = 'production'
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_PATH}"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True

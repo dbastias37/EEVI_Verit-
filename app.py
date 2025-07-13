@@ -19,6 +19,8 @@ import uuid
 from jinja2 import TemplateNotFound
 
 from config import DevelopmentConfig, ProductionConfig, TestingConfig
+from models import db
+from flask_migrate import Migrate
 
 app = Flask(__name__)
 
@@ -29,6 +31,9 @@ config_map = {
     "testing": TestingConfig,
 }
 app.config.from_object(config_map.get(env, DevelopmentConfig))
+
+db.init_app(app)
+migrate = Migrate(app, db)
 
 
 def get_db():
