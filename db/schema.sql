@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS topics (
   slug TEXT UNIQUE,
   category TEXT,
   description TEXT,
-  author TEXT,
   image TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   votes INTEGER DEFAULT 0
@@ -37,7 +36,6 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
     password TEXT,
-    username TEXT NOT NULL UNIQUE,
     is_admin INTEGER DEFAULT 0,
     verified INTEGER DEFAULT 0,
     verification_code TEXT,
@@ -56,5 +54,4 @@ CREATE TABLE IF NOT EXISTS projects (
     status TEXT DEFAULT 'active',
     script TEXT,
     download TEXT
-    ,aspect_ratio REAL DEFAULT 1.7777
 );
