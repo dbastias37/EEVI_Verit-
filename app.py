@@ -40,6 +40,41 @@ from modules import forum as forum_db
 app = Flask(__name__)
 app.secret_key = 'demo-secret-key'
 
+# Almacenamiento en memoria para usuarios y proyectos de prueba
+users = {}
+PROJECTS = [
+    {
+        'id': 1,
+        'title': 'Video Corporativo',
+        'progress': 0.6,
+        'status': 'active',
+        'script': 'Guion para video corporativo con entrevistas.\nEscena 1: ...',
+        'video_url': 'https://drive.google.com/file/d/xyz/preview',
+        'paid': False,
+        'download': '#'
+    },
+    {
+        'id': 2,
+        'title': 'Cortometraje Documental',
+        'progress': 0.85,
+        'status': 'active',
+        'script': 'Guion de cortometraje documental.\nIntroduccion: ...',
+        'video_url': 'https://drive.google.com/file/d/abc/preview',
+        'paid': True,
+        'download': '#'
+    },
+    {
+        'id': 3,
+        'title': 'Animacion Musical',
+        'progress': 1.0,
+        'status': 'completed',
+        'script': 'Guion para animacion musical.\nEscena de apertura ...',
+        'video_url': 'https://drive.google.com/file/d/def/preview',
+        'paid': True,
+        'download': '#'
+    }
+]
+
 # Ruta para cargar info de los packs
 def get_all_packs():
     with open('packs/info.json', 'r', encoding='utf-8') as f:
@@ -68,6 +103,54 @@ def services():
 @app.route('/academy')
 def academy():
     return render_template('academy.html')
+
+# ---------------- DASHBOARD ----------------
+def get_user(email):
+    return users.get(email)
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    user_email = session.get('user')
+    if request.method == 'POST' and not user_email:
+        email = request.form['email']
+        password = request.form['password']
+        if password != '12345678':
+            return render_template('dashboard.html', user=None)
+        users.setdefault(email, {'email': email, 'profile_pic': None})
+        session['user'] = email
+        user_email = email
+    if not user_email:
+        return render_template('dashboard.html', user=None)
+
+    user = get_user(user_email)
+    active = [p for p in PROJECTS if p['status'] == 'active']
+    completed = [p for p in PROJECTS if p['status'] == 'completed']
+    stats = {
+        'active': len(active),
+        'completed': len(completed),
+        'scripts': len(PROJECTS),
+        'pending': sum(1 for p in PROJECTS if not p['paid'])
+    }
+    return render_template('dashboard.html', user=user, projects=PROJECTS,
+                           active_projects=active, completed_projects=completed,
+                           stats=stats)
+
+@app.route('/dashboard/upload', methods=['POST'])
+def upload_profile():
+    user_email = session.get('user')
+    if not user_email:
+        return redirect(url_for('dashboard'))
+    file = request.files['photo']
+    if file and file.filename:
+        path = os.path.join('static', 'uploads', file.filename)
+        file.save(path)
+        users[user_email]['profile_pic'] = '/' + path
+    return redirect(url_for('dashboard'))
+
+@app.route('/dashboard/logout', methods=['POST'])
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('dashboard'))
 
 @app.route('/pack/<string:pack_id>')
 def ver_pack(pack_id):
