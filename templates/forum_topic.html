@@ -3,27 +3,21 @@
 {% block title %}{{ topic.title }}{% endblock %}
 
 {% block content %}
-<div class="forum-container">
-  <section class="posts">
-    <h1 class="topic-title">{{ topic.title }}</h1>
-    <p>{{ topic.category }}</p>
-    {% if topic.image %}
-      <img src="{{ topic.image }}" alt="{{ topic.title }}">
-    {% endif %}
-    <pre class="topic-description">{{ topic.description }}</pre>
-
-    {% for r in replies %}
-    <div class="post-card">
-      <p>{{ r.author }} — {{ r.created_at }}</p>
-      <p>{{ r.content }}</p>
+<div class="forum-topic-container">
+  <button onclick="window.location.href='{{ url_for('forum_index') }}'" class="back-btn">← Volver al foro</button>
+  <h1 class="topic-title">{{ topic.title }}</h1>
+  <p class="topic-meta">Categoría: {{ topic.category }} • {{ topic.created_at.strftime('%d %b %Y, %H:%M') }}</p>
+  <div class="topic-body">{{ topic.description }}</div>
+  <hr/>
+  <h2 class="responses-title">Respuestas</h2>
+  {% for r in responses %}
+    <div class="response-card">
+      <p class="response-body">{{ r.content or r.body }}</p>
+      <p class="response-meta">por {{ r.author }} • {{ r.created_at.strftime('%d %b %Y, %H:%M') }}</p>
     </div>
-    {% endfor %}
-
-    <form action="/forum/{{ topic.id }}/reply" method="post">
-      <input type="text" name="author" placeholder="Autor" required>
-      <textarea name="content" placeholder="Respuesta" required></textarea>
-      <button type="submit">Responder</button>
-    </form>
-  </section>
+  {% else %}
+    <p class="no-resp">Sé el primero en responder este tema.</p>
+  {% endfor %}
+  <a href="{{ url_for('forum_new') }}" class="reply-btn">Añadir respuesta</a>
 </div>
 {% endblock %}

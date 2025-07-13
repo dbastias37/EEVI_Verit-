@@ -653,3 +653,58 @@ body.forum-new {
   background: #f55;
   color: #000;
 }
+.forum-topic-container {
+  background: #111;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 3rem auto;
+  color: #fff;
+}
+.back-btn, .reply-btn {
+  display: inline-block;
+  background: transparent;
+  color: #fff;
+  border: 2px solid #5d5dff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  transition: background 0.2s, color 0.2s;
+}
+.back-btn:hover, .reply-btn:hover {
+  background: #5d5dff;
+  color: #000;
+}
+.topic-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.topic-meta, .response-meta {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 1rem;
+}
+.topic-body, .response-body {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.response-card {
+  background: #222;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+.responses-title {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+.no-resp {
+  font-style: italic;
+  color: #ccc;
+  margin-bottom: 2rem;
+}

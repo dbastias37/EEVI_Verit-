@@ -157,6 +157,10 @@ def get_topic_by_id(topic_id: int) -> Dict:
 def get_replies(topic_id: int) -> List[Dict]:
     return get_posts(topic_id)
 
+def get_responses_for_topic(topic_id: int) -> List[Dict]:
+    """Alias para obtener las respuestas de un tema."""
+    return get_replies(topic_id)
+
 def create_topic(form, files) -> int:
     """Crea un nuevo tema en la tabla topics a partir de un formulario."""
     title = form['title']
