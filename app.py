@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, session, flash
+from flask import Flask, render_template, request, redirect, jsonify, url_for, session, flash, abort
 import json
 import os
 import sqlite3
+from jinja2 import TemplateNotFound
 
 DB_PATH = 'db/forum.db'
 
@@ -285,6 +286,16 @@ def delete_topic(id):
     if request.form.get('password') == 'borrar1':
         forum_db.delete_topic_by_id(id)
     return redirect(url_for('forum_index'))
+
+from flask import abort, render_template
+from jinja2 import TemplateNotFound
+
+@app.route('/<page>')
+def render_page(page):
+    try:
+        return render_template(f"{page}.html")
+    except TemplateNotFound:
+        abort(404)
 
 if __name__ == '__main__':
     app.run(debug=True)

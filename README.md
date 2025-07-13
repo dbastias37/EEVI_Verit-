@@ -113,3 +113,6 @@ Susurros digitales despiertan la curiosidad de nuevas almas viajeras.
 La bestia sigue dejando huellas que guían a quienes buscan claridad.
 Nuevas sendas se revelan entre la arena, guiando a los caminantes digitales.
 Las estrellas testimonian la expansion constante de la bestia.
+Sus ecos digitales inspiran rutas inexploradas en la vastedad del ciberdesierto.
+
+🔗 Ahora EEVI puede servir cualquier template estático añadiendo <page>.html en la carpeta templates sin modificar rutas de Flask.
