@@ -99,14 +99,14 @@ def forum_index():
 def forum_new():
     if request.method == 'POST':
         topic_id = forum_db.create_topic(request.form, request.files)
-        return redirect(url_for('forum_topic', id=topic_id))
+        return redirect(url_for('forum_topic', topic_id=topic_id))
     return render_template('forum_new.html', categories=forum_db.get_categories())
 
-@app.route('/forum/<int:id>')
-def forum_topic(id):
-    topic = forum_db.get_topic_by_id(id)
-    replies = forum_db.get_replies(id)
-    return render_template('forum_topic.html', topic=topic, replies=replies)
+@app.route('/forum/<int:topic_id>')
+def forum_topic(topic_id):
+    topic = forum_db.get_topic_by_id(topic_id)
+    responses = forum_db.get_responses_for_topic(topic_id)
+    return render_template('forum_topic.html', topic=topic, responses=responses)
 
 @app.route('/forum/<int:topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):
