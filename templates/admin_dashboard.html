@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Panel Admin{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Panel Admin</h2>
+    <form action="{{ url_for('admin_logout') }}" method="post" style="display:inline;">
+      <button type="submit">Salir</button>
+    </form>
+  </div>
+  <div class="projects">
+    {% for p in projects %}
+    <div class="project-card">
+      <h4>{{ p.title }}</h4>
+      <form action="{{ url_for('admin_update_project', project_id=p.id) }}" method="post">
+        <input type="text" name="video_url" value="{{ p.video_url }}" placeholder="URL de video" style="width:100%;margin-bottom:.5rem;">
+        <button type="submit">Guardar</button>
+      </form>
+      <form action="{{ url_for('admin_activate_payment', project_id=p.id) }}" method="post" style="margin-top:.5rem;">
+        {% if not p.paid %}
+        <button type="submit" class="pay-btn">Activar 50%</button>
+        {% else %}
+        <span>Pago activado</span>
+        {% endif %}
+      </form>
+      <form action="{{ url_for('admin_delete_video', project_id=p.id) }}" method="post" onsubmit="return confirmDelete();" style="margin-top:.5rem;">
+        <button type="submit">Eliminar Video</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function confirmDelete(){
+  if(!confirm('¿Seguro que quieres eliminar el video?')) return false;
+  const key=prompt('Escribe "eliminar 2025" para confirmar');
+  if(key!=='eliminar 2025'){alert('Clave incorrecta');return false;}
+  return true;
+}
+</script>
+{% endblock %}
