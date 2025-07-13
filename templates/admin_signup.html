@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Crear admin{% endblock %}
+{% block content %}
+<div class="dashboard-container">
+  <div class="dashboard-login">
+    <h2>Crear admin</h2>
+    <form method="POST">
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Contrase\u00f1a" required>
+      <button type="submit">Crear</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

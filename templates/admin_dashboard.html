@@ -8,6 +8,15 @@
       <button type="submit">Salir</button>
     </form>
   </div>
+  <div class="dashboard-login" style="margin-bottom:1rem;">
+    <form action="{{ url_for('admin_add_project') }}" method="post">
+      <input type="text" name="title" placeholder="Título" required>
+      <input type="text" name="category" placeholder="Categoría" required>
+      <input type="text" name="video_url" placeholder="URL" required>
+      <input type="email" name="client_email" placeholder="Cliente" required>
+      <button type="submit">Agregar</button>
+    </form>
+  </div>
   <div class="projects">
     {% for p in projects %}
     <div class="project-card">

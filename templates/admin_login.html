@@ -3,12 +3,8 @@
 {% block content %}
 <div class="dashboard-container">
   <div class="dashboard-login">
-    <h2>Login Admin</h2>
-    <form method="POST">
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="password" placeholder="Contrase\u00f1a" required>
-      <button type="submit">Entrar</button>
-    </form>
+    <a href="{{ url_for('admin_signup') }}" class="btn">Crear admin</a>
+    <a href="{{ url_for('admin_login') }}" class="btn">Log in</a>
   </div>
 </div>
 {% endblock %}
