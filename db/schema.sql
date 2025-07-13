@@ -54,4 +54,5 @@ CREATE TABLE IF NOT EXISTS projects (
     status TEXT DEFAULT 'active',
     script TEXT,
     download TEXT
+    ,aspect_ratio REAL DEFAULT 1.7777
 );
