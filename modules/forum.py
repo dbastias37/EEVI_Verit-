@@ -7,7 +7,19 @@ DB_PATH = 'db/forum.db'
 
 def get_db():
     """Devuelve una conexión SQLite a la base de datos del foro."""
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS responses (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          topic_id INTEGER NOT NULL,
+          content TEXT NOT NULL,
+          created_at TEXT NOT NULL
+        );
+        """
+    )
+    conn.commit()
+    return conn
 
 # Helper para convertir cadenas de fecha en objetos datetime
 def _parse_datetime(value):
@@ -229,26 +241,19 @@ def get_response_score(response_id: int) -> int:
 
 def get_responses_for_topic(topic_id: int) -> List[Dict]:
     """Obtiene las respuestas de un tema, protegiendo la consulta."""
+    conn = get_db()
+    cur = conn.cursor()
     try:
-        cur = get_db().cursor()
-        # Si la tabla no existe, capturamos y devolvemos lista vacía
         cur.execute(
-            "SELECT id, author, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at ASC",
-            (topic_id,),
+            "SELECT id, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at",
+            (topic_id,)
         )
         rows = cur.fetchall()
-        return [
-            {
-                "id": r[0],
-                "author": r[1],
-                "content": r[2],
-                "created_at": _parse_datetime(r[3]),
-            }
-            for r in rows
-        ]
-    except Exception as e:
-        # loguear opcionalmente: current_app.logger.warning(f"No responses table: {e}")
+        return rows
+    except sqlite3.OperationalError:
         return []
+    finally:
+        conn.close()
 
 
 def create_response(topic_id: int, author: str, content: str) -> int:
