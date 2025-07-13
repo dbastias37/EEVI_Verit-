@@ -13,6 +13,7 @@ Sigue adelante. Te ayudaremos a avanzar.
 Cada huella es testimonio de lo aprendido en el camino.
 El polvo que levantamos revela sendas inéditas.
 La brisa arrastra nuestras historias hacia nuevos horizontes.
+Cada paso resuena en los ecos digitales de nuestro viaje.
 
 ──────────────────────────────────────────────
 
