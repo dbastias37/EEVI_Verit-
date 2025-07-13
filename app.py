@@ -90,12 +90,14 @@ ADMIN_PASSWORD = 'admin123'
 
 # Usuarios de demostraci\u00f3n
 users = {
-    'demo@demo.cl': {'email': 'demo@demo.cl', 'profile_pic': None}
+    'demo@demo.cl': {'email': 'demo@demo.cl', 'profile_pic': None},
+    'cliente@demo.cl': {'email': 'cliente@demo.cl', 'profile_pic': None}
 }
 
 # Credenciales de usuarios
 USER_CREDENTIALS = {
-    'demo@demo.cl': '12345678'
+    'demo@demo.cl': '12345678',
+    'cliente@demo.cl': '12345678'
 }
 PROJECTS = [
     {
@@ -130,6 +132,17 @@ PROJECTS = [
         'paid': True,
         'download': '#',
         'client_email': 'demo@demo.cl'
+    },
+    {
+        'id': 4,
+        'title': 'Video de Prueba',
+        'progress': 0.2,
+        'status': 'active',
+        'script': 'Guion de prueba\nEscena 1: ...',
+        'video_url': '',
+        'paid': False,
+        'download': '#',
+        'client_email': 'cliente@demo.cl'
     }
 ]
 
