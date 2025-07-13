@@ -156,7 +156,7 @@ def forum_index():
         topics = forum_db.get_topics()
     except Exception:
         flash("Error al cargar el foro, inténtalo más tarde", "danger")
-        return redirect(url_for('client_bp.home'))
+        return redirect(url_for('client.home'))
 
     return render_template(
         'forum_index.html',
