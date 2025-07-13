@@ -39,7 +39,7 @@ def get_all_services():
         return json.load(f)
 
 
-@client_bp.route('/')
+@client_bp.route('/', methods=['GET'])
 def home():
     from modules import forum as forum_db
     latest = forum_db.get_latest_topic()
