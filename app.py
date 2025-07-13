@@ -94,6 +94,17 @@ users = {
     'client2@demo.cl': {'email': 'client2@demo.cl', 'profile_pic': None},
     'client3@demo.cl': {'email': 'client3@demo.cl', 'profile_pic': None},
 }
+
+# Credenciales y proyectos asignados
+USER_CREDENTIALS = {
+    'demo@demo.cl': '12345678',
+    'client2@demo.cl': 'cliente123',
+    'client3@demo.cl': '12345678',
+}
+
+PROJECT_ACCESS = {
+    'client2@demo.cl': [1, 3],
+}
 PROJECTS = [
     {
         'id': 1,
@@ -166,7 +177,8 @@ def dashboard():
     if request.method == 'POST' and not user_email:
         email = request.form['email']
         password = request.form['password']
-        if password != '12345678':
+        expected = USER_CREDENTIALS.get(email)
+        if expected is None or password != expected:
             return render_template('dashboard.html', user=None)
         users.setdefault(email, {'email': email, 'profile_pic': None})
         session['user'] = email
@@ -175,17 +187,24 @@ def dashboard():
         return render_template('dashboard.html', user=None)
 
     user = get_user(user_email)
-    active = [p for p in PROJECTS if p['status'] == 'active']
-    completed = [p for p in PROJECTS if p['status'] == 'completed']
+    allowed_ids = PROJECT_ACCESS.get(user_email, [p['id'] for p in PROJECTS])
+    visible_projects = [p for p in PROJECTS if p['id'] in allowed_ids]
+    active = [p for p in visible_projects if p['status'] == 'active']
+    completed = [p for p in visible_projects if p['status'] == 'completed']
     stats = {
         'active': len(active),
         'completed': len(completed),
-        'scripts': len(PROJECTS),
-        'pending': sum(1 for p in PROJECTS if not p['paid'])
+        'scripts': len(visible_projects),
+        'pending': sum(1 for p in visible_projects if not p['paid'])
     }
-    return render_template('dashboard.html', user=user, projects=PROJECTS,
-                           active_projects=active, completed_projects=completed,
-                           stats=stats)
+    return render_template(
+        'dashboard.html',
+        user=user,
+        projects=visible_projects,
+        active_projects=active,
+        completed_projects=completed,
+        stats=stats,
+    )
 
 @app.route('/dashboard/upload', methods=['POST'])
 def upload_profile():
