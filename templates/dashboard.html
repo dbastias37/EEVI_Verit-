@@ -33,7 +33,13 @@
       <div class="progress">
         <div class="progress-bar" style="width: {{ p.progress * 100 }}%"></div>
       </div>
-      <iframe class="video-preview" src="{{ p.video_url }}" allow="autoplay" allowfullscreen></iframe>
+      <iframe
+        src="{{ p.embed_url }}"
+        frameborder="0"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        style="width:100%;height:400px;"
+      ></iframe>
       {% if not p.paid %}<button class="pay-btn">Pagar 50% restante</button>{% endif %}
     </div>
     {% endfor %}
