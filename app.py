@@ -355,7 +355,7 @@ def academy():
 def dashboard():
     user_id = session.get("user_id")
     if not user_id:
-        return render_template("client/dashboard.html", user=None)
+        return render_template("dashboard.html", user=None)
     conn = get_db()
     user = conn.execute("SELECT id,email,username,profile_pic FROM users WHERE id=?", (user_id,)).fetchone()
     pm = ProjectManager()
@@ -365,7 +365,14 @@ def dashboard():
     active = [p for p in projects if p.get("status") == "active"]
     closed = [p for p in projects if p.get("status") == "closed"]
     stats = {"active": len(active), "completed": len(closed), "scripts": len(projects), "pending": sum(1 for p in projects if not p.get("payment_validated"))}
-    return render_template("client/dashboard.html", user=user, projects=projects, active_projects=active, completed_projects=closed, stats=stats,)
+    return render_template(
+        "dashboard.html",
+        user=user,
+        projects=projects,
+        active_projects=active,
+        completed_projects=closed,
+        stats=stats,
+    )
 
 
 @app.route('/dashboard/login', methods=['GET', 'POST'])
