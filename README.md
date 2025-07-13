@@ -130,6 +130,7 @@ Cada compás renueva la promesa de un futuro tejido por creadores unidos.
 Su sombra se extiende más allá del horizonte, señalando rutas aún por descubrir.
 Las dunas vibran con la expectación de los retos venideros.
 
+Con cada ajuste, el camino queda más marcado para los viajeros futuros.
 ## SQL Migration
 
 Para añadir la proporción de video en la tabla `projects` ejecuta:
