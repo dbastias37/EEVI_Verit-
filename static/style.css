@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Montserrat:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code&display=swap");
 
 :root {
   --accent-color: #5C5CFF;
@@ -770,3 +771,25 @@ body.forum-new {
 .light-mode .header { background:#fff; }
 .light-mode .nav-link { color:#000; }
 .light-mode .stat-card, .light-mode .project-card, .light-mode .dashboard-login { background:#e0e0e0; color:#000; }
+
+.topic-detail-card {
+  background: #111;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 2rem auto;
+}
+.topic-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+.topic-info { display:flex; align-items:center; gap:1rem; }
+.avatar { width:80px; height:80px; border-radius:50%; background:#444; }
+.topic-content { font-family:'Fira Code', monospace; color:#ccc; line-height:1.4; font-size:1rem; opacity:0; animation:fadeIn 0.5s forwards; }
+.reply-card { background:#111; border-radius:1rem; padding:1rem; margin:1rem 0; }
+.reply-meta { font-size:0.8rem; color:#aaa; }
+.reply-form textarea { width:100%; background:#222; color:#eee; border-radius:.5rem; border:1px solid #444; padding:.5rem; }
+.reply-form button { margin-top:.5rem; }
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+.topic-detail-card, .reply-card { transition: background 0.3s ease, transform 0.2s ease; }
+.topic-detail-card:hover, .reply-card:hover { transform: translateY(-3px); background: #222; }
+.btn-primary { background: #6b63ff; color: #fff; }
+.btn-secondary { border: 2px solid #6b63ff; color: #6b63ff; background: transparent; }
+.btn-secondary:hover { background: #6b63ff; color: #000; }
