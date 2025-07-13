@@ -708,3 +708,24 @@ body.forum-new {
   color: #ccc;
   margin-bottom: 2rem;
 }
+
+/* Dashboard */
+.dashboard-container { padding: 2rem; }
+.dashboard-login { max-width: 400px; margin: 2rem auto; background:#111; padding:2rem; border-radius:8px; }
+.dashboard-login input { width:100%; padding:.5rem; margin:.5rem 0; background:#222; border:1px solid #333; color:#fff; }
+.dashboard-header { display:flex; justify-content:space-between; align-items:center; }
+.stats { display:flex; flex-wrap:wrap; gap:1rem; margin:1rem 0; }
+.stat-card { background:#111; padding:1rem; border-radius:8px; }
+.projects { display:flex; flex-wrap:wrap; gap:1rem; }
+.project-card { background:#111; padding:1rem; border-radius:8px; max-width:300px; }
+.progress { background:#333; height:8px; border-radius:4px; margin-bottom:.5rem; }
+.progress-bar { background:#5C5CFF; height:8px; border-radius:4px; }
+.scripts-list { list-style:none; padding:0; }
+.scripts-list li { margin-bottom:.5rem; }
+.profile-pic { width:120px; height:120px; border-radius:50%; object-fit:cover; }
+.modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8); display:flex; justify-content:center; align-items:center; }
+.modal-content { background:#111; padding:1rem; border-radius:8px; max-height:80vh; overflow:auto; color:#fff; width:90%; max-width:600px; }
+.light-mode { background:#f0f0f0; color:#000; }
+.light-mode .header { background:#fff; }
+.light-mode .nav-link { color:#000; }
+.light-mode .stat-card, .light-mode .project-card, .light-mode .dashboard-login { background:#e0e0e0; color:#000; }
