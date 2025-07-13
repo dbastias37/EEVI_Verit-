@@ -11,6 +11,7 @@ from flask import (
     g,
 )
 import json
+import re
 import os
 import sqlite3
 import time
@@ -262,6 +263,17 @@ def delete_video(project_id):
     conn.commit()
     conn.close()
 
+
+def get_drive_preview_url(share_url):
+    """Return Google Drive embed URL from a public share link."""
+    if not share_url:
+        return ""
+    match = re.search(r"/d/([A-Za-z0-9_-]+)/", share_url)
+    if match:
+        file_id = match.group(1)
+        return f"https://drive.google.com/file/d/{file_id}/preview"
+    return share_url
+
 # Ruta para cargar info de los packs
 def get_all_packs():
     with open('packs/info.json', 'r', encoding='utf-8') as f:
@@ -299,6 +311,8 @@ def dashboard():
 
     user = get_user(user_email)
     projects = get_projects_for_email(user_email)
+    for proj in projects:
+        proj['embed_url'] = get_drive_preview_url(proj.get('video_url', ''))
     active = [p for p in projects if p['status'] == 'active']
     completed = [p for p in projects if p['status'] == 'completed']
     stats = {
