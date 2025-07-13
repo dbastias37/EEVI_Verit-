@@ -51,5 +51,7 @@ CREATE TABLE IF NOT EXISTS projects (
     active INTEGER DEFAULT 0,
     paid INTEGER DEFAULT 0,
     progress REAL DEFAULT 0,
+    status TEXT DEFAULT 'active',
+    script TEXT,
     download TEXT
 );

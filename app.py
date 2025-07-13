@@ -7,6 +7,45 @@ from jinja2 import TemplateNotFound
 
 DB_PATH = 'db/forum.db'
 
+
+def ensure_projects_schema(cursor):
+    """Create the projects table and add any missing columns."""
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS projects (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            category TEXT,
+            video_url TEXT,
+            client_email TEXT,
+            active INTEGER DEFAULT 0,
+            paid INTEGER DEFAULT 0,
+            progress REAL DEFAULT 0,
+            status TEXT DEFAULT 'active',
+            script TEXT,
+            download TEXT
+        );
+        """
+    )
+    cursor.execute("PRAGMA table_info(projects)")
+    existing = [row[1] for row in cursor.fetchall()]
+    required = {
+        "title": "TEXT",
+        "category": "TEXT",
+        "video_url": "TEXT",
+        "client_email": "TEXT",
+        "active": "INTEGER DEFAULT 0",
+        "paid": "INTEGER DEFAULT 0",
+        "progress": "REAL DEFAULT 0",
+        "status": "TEXT DEFAULT 'active'",
+        "script": "TEXT",
+        "download": "TEXT",
+    }
+    for col, ctype in required.items():
+        if col not in existing:
+            cursor.execute(f"ALTER TABLE projects ADD COLUMN {col} {ctype}")
+
+
 def init_db():
     """Initialize or upgrade the forum database using ``schema.sql``."""
     conn = sqlite3.connect(DB_PATH)
@@ -22,6 +61,9 @@ def init_db():
         cursor.execute("SELECT slug FROM topics LIMIT 1")
     except sqlite3.OperationalError:
         cursor.execute("ALTER TABLE topics ADD COLUMN slug TEXT UNIQUE")
+
+    # Ensure projects table and columns exist
+    ensure_projects_schema(cursor)
 
     conn.commit()
     conn.close()
@@ -97,7 +139,14 @@ def save_profile_pic(email, path):
 def get_projects_for_email(email):
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id,title,progress,status,script,video_url,paid,download FROM projects WHERE client_email=?', (email,))
+    query = 'SELECT id,title,progress,status,script,video_url,paid,download FROM projects WHERE client_email=?'
+    try:
+        cur.execute(query, (email,))
+    except sqlite3.OperationalError:
+        # If columns are missing, try to fix schema and retry
+        ensure_projects_schema(cur)
+        conn.commit()
+        cur.execute(query, (email,))
     rows = cur.fetchall()
     conn.close()
     projects = []
