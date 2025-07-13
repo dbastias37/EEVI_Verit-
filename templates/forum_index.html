@@ -9,28 +9,26 @@
   <div class="quote-slide">{{ q }}</div>
   {% endfor %}
 </section>
-<div class="vforum-controls">
-  <p class="new-topic-desc">Comparte tu duda o aporte con la comunidad.</p>
+<div class="sticky-new-topic top">
   <a href="{{ url_for('forum_new') }}" class="btn-new-topic">+ Nuevo Tema</a>
 </div>
+{% if topics %}
 <div class="topic-list">
   {% for topic in topics %}
   <div class="topic-card">
     <h3><a href="{{ url_for('forum_topic_view', topic_id=topic.id) }}">{{ topic.title }}</a></h3>
-    <p>{{ topic.body or topic.description }}</p>
-    <div class="post-actions">
-      <button class="action-btn like">👍 <span>{{ topic.likes }}</span></button>
-      <button class="action-btn comment">💬 {{ topic.responses|length }}</button>
-      <button class="action-btn share">🔗 Compartir</button>
-    </div>
-    {% if topic.id %}
-    <form action="{{ url_for('delete_topic', id=topic.id) }}" method="post">
-      <input type="hidden" name="password" value="borrar1">
-      <button type="submit" class="btn-delete">Eliminar</button>
-    </form>
-    {% endif %}
+    <p class="topic-meta">{{ topic.category or 'Sin categoría' }} • {{ topic.created_at }} • {{ topic.author or 'Anónimo' }}</p>
+    <p>{{ topic.description }}</p>
   </div>
   {% endfor %}
+</div>
+{% else %}
+<div class="vforum-controls">
+  <p class="new-topic-desc">Aún no hay temas. Sé el primero en publicar uno</p>
+</div>
+{% endif %}
+<div class="sticky-new-topic bottom">
+  <a href="{{ url_for('forum_new') }}" class="btn-new-topic">+ Nuevo Tema</a>
 </div>
 {% endblock %}
 

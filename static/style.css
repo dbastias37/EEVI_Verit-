@@ -274,6 +274,11 @@ a:hover, button:hover {
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.topic-card:hover {
+  background: #222;
 }
 
 .topic-card h3 {
@@ -641,6 +646,19 @@ body.forum-new {
 }
 .btn-new-topic:hover {
   background: #7777ff;
+}
+.sticky-new-topic {
+  position: sticky;
+  text-align: center;
+  z-index: 50;
+  padding: 1rem 0;
+  background: #000;
+}
+.sticky-new-topic.top {
+  top: 0;
+}
+.sticky-new-topic.bottom {
+  bottom: 0;
 }
 .new-topic-desc {
   margin-bottom: 1rem;

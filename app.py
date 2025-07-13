@@ -164,19 +164,16 @@ def ver_pack(pack_id):
 # ---------------- VFORUM ----------------
 @app.route('/forum')
 def forum_index():
-    latest = forum_db.get_latest_topic()
-    existing = forum_db.get_topics()
-    if not existing and not session.get('forum_redirected'):
-        session['forum_redirected'] = True
-        return redirect(url_for('forum_new'))
-    topics, demo_mode = forum_db.get_all_topics()
+    try:
+        topics = forum_db.get_topics()
+    except Exception:
+        flash("Error al cargar el foro, inténtalo más tarde", "danger")
+        return redirect(url_for('home'))
+
     return render_template(
         'forum_index.html',
-        categories=forum_db.get_categories(),
         topics=topics,
         quotes=forum_db.INSPIRATIONAL_QUOTES,
-        demo_id=latest['id'] if latest else 0,
-        demo_mode=demo_mode,
     )
 
 @app.route('/forum/new', methods=['GET', 'POST'])
