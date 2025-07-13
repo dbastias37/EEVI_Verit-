@@ -809,3 +809,27 @@ body.forum-new {
 .btn-primary { background: #6b63ff; color: #fff; }
 .btn-secondary { border: 2px solid #6b63ff; color: #6b63ff; background: transparent; }
 .btn-secondary:hover { background: #6b63ff; color: #000; }
+
+.input-author,
+.response-input {
+  width: 100%;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+.input-author:focus,
+.response-input:focus {
+  outline: none;
+  border-color: #6b63ff;
+}
+.response-author {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #bbb;
+  font-style: italic;
+}

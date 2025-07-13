@@ -229,12 +229,13 @@ def forum_new():
 @app.route('/forum/tema/<int:topic_id>', methods=['GET', 'POST'])
 def forum_topic_view(topic_id):
     if request.method == 'POST':
+        author = request.form['author']
         content = request.form['response']
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO responses (topic_id, content) VALUES (?, ?)",
-            (topic_id, content)
+            "INSERT INTO responses (topic_id, author, content) VALUES (?, ?, ?)",
+            (topic_id, author, content)
         )
         conn.commit()
         conn.close()
