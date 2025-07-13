@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Mis Proyectos{% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
@@ -11,7 +11,8 @@
   </div>
   {% else %}
   <div class="dashboard-header">
-    <h2>Bienvenido, {{ user.email }}</h2>
+    <h2>Mis proyectos</h2>
+    <div class="welcome">Bienvenido, {{ user.email }}</div>
     <button id="theme-toggle">Modo</button>
     <form action="{{ url_for('client.logout') }}" method="post" style="display:inline;">
       <button type="submit">Salir</button>
