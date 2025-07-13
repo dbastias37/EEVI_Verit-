@@ -12,9 +12,10 @@ def init_db():
     cur = conn.cursor()
     cur.execute(
         """
-          CREATE TABLE IF NOT EXISTS responses (
+        CREATE TABLE IF NOT EXISTS responses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             topic_id INTEGER NOT NULL,
+            author TEXT NOT NULL,
             content TEXT NOT NULL,
             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(topic_id) REFERENCES topics(id)
@@ -32,6 +33,7 @@ def get_db():
         CREATE TABLE IF NOT EXISTS responses (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           topic_id INTEGER NOT NULL,
+          author TEXT NOT NULL,
           content TEXT NOT NULL,
           created_at TEXT NOT NULL
         );
@@ -283,7 +285,7 @@ def get_responses_for_topic(topic_id):
     cur = conn.cursor()
     try:
         cur.execute(
-            "SELECT id, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at",
+            "SELECT id, author, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at",
             (topic_id,),
         )
         rows = cur.fetchall()

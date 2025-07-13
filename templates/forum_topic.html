@@ -11,16 +11,21 @@
     <div class="topic-body">{{ topic.description }}</div>
     <hr/>
     <h2 class="responses-title">Respuestas</h2>
-    {% for r in responses %}
+    {% for response in responses %}
     <div class="response-card">
-      <p class="content">{{ r[1] }}</p>
-      <p class="meta">{{ r[2] }}</p>
+      <div class="response-author">Escrito por: {{ response[1] }}</div>
+      <p class="content">{{ response[2] }}</p>
+      <p class="meta">{{ response[3] }}</p>
     </div>
     {% else %}
     <p class="no-resp">No hay respuestas aún. Sé el primero en responder:</p>
     {% endfor %}
     <form action="{{ url_for('forum_topic_view', topic_id=topic.id) }}" method="post">
-      <textarea name="response" required placeholder="Tu respuesta…"></textarea>
+      <div class="form-group">
+        <label for="author">Tu nombre</label>
+        <input id="author" name="author" type="text" required class="input-author" placeholder="Tu nombre…">
+      </div>
+      <textarea name="response" required class="response-input" placeholder="Tu respuesta…"></textarea>
       <button type="submit">Responder</button>
     </form>
   </div>
