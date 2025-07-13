@@ -208,27 +208,93 @@ def get_topic_by_id(topic_id: int):
 def get_replies(topic_id: int) -> List[Dict]:
     return get_posts(topic_id)
 
-def get_responses_for_topic(topic_id: int):
-    conn = sqlite3.connect(DB_PATH)
+def get_response_score(response_id: int) -> int:
+    """Suma todos los votos de una respuesta."""
+    conn = _connect()
     cur = conn.cursor()
     try:
-        cur.execute(
-            "SELECT id, content, created_at FROM responses WHERE topic_id = ? ORDER BY created_at ASC",
-            (topic_id,)
-        )
+        cur.execute('SELECT COALESCE(SUM(delta), 0) FROM votes WHERE response_id=?', (response_id,))
+        row = cur.fetchone()
+        return row[0] if row and row[0] is not None else 0
+    except Exception as e:
+        current_app.logger.warning(f"Could not get response score: {e}")
+        return 0
+    finally:
+        conn.close()
+
+
+def get_responses_for_topic(topic_id: int) -> List[Dict]:
+    """Devuelve las respuestas de un tema con su puntuación."""
+    conn = _connect()
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    try:
+        cur.execute('SELECT * FROM responses WHERE topic_id=? ORDER BY created_at ASC', (topic_id,))
         rows = cur.fetchall()
         result = []
         for r in rows:
+            score = get_response_score(r['id'])
             result.append({
-                "id": r[0],
-                "content": r[1],
-                "created_at": _parse_datetime(r[2])
+                'id': r['id'],
+                'topic_id': r['topic_id'],
+                'author': r['author'],
+                'content': r['content'],
+                'created_at': _parse_datetime(r['created_at']),
+                'score': score,
             })
         return result
-    except sqlite3.OperationalError as e:
-        # Si la tabla no existe o hay otro problema, devolver lista vacía
+    except Exception as e:
         current_app.logger.warning(f"Could not fetch responses: {e}")
         return []
+    finally:
+        conn.close()
+
+
+def create_response(topic_id: int, author: str, content: str) -> int:
+    """Inserta una nueva respuesta en la base de datos."""
+    conn = _connect()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            'INSERT INTO responses (topic_id, author, content, created_at) VALUES (?,?,?,?)',
+            (topic_id, author, content, datetime.utcnow())
+        )
+        conn.commit()
+        return cur.lastrowid
+    except Exception as e:
+        current_app.logger.warning(f"Could not create response: {e}")
+        return 0
+    finally:
+        conn.close()
+
+
+def vote_response(response_id: int, delta: int) -> None:
+    """Registra un voto para una respuesta."""
+    conn = _connect()
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            'INSERT INTO votes (response_id, delta, created_at) VALUES (?,?,?)',
+            (response_id, delta, datetime.utcnow())
+        )
+        conn.commit()
+    except Exception as e:
+        current_app.logger.warning(f"Could not vote response: {e}")
+    finally:
+        conn.close()
+
+
+def get_response_topic(response_id: int):
+    """Obtiene el id del tema asociado a una respuesta."""
+    conn = _connect()
+    cur = conn.cursor()
+    try:
+        cur.execute('SELECT topic_id FROM responses WHERE id=?', (response_id,))
+        row = cur.fetchone()
+        return row[0] if row else None
+    except Exception as e:
+        current_app.logger.warning(f"Could not get response topic: {e}")
+        return None
     finally:
         conn.close()
 

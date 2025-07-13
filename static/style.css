@@ -724,10 +724,23 @@ body.forum-new {
   margin-bottom: 1.5rem;
 }
 .response-card {
-  background: #222;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  background: #111;
+  padding: 1rem;
   margin-bottom: 1rem;
+  border-radius: .5rem;
+  animation: fadeIn 0.3s ease-out;
+}
+.response-card .voting button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.response-card .voting button:hover { transform: scale(1.1); }
+.response-card .voting .score {
+  margin: 0 .5rem;
+  font-weight: 700;
 }
 .responses-title {
   font-size: 1.5rem;
@@ -787,7 +800,10 @@ body.forum-new {
 .reply-meta { font-size:0.8rem; color:#aaa; }
 .reply-form textarea { width:100%; background:#222; color:#eee; border-radius:.5rem; border:1px solid #444; padding:.5rem; }
 .reply-form button { margin-top:.5rem; }
-@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .topic-detail-card, .reply-card { transition: background 0.3s ease, transform 0.2s ease; }
 .topic-detail-card:hover, .reply-card:hover { transform: translateY(-3px); background: #222; }
 .btn-primary { background: #6b63ff; color: #fff; }
