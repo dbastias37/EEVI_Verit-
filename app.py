@@ -57,6 +57,7 @@ def ensure_projects_schema(cursor):
         "category": "TEXT",
         "video_url": "TEXT",
         "client_email": "TEXT",
+        "client_id": "INTEGER DEFAULT NULL",
         "active": "INTEGER DEFAULT 0",
         "paid": "INTEGER DEFAULT 0",
         "progress": "REAL DEFAULT 0",
@@ -86,6 +87,12 @@ def init_db():
     schema_path = os.path.join(os.path.dirname(__file__), "db", "schema.sql")
     with open(schema_path, "r", encoding="utf-8") as f:
         cursor.executescript(f.read())
+
+    # Run migration for client_id if column is missing
+    cursor.execute("PRAGMA table_info(projects)")
+    cols = [r[1] for r in cursor.fetchall()]
+    if "client_id" not in cols:
+        cursor.executescript("ALTER TABLE projects ADD COLUMN client_id INTEGER DEFAULT NULL;")
 
     # Ensure slug column exists for older databases
     try:
