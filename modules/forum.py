@@ -5,6 +5,20 @@ from flask import current_app
 
 DB_PATH = 'db/forum.db'
 
+# Helper para convertir cadenas de fecha en objetos datetime
+def _parse_datetime(value):
+    if isinstance(value, str):
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f"):  # formatos comunes de SQLite
+            try:
+                return datetime.strptime(value, fmt)
+            except ValueError:
+                continue
+        try:
+            return datetime.fromisoformat(value)
+        except Exception:
+            return datetime.utcnow()
+    return value
+
 # Categorías fijas para el foro
 FIXED_CATEGORIES = [
     "Grabación en vivo",
@@ -83,7 +97,12 @@ def get_topics(category: str = None) -> List[Dict]:
         cur.execute('SELECT * FROM topics ORDER BY created_at DESC')
     rows = cur.fetchall()
     conn.close()
-    return [dict(row) for row in rows]
+    topics = []
+    for row in rows:
+        d = dict(row)
+        d['created_at'] = _parse_datetime(d.get('created_at'))
+        topics.append(d)
+    return topics
 
 def get_latest_topic() -> Dict:
     conn = _connect()
@@ -92,7 +111,11 @@ def get_latest_topic() -> Dict:
     cur.execute('SELECT * FROM topics ORDER BY created_at DESC LIMIT 1')
     row = cur.fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    d = dict(row)
+    d['created_at'] = _parse_datetime(d.get('created_at'))
+    return d
 
 def get_recent_topics(category: str = None, limit: int = 3) -> List[Dict]:
     """Obtiene los temas más recientes de una categoría o generales."""
@@ -105,7 +128,12 @@ def get_recent_topics(category: str = None, limit: int = 3) -> List[Dict]:
         cur.execute('SELECT * FROM topics ORDER BY created_at DESC LIMIT ?', (limit,))
     rows = cur.fetchall()
     conn.close()
-    return [dict(row) for row in rows]
+    result = []
+    for row in rows:
+        d = dict(row)
+        d['created_at'] = _parse_datetime(d.get('created_at'))
+        result.append(d)
+    return result
 
 def get_topic(topic_id: int) -> Dict:
     conn = _connect()
@@ -114,7 +142,11 @@ def get_topic(topic_id: int) -> Dict:
     cur.execute('SELECT * FROM topics WHERE id=?', (topic_id,))
     row = cur.fetchone()
     conn.close()
-    return dict(row) if row else None
+    if not row:
+        return None
+    d = dict(row)
+    d['created_at'] = _parse_datetime(d.get('created_at'))
+    return d
 
 def get_posts(topic_id: int) -> List[Dict]:
     conn = _connect()
@@ -123,7 +155,12 @@ def get_posts(topic_id: int) -> List[Dict]:
     cur.execute('SELECT * FROM posts WHERE topic_id=? ORDER BY created_at ASC', (topic_id,))
     rows = cur.fetchall()
     conn.close()
-    return [dict(row) for row in rows]
+    result = []
+    for row in rows:
+        d = dict(row)
+        d['created_at'] = _parse_datetime(d.get('created_at'))
+        result.append(d)
+    return result
 
 # Aliases utilizadas por la aplicación
 def get_all_topics() -> Tuple[List[Dict], bool]:
@@ -165,7 +202,7 @@ def get_topic_by_id(topic_id: int):
         'title':       row[1],
         'description': row[2],
         'category':    row[3],
-        'created_at':  row[4],
+        'created_at':  _parse_datetime(row[4]),
     }
 
 def get_replies(topic_id: int) -> List[Dict]:
@@ -180,10 +217,14 @@ def get_responses_for_topic(topic_id: int):
             (topic_id,)
         )
         rows = cur.fetchall()
-        return [
-            {"id": r[0], "content": r[1], "created_at": r[2]}
-            for r in rows
-        ]
+        result = []
+        for r in rows:
+            result.append({
+                "id": r[0],
+                "content": r[1],
+                "created_at": _parse_datetime(r[2])
+            })
+        return result
     except sqlite3.OperationalError as e:
         # Si la tabla no existe o hay otro problema, devolver lista vacía
         current_app.logger.warning(f"Could not fetch responses: {e}")
