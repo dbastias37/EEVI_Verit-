@@ -5,8 +5,10 @@
   <title>{% block title %}Verité{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+  <!-- Fuente principal para la sección de administración -->
+  <link href="https://fonts.googleapis.com/css2?family=Verite+Sans:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  {% block head_admin %}{% endblock %}
   {% block extra_head %}{% endblock %}
 </head>
 <body>

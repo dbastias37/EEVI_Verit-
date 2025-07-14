@@ -15,6 +15,7 @@ body {
   color: var(--text-primary);
   font-size: 0.95rem;
   line-height: 1.5;
+  font-family: 'Verite Sans', sans-serif;
 }
 
 h1, h2, h3, h4 {
@@ -29,8 +30,13 @@ h1, h2, h3, h4 {
 .sidebar {
   background: var(--bg-secondary);
   color: var(--text-primary);
-  width: 220px;
+  width: 260px;
   padding: 1rem;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  height: 100vh;
 }
 .sidebar .avatar img {
   width: 60px;
@@ -54,6 +60,7 @@ h1, h2, h3, h4 {
   max-width: 1200px;
   margin: 1.5rem auto;
   padding: 0 1rem;
+  margin-left: 260px;
 }
 
 .header {
@@ -147,6 +154,14 @@ h1, h2, h3, h4 {
   .chart-wrapper {
     max-width: 100%;
     height: 250px;
+  }
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+  .main-content {
+    margin-left: 0;
   }
 }
 
