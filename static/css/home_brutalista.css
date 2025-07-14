@@ -229,7 +229,7 @@ body {
 @keyframes fadeIO {
     0%   { opacity:0; filter:blur(2px);}
     10%  { opacity:1; filter:none; }
-    80%  { opacity:1; }
+    90%  { opacity:1; }
     100% { opacity:0; filter:blur(2px);}
 }
-.word-anim { animation: fadeIO 7s linear forwards; }
+.word-anim { animation: fadeIO 10s linear forwards; }
