@@ -45,7 +45,13 @@ def home():
     latest = forum_db.get_latest_topic()
     packs = get_all_packs()
     services = get_all_services()
-    return render_template('home.html', latest=latest, packs=packs, services=services)
+    stats = {
+        'total_sounds': len(packs) * 50 if packs else 800,
+        'projects_completed': 120,
+        'satisfaction': 98,
+        'avg_delivery': '24h'
+    }
+    return render_template('home.html', latest=latest, packs=packs, services=services, stats=stats)
 
 
 @client_bp.route('/packs')
