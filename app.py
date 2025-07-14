@@ -12,6 +12,7 @@ from jinja2 import TemplateNotFound
 
 from config import config
 from utils.db import db, migrate, get_db, close_db, init_db
+from utils.auth import ensure_admin_user
 from routes.admin import admin_bp
 from routes.client import client_bp
 from services.project_manager import ProjectManager
@@ -24,28 +25,6 @@ from modules.forum import (
     vote_response,
     get_response_topic,
 )
-
-
-def ensure_admin_user():
-    """Ensure at least one admin user exists, creating a default one if not."""
-    conn = get_db()
-    try:
-        admin = conn.execute(
-            "SELECT id FROM users WHERE is_admin=1 LIMIT 1"
-        ).fetchone()
-    except sqlite3.OperationalError:
-        # Users table might not exist yet
-        return
-    if not admin:
-        default_pw = generate_password_hash(
-            os.environ.get("ADMIN_PASSWORD", "admin123")
-        )
-        conn.execute(
-            "INSERT INTO users (email, password, is_admin, verified) VALUES (?, ?, 1, 1)",
-            ("admin@verite.cl", default_pw),
-        )
-        conn.commit()
-
 
 def create_app():
     app = Flask(__name__)
