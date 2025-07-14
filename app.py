@@ -37,6 +37,7 @@ def create_app():
     with app.app_context():
         init_db(app)
         forum_db.init_db()
+        ensure_admin_user()
 
     return app
 
@@ -101,6 +102,19 @@ def save_profile_pic(email, path):
     cur = conn.cursor()
     cur.execute('UPDATE users SET profile_pic=? WHERE email=?', (path, email))
     conn.commit()
+    conn.close()
+
+
+def ensure_admin_user():
+    conn = db_conn()
+    cur = conn.cursor()
+    cur.execute('SELECT id FROM users WHERE email=?', ('admin@verite.cl',))
+    if not cur.fetchone():
+        cur.execute(
+            'INSERT INTO users (email, password, is_admin, verified) VALUES (?,?,1,1)',
+            ('admin@verite.cl', 'Admin777')
+        )
+        conn.commit()
     conn.close()
 
 # Wrappers around services
