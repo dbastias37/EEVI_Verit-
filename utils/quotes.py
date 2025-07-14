@@ -1,17 +1,13 @@
-import random
+from random import choice
 
-try:
-    from modules.forum import INSPIRATIONAL_QUOTES
-except Exception:
-    INSPIRATIONAL_QUOTES = [
-        "Sigue creando, pase lo que pase"
-    ]
+_QUOTES = [
+    "La creatividad es inteligencia divirtiéndose.",
+    "El éxito es la suma de pequeños esfuerzos repetidos cada día.",
+    "Transforma tus ideas en realidad.",
+    "Cada proyecto es una oportunidad para crecer.",
+    "La constancia vence al talento cuando el talento no se esfuerza."
+]
 
 def get_random_quote() -> str:
-    """Devuelve una frase aleatoria.
-
-    Si las frases no están disponibles, retorna un fallback.
-    """
-    if not INSPIRATIONAL_QUOTES:
-        return ""
-    return random.choice(INSPIRATIONAL_QUOTES)
+    """Devuelve una frase motivacional aleatoria."""
+    return choice(_QUOTES)

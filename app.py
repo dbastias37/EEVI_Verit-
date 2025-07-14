@@ -18,6 +18,7 @@ from routes.client import client_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from modules import forum as forum_db
+from utils.quotes import get_random_quote
 from modules.forum import (
     get_topic,
     get_topic_by_id,
@@ -31,6 +32,7 @@ def create_app():
     app.config.from_object(config[os.getenv('APP_ENV', 'development')])
     db.init_app(app)
     migrate.init_app(app, db)
+    app.jinja_env.globals['get_random_quote'] = get_random_quote
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(client_bp)
     app.teardown_appcontext(close_db)
