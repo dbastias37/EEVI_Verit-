@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EEVI VERITÉ - Panel Administrativo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="avatar">
+        <img src="{{ url_for('static', filename='img/avatar.png') }}" alt="admin">
+      </div>
+      <nav class="menu">
+        <a href="{{ url_for('admin.admin') }}" class="menu-item{% if request.endpoint == 'admin.admin' %} active{% endif %}">
+          <i class="fa fa-chart-pie"></i> Dashboard
+        </a>
+      </nav>
+    </aside>
+    <div class="main-content">
+      <header class="header">
+        <h2>Panel Admin</h2>
+        <form action="{{ url_for('admin.admin_logout') }}" method="post" class="inline-form">
+          <button type="submit" class="btn btn-danger">Salir</button>
+        </form>
+      </header>
+
+      <div class="stats-grid">
+        <div class="card stat-card">
+          <div class="stat-value">{{ stats.total }}</div>
+          <div class="stat-label">Proyectos</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value">{{ stats.active }}</div>
+          <div class="stat-label">Activos</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value">{{ stats.completed }}</div>
+          <div class="stat-label">Completados</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-value">{{ stats.pending }}</div>
+          <div class="stat-label">Pendientes</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="chart-wrapper">
+          <h3>Transaction History</h3>
+          <canvas id="txnChart"></canvas>
+        </div>
+        <div class="card">
+          <h3>Open Projects</h3>
+          <ul class="open-projects">
+            {% for project in open_projects %}
+            <li>
+              <span class="project-title">{{ project.title }}</span>
+              <span class="project-meta">{{ project.client_email }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="dashboard-login mb-1">
+        <form action="{{ url_for('admin.admin_add_project') }}" method="post">
+          <input type="text" name="title" placeholder="Título" required class="form-control full-input">
+          <input type="text" name="category" placeholder="Categoría" required class="form-control full-input">
+          <input type="text" name="video_url" placeholder="URL" required class="form-control full-input">
+          <input type="email" name="client_email" placeholder="Cliente" required class="form-control full-input">
+          <button type="submit" class="btn btn-primary">Agregar</button>
+        </form>
+      </div>
+
+      <div class="projects">
+        {% for p in projects %}
+        <div class="project-card card">
+          <h4>{{ p.title }}</h4>
+          <form action="{{ url_for('admin.admin_update_project', project_id=p.id) }}" method="post">
+            <input type="text" name="video_url" value="{{ p.video_url }}" placeholder="URL de video" class="form-control full-input">
+            <input type="email" name="client_email" value="{{ p.client_email }}" placeholder="Cliente" class="form-control full-input">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </form>
+          <form action="{{ url_for('admin.admin_activate_payment', project_id=p.id) }}" method="post" class="mt-half">
+            {% if not p.paid %}
+            <button type="submit" class="btn btn-success pay-btn">Activar 50%</button>
+            {% else %}
+            <span>Pago activado</span>
+            {% endif %}
+          </form>
+          <form action="{{ url_for('admin.admin_delete_video', project_id=p.id) }}" method="post" onsubmit="return confirmDelete();" class="mt-half">
+            <button type="submit" class="btn btn-danger">Eliminar Video</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+
+      <h3>Comentarios recientes</h3>
+      <ul class="comments-admin">
+        {% for c in comments %}
+        <li><strong>{{ c.user_email }}</strong> en <em>{{ c.project }}</em>: {{ c.text }} <span class="date">{{ c.date }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+  <script>
+  function confirmDelete(){
+    if(!confirm('¿Seguro que quieres eliminar el video?')) return false;
+    const key=prompt('Escribe "eliminar 2025" para confirmar');
+    if(key!=='eliminar 2025'){alert('Clave incorrecta');return false;}
+    return true;
+  }
+  </script>
+</body>
+</html>
