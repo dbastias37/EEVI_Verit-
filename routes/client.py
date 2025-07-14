@@ -173,5 +173,6 @@ def ver_pack(pack_id):
 
 @client_bp.route('/api/random-quote')
 def api_random_quote():
+    """Devuelve una frase motivacional en formato JSON."""
     from utils.quotes import get_random_quote
-    return jsonify({"quote": get_random_quote()})
+    return jsonify({"quote": get_random_quote()}), 200
