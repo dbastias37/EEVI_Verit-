@@ -8,6 +8,7 @@
   <!-- Fuente principal para la sección de administración -->
   <link href="https://fonts.googleapis.com/css2?family=Verite+Sans:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
   {% block head_admin %}{% endblock %}
   {% block extra_head %}{% endblock %}
 </head>
@@ -19,5 +20,6 @@
   </main>
   <script src="/static/js/main.js"></script>
 {% block scripts %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 </body>
 </html>

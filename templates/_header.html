@@ -1,29 +1,17 @@
-<header id="site-header">
-    <a class="logo" href="{{ url_for('client.home') }}">VERITÉ</a>
+<header class="app-bar">
+  <a class="logo" href="{{ url_for('client.home') }}">VERITÉ</a>
 
-    <!-- Botón hamburguesa -->
-    <button id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">
-        <span class="line"></span><span class="line"></span><span class="line"></span>
-    </button>
+  <button id="navToggle" aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
 
-    <!-- Menú deslizable -->
-    <nav id="mobileMenu">
-        {% for name, endpoint in [
-            ('Inicio',     'client.home'),
-            ('Packs',      'client.packs'),
-            ('Services',   'client.services_page'),
-            ('VFORUM',     'forum_index'),
-            ('Academia',   'client.academy'),
-            ('Dashboard',  'client.dashboard'),
-            ('Admin',      'admin.admin') ] %}
-            <a class="nav-link" href="{{ url_for(endpoint) }}">{{ name }}</a>
-        {% endfor %}
-
-        <div id="quoteRotator">{{ get_random_quote() }}</div>
-    </nav>
+  <nav id="navPanel">
+    <a href="{{ url_for('client.home') }}">Inicio</a>
+    <a href="{{ url_for('client.packs') }}">Packs</a>
+    <a href="{{ url_for('client.services_page') }}">Services</a>
+    <a href="{{ url_for('forum_index') }}">VForum</a>
+    <a href="{{ url_for('client.academy') }}">Academia</a>
+    <a href="{{ url_for('client.dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('admin.admin') }}">Admin</a>
+  </nav>
 </header>
-
-{% block extra_head %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar_hamburger.css') }}">
-  <script defer src="{{ url_for('static', filename='js/navbar_hamburger.js') }}"></script>
-{% endblock %}
