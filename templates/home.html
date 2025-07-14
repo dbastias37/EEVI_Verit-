@@ -158,30 +158,27 @@
 {% endif %}
 
 <!-- CTA Section -->
-<section class="section cta-section reveal">
-   <div class="section-container">
-       <div class="cta-container">
-           <div class="cta-badge">🔥 Únete Ahora</div>
-           <h2 class="cta-title">
-               Ejecución efectiva requiere<br>
-               un plan de acción claro
-           </h2>
-           <p class="cta-subtitle">
-               Comienza tu proyecto con sonido real que conecte con las emociones de tu audiencia
-           </p>
-           <div class="hero-cta">
-               <a href="{{ url_for('client.signup') }}" class="btn btn-primary">
-                   🚀 Crear Cuenta Gratis
-               </a>
-               <a href="{{ url_for('client.packs') }}" class="btn btn-secondary">
-                   👁️ Ver Si Estás Listo
-               </a>
-           </div>
-       </div>
-   </div>
+{# NUEVO bloque comunidad #}
+<section id="join" class="join-section container">
+    <span class="badge-fire">🔥 Únete Ahora a VFORUM</span>
+
+    <h2 class="join-title">
+        Únete a nuestra comunidad dedicada para&nbsp;
+        <span id="dynamic-word" class="alt-font">CREADORES DE CONTENIDO</span>
+    </h2>
+
+    <p class="join-copy">
+        Comparte recursos, recibe feedback y colabora con creativos que
+        buscan audio, imagen y soluciones reales.
+    </p>
+
+    <div class="join-cta">
+        <a href="{{ url_for('forum.index') }}" class="btn btn-primary">Entrar al Foro</a>
+    </div>
 </section>
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/home_brutalista.js') }}"></script>
+<script src="{{ url_for('static', filename='js/rotate_words.js') }}" defer></script>
 {% endblock %}
