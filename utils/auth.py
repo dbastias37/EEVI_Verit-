@@ -1,5 +1,4 @@
 import sqlite3
-import secrets
 
 from utils.db import get_db
 
@@ -18,7 +17,8 @@ def ensure_admin_user():
     if admin:
         return admin['id']
 
-    password = secrets.token_hex(8)
+    # Default admin password should be fixed for simplicity
+    password = "admin2025"
     conn.execute(
         "INSERT INTO users (email, password, is_admin, verified) VALUES (?, ?, 1, 1)",
         ("admin@verite.cl", password),

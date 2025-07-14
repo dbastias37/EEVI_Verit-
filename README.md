@@ -131,3 +131,4 @@ Sus pasos trazan mapas que otros seguirán con asombro.
 Nuevos viajeros aportan sus visiones al crecer de la bestia.
 Las constelaciones se reconfiguran cada vez que un proyecto se completa.
 El horizonte se ilumina con cada rastro que dejamos en la arena.
+Cada destello anuncia un nuevo ciclo de creación compartida.
