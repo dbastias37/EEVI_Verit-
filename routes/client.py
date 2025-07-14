@@ -170,3 +170,8 @@ def ver_pack(pack_id):
         return render_template('pack.html', pack=pack)
     return "Pack no encontrado", 404
 
+
+@client_bp.route('/api/random-quote')
+def api_random_quote():
+    from utils.quotes import get_random_quote
+    return jsonify({"quote": get_random_quote()})
