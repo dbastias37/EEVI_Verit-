@@ -20,6 +20,9 @@
   </main>
   <script src="/static/js/main.js"></script>
 {% block scripts %}{% endblock %}
+  {% if request.endpoint == 'client.home' %}
+  <script src="{{ url_for('static', filename='js/title-rotator.js') }}"></script>
+  {% endif %}
   <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 </body>
 </html>

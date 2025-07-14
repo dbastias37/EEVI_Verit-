@@ -42,3 +42,12 @@ header.app-bar{
   border:none;border-radius:0;
 }
 #navPanel a:hover{background:none;}
+
+/* -------- Rotador de palabras (home) -------- */
+.rotator{display:inline-block;white-space:nowrap;}
+.fade{opacity:0;filter:blur(6px);transition:opacity 1s ease,filter 1s ease;}
+.fade.show{opacity:1;filter:blur(0);}
+/* tiempos de permanencia se controlan por JS */
+
+.primary{color:var(--accent);}
+.secondary{color:var(--primary);}
