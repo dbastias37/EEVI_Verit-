@@ -21,4 +21,4 @@ function rotate() {
   });
 }
 rotate();                               // first run
-setInterval(rotate, 7000);              // 7 s = 1 s fade-in + 5 s visible + 1 s fade-out
+setInterval(rotate, 10000);             // 10 s = 1 s fade-in + 8 s visible + 1 s fade-out
