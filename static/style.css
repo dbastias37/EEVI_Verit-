@@ -3,11 +3,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code&display=swap");
 
 :root {
-  --accent-color: #5C5CFF;
+  --accent-color: #00D4B8;
   --gradient-silver: linear-gradient(45deg, #ccc, #eee);
-  --border-silver: #aaa;
-  --bg-dark: #000;
-  --text-light: #fff;
+  --border-silver: #2A3441;
+  --bg-dark: #0A0F1C;
+  --text-light: #E9E9E9;
 }
 
 body {
