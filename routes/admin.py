@@ -28,7 +28,7 @@ def admin():
         'pending': sum(1 for p in projects if not p.get('paid'))
     }
     open_projects = [p for p in projects if p.get('status') != 'completed']
-    return render_template('admin_dashboard.html', projects=projects,
+    return render_template('admin_panel.html', projects=projects,
                            comments=comments, stats=stats,
                            open_projects=open_projects)
 
