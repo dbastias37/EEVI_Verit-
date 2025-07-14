@@ -1,0 +1,155 @@
+:root {
+  --bg-color: #13161b;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --text-color: #f1f1f1;
+  --accent: #3b82f6;
+  --green: #10b981;
+  --red: #ef4444;
+  --radius: 0.75rem;
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Verite Sans', sans-serif;
+}
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 220px;
+  padding: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+}
+.sidebar a {
+  display: block;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: var(--text-color);
+  border-radius: var(--radius);
+}
+.sidebar a.active {
+  background: var(--accent);
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 220px;
+  padding: 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+}
+.stat-card .stat-value {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.project-form input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  background: var(--glass-bg);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  color: var(--text-color);
+}
+
+.project-form button {
+  background: var(--accent);
+  color: var(--text-color);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.project-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.project-card form {
+  margin-top: 0.5rem;
+}
+.project-card input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  background: var(--glass-bg);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  padding: 0.5rem;
+  color: var(--text-color);
+}
+.project-card button {
+  background: var(--accent);
+  color: var(--text-color);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.project-card .btn-success {
+  background: var(--green);
+}
+.project-card .btn-danger {
+  background: var(--red);
+}
+
+.comment-item {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn-danger {
+  background: var(--red);
+}
+.btn-success {
+  background: var(--green);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}

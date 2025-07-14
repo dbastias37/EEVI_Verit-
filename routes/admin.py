@@ -122,3 +122,15 @@ def admin_delete_video(project_id):
     mgr.delete_video(project_id)
     return redirect(url_for('admin.admin'))
 
+
+@admin_bp.route('/clientes')
+def admin_clients():
+    return render_template('admin_clients.html')
+
+@admin_bp.route('/usuarios')
+def admin_users():
+    return render_template('admin_users.html')
+
+@admin_bp.route('/comentarios')
+def admin_comments():
+    return render_template('admin_comments.html')
