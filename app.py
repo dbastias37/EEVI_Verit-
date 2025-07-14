@@ -3,6 +3,7 @@ import re
 import sqlite3
 import time
 import json
+from werkzeug.security import generate_password_hash
 from flask import (
     Flask, render_template, request, redirect, jsonify,
     url_for, session, flash, abort
@@ -23,6 +24,27 @@ from modules.forum import (
     vote_response,
     get_response_topic,
 )
+
+
+def ensure_admin_user():
+    """Ensure at least one admin user exists, creating a default one if not."""
+    conn = get_db()
+    try:
+        admin = conn.execute(
+            "SELECT id FROM users WHERE is_admin=1 LIMIT 1"
+        ).fetchone()
+    except sqlite3.OperationalError:
+        # Users table might not exist yet
+        return
+    if not admin:
+        default_pw = generate_password_hash(
+            os.environ.get("ADMIN_PASSWORD", "admin123")
+        )
+        conn.execute(
+            "INSERT INTO users (email, password, is_admin, verified) VALUES (?, ?, 1, 1)",
+            ("admin@verite.cl", default_pw),
+        )
+        conn.commit()
 
 
 def create_app():
@@ -105,17 +127,6 @@ def save_profile_pic(email, path):
     conn.close()
 
 
-def ensure_admin_user():
-    conn = db_conn()
-    cur = conn.cursor()
-    cur.execute('SELECT id FROM users WHERE email=?', ('admin@verite.cl',))
-    if not cur.fetchone():
-        cur.execute(
-            'INSERT INTO users (email, password, is_admin, verified) VALUES (?,?,1,1)',
-            ('admin@verite.cl', 'Admin777')
-        )
-        conn.commit()
-    conn.close()
 
 # Wrappers around services
 
