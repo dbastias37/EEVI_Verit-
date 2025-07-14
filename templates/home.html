@@ -1,56 +1,188 @@
 {% extends 'base.html' %}
+{% block title %}VERITÉ - Contenido Audiovisual Real{% endblock %}
 
-{% block title %}Inicio Verité{% endblock %}
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home_brutalista.css') }}">
+{% endblock %}
 
 {% block content %}
-  <div class="hero-container">
-    <div class="hero-title-container">
-      <h1>CONTENIDO AUDIOVISUAL DE ALTA CALIDAD</h1>
-      <p>Verité promueve la creación audiovisual auténtica. Registramos sonidos e imágenes reales para impulsar tus proyectos sin artificios.</p>
-    </div>
-  </div>
+<!-- Hero Section -->
+<section class="hero" id="inicio">
+   <div class="hero-content">
+       <div class="hero-badge">🎵 Contenido Real Certificado</div>
+       <h1 class="hero-title">
+           SONIDO <span class="highlight">REAL</span><br>
+           PARA PROYECTOS<br>
+           <span class="highlight">AUTÉNTICOS</span>
+       </h1>
+       <p class="hero-subtitle">La única plataforma que garantiza grabaciones 100% reales</p>
+       <p class="hero-description">
+           Cada sonido que ofrecemos ha sido capturado en el mundo real, sin IA, sin bibliotecas genéricas. 
+           Solo audio auténtico para proyectos que buscan conectar de verdad.
+       </p>
+       <div class="hero-cta">
+           <a href="{{ url_for('client.packs') }}" class="btn btn-primary">
+               🎧 Explorar Packs
+           </a>
+           <a href="{{ url_for('forum_index') }}" class="btn btn-secondary">
+               💬 Comunidad
+           </a>
+       </div>
+   </div>
+   <div class="bg-pattern"></div>
+</section>
 
+<!-- Stats Section -->
+<section class="section reveal">
+   <div class="section-container">
+       <div class="stats-container">
+           <div class="stat-item">
+               <span class="stat-number">{{ stats.total_sounds }}+</span>
+               <span class="stat-label">Sonidos Grabados</span>
+           </div>
+           <div class="stat-item">
+               <span class="stat-number">{{ stats.projects_completed }}+</span>
+               <span class="stat-label">Proyectos Reales</span>
+           </div>
+           <div class="stat-item">
+               <span class="stat-number">{{ stats.satisfaction }}%</span>
+               <span class="stat-label">Satisfacción</span>
+           </div>
+           <div class="stat-item">
+               <span class="stat-number">{{ stats.avg_delivery }}</span>
+               <span class="stat-label">Entrega Max</span>
+           </div>
+       </div>
+   </div>
+</section>
 
-  <h2 class="section-title">Packs de sonidos</h2>
-  <p class="section-description">Cada pack surge de grabaciones en terreno y seleccionadas cuidadosamente.</p>
-  <p class="section-description">Queremos que conectes con la esencia de cada lugar sin recurrir a sonidos genéricos.</p>
-  <p class="section-description">Nuestra misión es que tus proyectos respiren autenticidad en cada detalle.</p>
-  <div class="packs">
-    {% for pack in packs %}
-    <div class="pack-card">
-      <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
-      <h2>{{ pack.titulo }}</h2>
-      <p>{{ pack.descripcion }}</p>
-      <p><strong>Precio:</strong> {{ pack.precio }}</p>
-      <a href="/pack/{{ pack.id }}">Ver detalles</a>
-    </div>
-    {% endfor %}
-  </div>
+<!-- Features Section -->
+<section class="section section-dark reveal">
+   <div class="section-container">
+       <div class="section-header">
+           <div class="section-badge">✨ Soluciones</div>
+           <h2 class="section-title">
+               Soluciones digitales<br>
+               personalizadas para<br>
+               <em style="color: var(--primary);">tu</em> crecimiento audiovisual
+           </h2>
+           <p class="section-subtitle">
+               Porque cada proyecto merece sonido auténtico que conecte con las emociones reales de tu audiencia
+           </p>
+       </div>
+       
+       <div class="features-grid">
+           <div class="feature-card">
+               <span class="feature-icon">🎤</span>
+               <h3 class="feature-title">Grabación Real</h3>
+               <p class="feature-description">
+                   Cada archivo proviene de sesiones reales en terreno. Sin IA, sin bibliotecas genéricas. 
+                   Solo audio capturado con técnica profesional.
+               </p>
+           </div>
+           <div class="feature-card">
+               <span class="feature-icon">⚡</span>
+               <h3 class="feature-title">Entrega Inmediata</h3>
+               <p class="feature-description">
+                   Sistema automatizado que respeta tu tiempo. Acceso instantáneo tras la compra, 
+                   sin esperas ni complicaciones.
+               </p>
+           </div>
+           <div class="feature-card">
+               <span class="feature-icon">🤝</span>
+               <h3 class="feature-title">Comunidad Activa</h3>
+               <p class="feature-description">
+                   Conecta con creadores reales en VForum. Comparte desafíos, encuentra soluciones 
+                   y colabora en proyectos auténticos.
+               </p>
+           </div>
+           <div class="feature-card">
+               <span class="feature-icon">🎯</span>
+               <h3 class="feature-title">Licencia Total</h3>
+               <p class="feature-description">
+                   Usa nuestro contenido sin restricciones. Licencia clara y transparente 
+                   para proyectos comerciales y personales.
+               </p>
+           </div>
+       </div>
+   </div>
+</section>
 
-  <h2 class="section-title">Servicios Audiovisuales</h2>
-  <p class="section-description">Nos involucramos desde la captura hasta la postproducción para que tu mensaje suene real.</p>
-  <p class="section-description">Creemos que imagen y sonido deben nacer juntos y crecer en armonía.</p>
-  <div class="services">
-    {% for s in services %}
-    <div class="service-card">
-      <img src="{{ s.imagen }}" alt="{{ s.titulo }}">
-      <h2>{{ s.titulo }}</h2>
-      <p>{{ s.descripcion }}</p>
-      <a href="{{ s.enlace }}">Ver detalle</a>
-    </div>
-    {% endfor %}
-  </div>
+<!-- Products Section -->
+<section class="section reveal" id="productos">
+   <div class="section-container">
+       <div class="section-header">
+           <div class="section-badge">🎵 Productos</div>
+           <h2 class="section-title">Packs de Audio Real</h2>
+           <p class="section-subtitle">Contenido auténtico para cada tipo de proyecto audiovisual</p>
+       </div>
 
-  <h2 class="section-title">Por Qué Hacemos Esto</h2>
-  <p class="section-desc">La industria olvida la humanidad detrás de cada proyecto. Nosotros grabamos lo que vivimos.</p>
-  <p class="section-desc">Con cada servicio y pack apoyamos a creadores reales que buscan contar historias honestas.</p>
+       <div class="products-grid">
+           {% for pack in packs %}
+           <div class="product-card">
+               <div class="product-image">
+                   {% if 'naturaleza' in pack.titulo.lower() %}🌲
+                   {% elif 'ciudad' in pack.titulo.lower() %}🏙️
+                   {% elif 'lluvia' in pack.titulo.lower() %}🌧️
+                   {% else %}🎵{% endif %}
+               </div>
+               <div class="product-content">
+                   <h3 class="product-title">{{ pack.titulo }}</h3>
+                   <p class="product-description">{{ pack.descripcion }}</p>
+                   <div class="product-price">{{ pack.precio }}</div>
+                   <a href="{{ url_for('client.ver_pack', pack_id=pack.id) }}" class="product-cta">Comprar Ahora</a>
+               </div>
+           </div>
+           {% endfor %}
+       </div>
+   </div>
+</section>
 
-  <section id="latest-topic">
-    {% if latest %}
-      <h3><a href="/forum/tema/{{ latest.slug }}">{{ latest.title }}</a></h3>
-      <p>{{ latest.description[:300] }}{% if latest.description and latest.description|length > 300 %}...{% endif %}</p>
-      <a href="/forum/tema/{{ latest.slug }}" class="read-more">Leer más →</a>
-      <p class="date">{{ latest.created_at }}</p>
-    {% endif %}
-  </section>
+<!-- Latest Topic from VForum -->
+{% if latest %}
+<section class="section section-dark reveal">
+   <div class="section-container">
+       <div class="section-header">
+           <div class="section-badge">💬 VForum</div>
+           <h2 class="section-title">Último Tema de la Comunidad</h2>
+       </div>
+       
+       <div class="latest-topic-card">
+           <h3><a href="{{ url_for('forum_topic_view', topic_id=latest.id) }}">{{ latest.title }}</a></h3>
+           <p class="topic-category">{{ latest.category }}</p>
+           <p>{{ latest.description[:300] }}{% if latest.description|length > 300 %}...{% endif %}</p>
+           <a href="{{ url_for('forum_topic_view', topic_id=latest.id) }}" class="btn btn-secondary">Leer más →</a>
+       </div>
+   </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="section cta-section reveal">
+   <div class="section-container">
+       <div class="cta-container">
+           <div class="cta-badge">🔥 Únete Ahora</div>
+           <h2 class="cta-title">
+               Ejecución efectiva requiere<br>
+               un plan de acción claro
+           </h2>
+           <p class="cta-subtitle">
+               Comienza tu proyecto con sonido real que conecte con las emociones de tu audiencia
+           </p>
+           <div class="hero-cta">
+               <a href="{{ url_for('client.signup') }}" class="btn btn-primary">
+                   🚀 Crear Cuenta Gratis
+               </a>
+               <a href="{{ url_for('client.packs') }}" class="btn btn-secondary">
+                   👁️ Ver Si Estás Listo
+               </a>
+           </div>
+       </div>
+   </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/home_brutalista.js') }}"></script>
 {% endblock %}
