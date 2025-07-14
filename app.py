@@ -170,6 +170,12 @@ def forum_index():
         quotes=forum_db.INSPIRATIONAL_QUOTES,
     )
 
+# ─── Alias de endpoint para compatibilidad retroactiva ──
+@app.route('/forum', endpoint='forum.index', methods=['GET'])
+def forum_index_alias():
+    """Alias para que `url_for('forum.index')` funcione sin cambiar templates."""
+    return forum_index()
+
 
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():
