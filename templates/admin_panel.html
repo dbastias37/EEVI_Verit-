@@ -138,6 +138,7 @@
 {{ super() }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+
 function confirmDelete(){
   if(!confirm('¿Seguro que quieres eliminar el video?')) return false;
   const key=prompt('Escribe "eliminar 2025" para confirmar');
@@ -161,31 +162,69 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Section navigation
+  // Section navigation - VERSIÓN CORREGIDA
+  const sections = {
+    'proyectos': document.getElementById('proyectos'),
+    'clientes': document.getElementById('clientes'),
+    'usuarios': document.getElementById('usuarios'),
+    'comentarios': document.getElementById('comentarios')
+  };
+
+  // Inicializar - asegurar que solo proyectos esté visible
+  Object.entries(sections).forEach(([key, section]) => {
+    if (section) {
+      if (key === 'proyectos') {
+        section.style.display = 'block';
+        section.classList.remove('hidden');
+        section.classList.add('fade-in');
+      } else {
+        section.style.display = 'none';
+        section.classList.add('hidden');
+      }
+    }
+  });
+
+  // Event listeners para los botones
   document.querySelectorAll('.sidebar-nav button').forEach(btn => {
     btn.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-section');
+      
+      // Si no existe la sección, no hacer nada
+      if (!sections[targetId]) {
+        console.warn(`Sección ${targetId} no encontrada`);
+        return;
+      }
+
       // Update active state
       document.querySelectorAll('.sidebar-nav button').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
       
-      // Hide all sections
-      document.querySelectorAll('.section').forEach(section => {
-        section.classList.add('hidden');
-        setTimeout(() => section.style.display = 'none', 300);
+      // Ocultar todas las secciones
+      Object.values(sections).forEach(section => {
+        if (section && section !== sections[targetId]) {
+          section.style.display = 'none';
+          section.classList.add('hidden');
+          section.classList.remove('fade-in');
+        }
       });
       
-      // Show target section
-      const targetId = this.getAttribute('data-section');
-      const targetSection = document.getElementById(targetId);
+      // Mostrar la sección objetivo
+      const targetSection = sections[targetId];
       if (targetSection) {
+        // Primero hacerla visible
         targetSection.style.display = 'block';
+        
+        // Luego aplicar la animación después de un pequeño delay
         setTimeout(() => {
           targetSection.classList.remove('hidden');
           targetSection.classList.add('fade-in');
-        }, 50);
+        }, 10);
       }
     });
   });
+
+  // Debug: verificar que las secciones existen
+  console.log('Secciones encontradas:', Object.keys(sections).filter(key => sections[key] !== null));
 });
 </script>
 {% endblock %}
