@@ -4,6 +4,12 @@ from utils.auth import ensure_admin_user
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.security import admin_required
+from modules.admin import (
+    admin_packs_list,
+    admin_packs_new,
+    admin_packs_edit,
+    admin_packs_delete,
+)
 
 # Blueprint with short name used for endpoint prefix
 admin_bp = Blueprint('admin', __name__)
@@ -134,3 +140,29 @@ def admin_users():
 @admin_bp.route('/comentarios')
 def admin_comments():
     return render_template('admin_comments.html')
+
+
+# ----- Admin Packs CRUD -----
+
+@admin_bp.route('/packs')
+@admin_required
+def admin_packs():
+    return admin_packs_list()
+
+
+@admin_bp.route('/packs/new', methods=['GET', 'POST'])
+@admin_required
+def admin_packs_new_route():
+    return admin_packs_new()
+
+
+@admin_bp.route('/packs/<string:slug>/edit', methods=['GET', 'POST'])
+@admin_required
+def admin_packs_edit_route(slug):
+    return admin_packs_edit(slug)
+
+
+@admin_bp.route('/packs/<string:slug>/delete', methods=['POST'])
+@admin_required
+def admin_packs_delete_route(slug):
+    return admin_packs_delete(slug)
