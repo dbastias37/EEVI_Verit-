@@ -1,18 +1,15 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
+from flask import (
+    Blueprint, render_template, request, redirect,
+    url_for, session, current_app, flash
+)
 from utils.db import get_db
 from utils.auth import ensure_admin_user
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.security import admin_required
-from modules.admin import (
-    admin_packs_list,
-    admin_packs_new,
-    admin_packs_edit,
-    admin_packs_delete,
-)
 
 # Blueprint with short name used for endpoint prefix
-admin_bp = Blueprint('admin', __name__)
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
 @admin_bp.before_request
@@ -145,24 +142,58 @@ def admin_comments():
 # ----- Admin Packs CRUD -----
 
 @admin_bp.route('/packs')
-@admin_required
-def admin_packs():
-    return admin_packs_list()
+def packs_list():
+    db = get_db()
+    packs = db.execute("SELECT * FROM packs ORDER BY id DESC").fetchall()
+    return render_template('admin/packs_list.html', packs=packs)
 
 
-@admin_bp.route('/packs/new', methods=['GET', 'POST'])
-@admin_required
-def admin_packs_new_route():
-    return admin_packs_new()
+@admin_bp.route('/packs/new', methods=['GET','POST'])
+def pack_new():
+    if request.method == 'POST':
+        name = request.form['name']
+        slug = request.form['slug']
+        desc = request.form['description']
+        price = request.form['price']
+        image = request.form['image_url']
+        db = get_db()
+        db.execute(
+            "INSERT INTO packs (name, slug, description, price, image_url) VALUES (?,?,?,?,?)",
+            (name, slug, desc, price, image)
+        )
+        db.commit()
+        flash("Pack creado correctamente", "success")
+        return redirect(url_for('admin.packs_list'))
+    return render_template('admin/pack_form.html', pack=None)
 
 
-@admin_bp.route('/packs/<string:slug>/edit', methods=['GET', 'POST'])
-@admin_required
-def admin_packs_edit_route(slug):
-    return admin_packs_edit(slug)
+@admin_bp.route('/packs/<int:id>/edit', methods=['GET','POST'])
+def pack_edit(id):
+    db = get_db()
+    pack = db.execute("SELECT * FROM packs WHERE id = ?", (id,)).fetchone()
+    if not pack:
+        flash("Pack no encontrado", "error")
+        return redirect(url_for('admin.packs_list'))
+    if request.method == 'POST':
+        db.execute(
+            "UPDATE packs SET name=?, slug=?, description=?, price=?, image_url=? WHERE id=?",
+            (request.form['name'], request.form['slug'], request.form['description'],
+             request.form['price'], request.form['image_url'], id)
+        )
+        db.commit()
+        flash("Pack actualizado", "success")
+        return redirect(url_for('admin.packs_list'))
+    return render_template('admin/pack_form.html', pack=pack)
 
 
-@admin_bp.route('/packs/<string:slug>/delete', methods=['POST'])
-@admin_required
-def admin_packs_delete_route(slug):
-    return admin_packs_delete(slug)
+@admin_bp.route('/packs/<int:id>/delete', methods=['POST'])
+def pack_delete(id):
+    password = request.form.get('password','')
+    if password != 'eliminar2025':
+        flash("Contraseña incorrecta", "error")
+    else:
+        db = get_db()
+        db.execute("DELETE FROM packs WHERE id = ?", (id,))
+        db.commit()
+        flash("Pack eliminado", "success")
+    return redirect(url_for('admin.packs_list'))

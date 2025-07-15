@@ -33,7 +33,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     app.jinja_env.globals['get_random_quote'] = get_random_quote
-    app.register_blueprint(admin_bp, url_prefix='/admin')
+    app.register_blueprint(admin_bp)
     app.register_blueprint(client_bp)
     app.teardown_appcontext(close_db)
 

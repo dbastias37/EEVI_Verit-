@@ -3,6 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.security import login_required
+from utils.db import get_db
 from utils.validators import is_valid_url
 
 client_bp = Blueprint('client', __name__)
@@ -34,9 +35,8 @@ def get_drive_preview_url(share_url):
 
 
 def get_all_packs():
-    import json
-    with open('packs/info.json', 'r', encoding='utf-8') as f:
-        return json.load(f)
+    db = get_db()
+    return db.execute("SELECT * FROM packs ORDER BY id DESC").fetchall()
 
 
 def get_all_services():
@@ -180,14 +180,13 @@ def project_comments(project_id):
     return jsonify(cm.get_comments(project_id))
 
 
-@client_bp.route('/packs/<string:slug>', endpoint='pack_detail')
-def pack_detail(slug):
+@client_bp.route('/packs/<int:id>', endpoint='pack_detail')
+def pack_detail(id):
     """Vista detalle de un pack."""
-    packs = get_all_packs()
-    pack = next((p for p in packs if p['id'] == slug), None)
+    db = get_db()
+    pack = db.execute("SELECT * FROM packs WHERE id=?", (id,)).fetchone()
     if pack:
-        sounds = pack.get('sounds', [])
-        return render_template('pack_detail.html', pack=pack, sounds=sounds)
+        return render_template('pack_detail.html', pack=pack, sounds=[])
     return "Pack no encontrado", 404
 
 
