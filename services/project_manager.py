@@ -95,7 +95,7 @@ class ProjectManager:
         conn = self.db_conn()
         cur = conn.cursor()
         cur.execute(
-            'SELECT p.id,p.title,p.video_url,c.email, p.paid '
+            'SELECT p.id,p.title,p.video_url,c.email,p.paid,p.status '
             'FROM projects p JOIN clients c ON p.client_id=c.id'
         )
         rows = cur.fetchall()
@@ -108,5 +108,12 @@ class ProjectManager:
                 'video_url': r[2],
                 'client_email': r[3],
                 'paid': bool(r[4]),
+                'status': r[5],
             })
         return projects
+
+    def update_status(self, project_id: int, status: str) -> None:
+        conn = self.db_conn()
+        conn.execute('UPDATE projects SET status=? WHERE id=?', (status, project_id))
+        conn.commit()
+        conn.close()
