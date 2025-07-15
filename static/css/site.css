@@ -8,10 +8,10 @@ header.app-bar{
 }
 .app-bar .logo{
   font-family:'Inter',sans-serif;font-weight:800;letter-spacing:.04em;
-  font-size:clamp(2rem,4vw,5rem);line-height:1;color:#fff;text-decoration:none;
+  font-size:clamp(1.8rem,3vw,4rem);line-height:1;color:#fff;text-decoration:none;
   background:none !important;transition:font-size .3s;
 }
-.app-bar .logo:hover{background:none;font-size:clamp(2.2rem,4.4vw,5.4rem);}
+.app-bar .logo:hover{background:none;font-size:clamp(2rem,3.4vw,4.4rem);}
 .forum-link{
   margin-left:auto;
   background:var(--primary,#00D4B8);
@@ -31,9 +31,9 @@ header.app-bar{
   width:48px;height:6px;background:#fff;border-radius:3px;
   transition:all .3s;
 }
-#navToggle.open span:nth-child(1){transform:translateY(5px) rotate(45deg);}
+#navToggle.open span:nth-child(1){transform:translateY(14px) rotate(45deg);}
 #navToggle.open span:nth-child(2){opacity:0;}
-#navToggle.open span:nth-child(3){transform:translateY(-5px) rotate(-45deg);}
+#navToggle.open span:nth-child(3){transform:translateY(-14px) rotate(-45deg);}
 
 #navPanel{
   position:absolute;top:72px;left:0;width:100%;
@@ -62,3 +62,12 @@ header.app-bar{
 
 .primary{color:var(--accent);}
 .secondary{color:var(--primary);}
+
+/* Quote rotator in header */
+#quoteRotator{
+  margin:0 auto;
+  color:#A0AEC0;
+  font-size:clamp(1rem,2vw,1.2rem);
+  transition:opacity .4s ease;
+}
+#quoteRotator.hide{opacity:0;}
