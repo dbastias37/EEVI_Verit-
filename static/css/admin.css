@@ -33,10 +33,10 @@ h1, h2, h3, h4 {
   width: 260px;
   padding: 1rem;
   position: fixed;
-  top: 0;
+  top: 120px;
   bottom: 0;
   left: 0;
-  height: 100vh;
+  height: calc(100vh - 120px);
 }
 .sidebar .avatar img {
   width: 60px;
