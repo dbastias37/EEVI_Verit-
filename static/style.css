@@ -912,3 +912,20 @@ body.forum-new {
 .admin-packs-table th,
 .admin-packs-table td { padding: .75rem; border:1px solid #333; }
 .admin-packs-table tr:hover { background: #222; }
+
+.sidebar-nav a {
+  display: block;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #ccc;
+  transition: background 0.2s, color 0.2s;
+}
+.sidebar-nav a.active,
+.sidebar-nav a:hover {
+  background: #333;
+  color: #fff;
+}
+.sidebar-nav {
+  padding-top: 4rem; /* deja espacio para el header */
+}

@@ -10,7 +10,9 @@
 
 {% block content %}
 <div class="app-container">
-  {% include 'admin/sidebar.html' %}
+  <div class="sidebar-container" style="margin-top: 4rem;">
+    {% include 'admin/sidebar.html' %}
+  </div>
   <div class="main-content">
     {% block admin_content %}{% endblock %}
   </div>

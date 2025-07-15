@@ -2,10 +2,10 @@
   <div class="avatar">
     <img src="{{ url_for('static', filename='img/avatar.png') }}" alt="admin" />
   </div>
-  <nav class="menu">
-    <a href="{{ url_for('admin.admin') }}" class="menu-item{% if request.endpoint == 'admin.admin' %} active{% endif %}">
-      <i class="fa fa-chart-pie"></i> Dashboard
-    </a>
-    <a href="{{ url_for('admin.packs_list') }}" class="menu-item{% if request.endpoint == 'admin.packs_list' %} active{% endif %}">Packs</a>
+  <nav class="sidebar-nav">
+    <a href="{{ url_for('admin.projects') }}" class="{% if request.path == url_for('admin.projects') %}active{% endif %}">Mis proyectos</a>
+    <a href="{{ url_for('admin.clients') }}" class="{% if request.path == url_for('admin.clients') %}active{% endif %}">Clientes</a>
+    <a href="{{ url_for('admin.admin_users') }}" class="{% if request.path == url_for('admin.admin_users') %}active{% endif %}">Usuarios</a>
+    <a href="{{ url_for('admin.comments') }}" class="{% if request.path == url_for('admin.comments') %}active{% endif %}">Comentarios</a>
   </nav>
 </aside>

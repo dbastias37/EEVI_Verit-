@@ -59,6 +59,26 @@ def admin():
                            open_projects=open_projects)
 
 
+@admin_bp.route('/projects')
+@admin_required
+def projects():
+    """Listar proyectos"""
+    mgr = _manager()
+    cmt = _comments()
+    projects = mgr.get_all_projects()
+    comments = cmt.get_all_comments()
+    stats = {
+        'total': len(projects),
+        'revision': sum(1 for p in projects if p.get('status') == 'revision'),
+        'finalizado': sum(1 for p in projects if p.get('status') == 'finalizado'),
+        'pagado': sum(1 for p in projects if p.get('status') == 'pagado')
+    }
+    open_projects = [p for p in projects if p.get('status') != 'finalizado']
+    return render_template('admin_panel.html', projects=projects,
+                           comments=comments, stats=stats,
+                           open_projects=open_projects)
+
+
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
@@ -162,6 +182,12 @@ def admin_update_status(project_id):
 def admin_clients():
     return render_template('admin_clients.html')
 
+
+@admin_bp.route('/clients')
+def clients():
+    """Vista Clientes (en)"""
+    return render_template('admin/clients.html')
+
 @admin_bp.route('/usuarios')
 def admin_users():
     return render_template('admin_users.html')
@@ -169,6 +195,12 @@ def admin_users():
 @admin_bp.route('/comentarios')
 def admin_comments():
     return render_template('admin_comments.html')
+
+
+@admin_bp.route('/comments')
+def comments():
+    """Vista Comentarios (en)"""
+    return render_template('admin/comments.html')
 
 
 # ----- Admin Packs CRUD -----
