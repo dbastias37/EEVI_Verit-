@@ -68,6 +68,6 @@ header.app-bar{
   margin:0 auto;
   color:#A0AEC0;
   font-size:clamp(1rem,2vw,1.2rem);
-  transition:opacity .4s ease;
+  transition:opacity 1.8s ease;
 }
 #quoteRotator.hide{opacity:0;}

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         rotator.textContent = text;
         rotator.style.opacity = 1;
-      }, 400);
+      }, 1800);
     };
     const fetchQuote = () => {
       fetch('/api/random-quote')
@@ -27,6 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(() => {})
         .finally(() => updateQuote(current));
     };
-    setInterval(fetchQuote, 6000);
+    setInterval(fetchQuote, 8000);
   }
 });

@@ -39,7 +39,7 @@
       setTimeout(() => {
         rotator.textContent = text;
         rotator.style.opacity = 1;
-      }, 400);
+      }, 1800);
     };
 
     const fetchQuote = () => {
@@ -50,6 +50,6 @@
         .finally(() => updateQuote(current));
     };
 
-    setInterval(fetchQuote, 6000);
+    setInterval(fetchQuote, 8000);
   }
 })();
