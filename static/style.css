@@ -139,13 +139,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .pack-card {
   background: #111;
-  border-radius: 10px;
-  padding: 1rem;
+  border-radius: 2rem;
+  padding: 1.5rem;
   width: 280px;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  transition: transform .3s ease, opacity 0.4s ease-out;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
 .pack-card img {
@@ -879,3 +880,28 @@ body.forum-new {
 .comments-admin{list-style:none;padding:0;margin:1rem 0;}
 .comments-admin li{padding:0.25rem 0;border-bottom:1px solid #444;}
 
+
+/* Packs UI enhancement */
+.audio-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.audio-wrapper audio {
+  display: none;
+}
+.audio-control {
+  cursor: pointer;
+}
+.audio-control svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+}
+.waveform {
+  width: 100%;
+  height: 40px;
+  border-radius: 1rem;
+  background: #222;
+}
