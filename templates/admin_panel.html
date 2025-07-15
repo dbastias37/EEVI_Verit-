@@ -1,100 +1,134 @@
 {% extends 'base.html' %}
 
-
 {% block head_admin %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_modern.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_improved.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-  <aside class="sidebar">
-    <div class="sidebar-nav">
-      <button data-section="proyectos">Proyectos</button>
-      <button data-section="clientes">Clientes</button>
-      <button data-section="usuarios">Usuarios</button>
-      <button data-section="comentarios">Comentarios</button>
-    </div>
-  </aside>
-  <div class="panel-content">
-    <div id="proyectos" class="section">
-      <header class="page-header">
-        <h2>Panel Admin</h2>
-        <form action="{{ url_for('admin.admin_logout') }}" method="post">
-          <button type="submit" class="btn-danger">Salir</button>
-        </form>
-      </header>
-
-  {% set stat_items = [
-     ('Proyectos',    stats.total),
-     ('En revisión',  stats.revision),
-     ('Finalizados',  stats.finalizado),
-     ('Pagados',      stats.pagado)
-  ] %}
-  <div class="stats-grid">
-    {% for label, value in stat_items %}
-      <div class="stat-card">
-          <div class="stat-value">{{ value }}</div>
-          <div class="stat-label">{{ label }}</div>
+<div class="admin-panel">
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="avatar">
+        <img src="{{ url_for('static', filename='img/avatar.png') }}" alt="admin">
       </div>
-    {% endfor %}
-  </div>
-
-    <button id="open-upload" class="btn">Subir video</button>
-    <div id="upload-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <form class="project-form" action="{{ url_for('admin.admin_upload_project') }}" method="post" enctype="multipart/form-data">
-          <input type="text" name="title" placeholder="Título" required>
-          <input type="text" name="category" placeholder="Categoría" required>
-          <input type="file" name="video_file" accept="video/*" required>
-          <input type="email" name="client_email" placeholder="Cliente" required>
-          <button type="submit">Subir</button>
-        </form>
+      <div class="sidebar-nav">
+        <button data-section="proyectos" class="active">Proyectos</button>
+        <button data-section="clientes">Clientes</button>
+        <button data-section="usuarios">Usuarios</button>
+        <button data-section="comentarios">Comentarios</button>
       </div>
-    </div>
+    </aside>
+    
+    <div class="panel-content">
+      <div id="proyectos" class="section fade-in">
+        <header class="page-header">
+          <h2>Panel de Administración</h2>
+          <form action="{{ url_for('admin.admin_logout') }}" method="post" class="inline-form">
+            <button type="submit" class="btn btn-danger">Salir</button>
+          </form>
+        </header>
 
-    {% for p in projects %}
-      <div class="project-card">
-        <h4>{{ p.title }}</h4>
-        <form action="{{ url_for('admin.admin_update_project', project_id=p.id) }}" method="post">
-          <input type="text" name="video_url" value="{{ p.video_url }}" placeholder="URL de video">
-          <input type="email" name="client_email" value="{{ p.client_email }}" placeholder="Cliente">
-          <button type="submit">Guardar</button>
-        </form>
-        <form action="{{ url_for('admin.admin_activate_payment', project_id=p.id) }}" method="post">
-          {% if not p.paid %}
-          <button type="submit" class="btn-success">Activar 50%</button>
-          {% else %}
-          <span>Pago activado</span>
-          {% endif %}
-        </form>
-        <form action="{{ url_for('admin.admin_update_status', project_id=p.id) }}" method="post" class="status-form">
-          <button type="submit" name="status" value="revision" class="btn">En revisión</button>
-          <button type="submit" name="status" value="finalizado" class="btn">Finalizado</button>
-          <button type="submit" name="status" value="pagado" class="btn">Pagado</button>
-        </form>
-        <form action="{{ url_for('admin.admin_delete_video', project_id=p.id) }}" method="post" onsubmit="return confirmDelete();">
-          <button type="submit" class="btn-danger">Eliminar Video</button>
-        </form>
-      </div>
-    {% endfor %}
+        {% set stat_items = [
+           ('Proyectos', stats.total),
+           ('En revisión', stats.revision),
+           ('Finalizados', stats.finalizado),
+           ('Pagados', stats.pagado)
+        ] %}
+        <div class="stats-grid">
+          {% for label, value in stat_items %}
+            <div class="stat-card">
+              <div class="stat-value">{{ value }}</div>
+              <div class="stat-label">{{ label }}</div>
+            </div>
+          {% endfor %}
+        </div>
 
-    <h3>Comentarios recientes</h3>
-    {% for c in comments %}
-      <div class="comment-item">
-        <strong>{{ c.user_email }}</strong> en <em>{{ c.project }}</em>: {{ c.text }}
-        <span class="date">{{ c.date }}</span>
+        <div class="card">
+          <h3>Agregar Nuevo Proyecto</h3>
+          <form action="{{ url_for('admin.admin_add_project') }}" method="post">
+            <input type="text" name="title" placeholder="Título del proyecto" required class="form-control">
+            <input type="text" name="category" placeholder="Categoría" required class="form-control">
+            <input type="text" name="video_url" placeholder="URL del video" required class="form-control">
+            <input type="email" name="client_email" placeholder="Email del cliente" required class="form-control">
+            <button type="submit" class="btn btn-primary">Agregar Proyecto</button>
+          </form>
+        </div>
+
+        <button id="open-upload" class="btn btn-primary mb-1">Subir video</button>
+        
+        <div id="upload-modal" class="modal">
+          <div class="modal-content">
+            <span class="close-modal" style="float: right; cursor: pointer; font-size: 1.5rem;">&times;</span>
+            <h3>Subir Video</h3>
+            <form class="project-form" action="{{ url_for('admin.admin_upload_project') }}" method="post" enctype="multipart/form-data">
+              <input type="text" name="title" placeholder="Título" required class="form-control">
+              <input type="text" name="category" placeholder="Categoría" required class="form-control">
+              <input type="file" name="video_file" accept="video/*" required class="form-control">
+              <input type="email" name="client_email" placeholder="Email del cliente" required class="form-control">
+              <button type="submit" class="btn btn-primary">Subir</button>
+            </form>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Proyectos Activos</h3>
+        {% for p in projects %}
+          <div class="project-card">
+            <h4>{{ p.title }}</h4>
+            <span class="status-badge status-{{ p.status }}">{{ p.status }}</span>
+            
+            <form action="{{ url_for('admin.admin_update_project', project_id=p.id) }}" method="post">
+              <input type="text" name="video_url" value="{{ p.video_url }}" placeholder="URL de video" class="form-control">
+              <input type="email" name="client_email" value="{{ p.client_email }}" placeholder="Cliente" class="form-control">
+              <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+            
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <form action="{{ url_for('admin.admin_activate_payment', project_id=p.id) }}" method="post" style="display: inline;">
+                {% if not p.paid %}
+                <button type="submit" class="btn btn-success">Activar 50%</button>
+                {% else %}
+                <span style="color: var(--admin-success);">✓ Pago activado</span>
+                {% endif %}
+              </form>
+              
+              <form action="{{ url_for('admin.admin_update_status', project_id=p.id) }}" method="post" class="status-form" style="display: inline;">
+                <button type="submit" name="status" value="revision" class="btn">En revisión</button>
+                <button type="submit" name="status" value="finalizado" class="btn">Finalizado</button>
+                <button type="submit" name="status" value="pagado" class="btn">Pagado</button>
+              </form>
+              
+              <form action="{{ url_for('admin.admin_delete_video', project_id=p.id) }}" method="post" onsubmit="return confirmDelete();" style="display: inline;">
+                <button type="submit" class="btn btn-danger">Eliminar Video</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+
+        <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Comentarios recientes</h3>
+        <ul class="comments-admin">
+          {% for c in comments %}
+            <li>
+              <strong>{{ c.user_email }}</strong> en <em>{{ c.project }}</em>: {{ c.text }}
+              <span class="date">{{ c.date }}</span>
+            </li>
+          {% endfor %}
+        </ul>
       </div>
-    {% endfor %}
-    </div>
-    <div id="clientes" class="section hidden" style="display:none;">
-      <h1>Contenido Clientes</h1>
-    </div>
-    <div id="usuarios" class="section hidden" style="display:none;">
-      <h1>Contenido Usuarios</h1>
-    </div>
-    <div id="comentarios" class="section hidden" style="display:none;">
-      <h1>Contenido Comentarios</h1>
+      
+      <div id="clientes" class="section hidden" style="display:none;">
+        <h2>Gestión de Clientes</h2>
+        <p>Contenido de clientes próximamente...</p>
+      </div>
+      
+      <div id="usuarios" class="section hidden" style="display:none;">
+        <h2>Gestión de Usuarios</h2>
+        <p>Contenido de usuarios próximamente...</p>
+      </div>
+      
+      <div id="comentarios" class="section hidden" style="display:none;">
+        <h2>Gestión de Comentarios</h2>
+        <p>Contenido de comentarios próximamente...</p>
+      </div>
     </div>
   </div>
 </div>
@@ -103,7 +137,6 @@
 {% block scripts %}
 {{ super() }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 <script>
 function confirmDelete(){
   if(!confirm('¿Seguro que quieres eliminar el video?')) return false;
@@ -112,11 +145,47 @@ function confirmDelete(){
   return true;
 }
 
-document.getElementById('open-upload')?.addEventListener('click', () => {
-  document.getElementById('upload-modal').classList.add('show');
-});
-document.querySelector('#upload-modal .close-modal')?.addEventListener('click', () => {
-  document.getElementById('upload-modal').classList.remove('show');
+document.addEventListener('DOMContentLoaded', function() {
+  // Modal functionality
+  const openBtn = document.getElementById('open-upload');
+  const modal = document.getElementById('upload-modal');
+  const closeBtn = modal ? modal.querySelector('.close-modal') : null;
+  
+  if (openBtn && modal && closeBtn) {
+    openBtn.addEventListener('click', () => modal.classList.add('show'));
+    closeBtn.addEventListener('click', () => modal.classList.remove('show'));
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('show');
+    });
+  }
+
+  // Section navigation
+  document.querySelectorAll('.sidebar-nav button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Update active state
+      document.querySelectorAll('.sidebar-nav button').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Hide all sections
+      document.querySelectorAll('.section').forEach(section => {
+        section.classList.add('hidden');
+        setTimeout(() => section.style.display = 'none', 300);
+      });
+      
+      // Show target section
+      const targetId = this.getAttribute('data-section');
+      const targetSection = document.getElementById(targetId);
+      if (targetSection) {
+        targetSection.style.display = 'block';
+        setTimeout(() => {
+          targetSection.classList.remove('hidden');
+          targetSection.classList.add('fade-in');
+        }, 50);
+      }
+    });
+  });
 });
 </script>
 {% endblock %}
