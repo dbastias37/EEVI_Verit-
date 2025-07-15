@@ -39,6 +39,14 @@ def get_all_services():
         return json.load(f)
 
 
+@client_bp.route('/packs')
+def packs():
+    """Muestra la galería de previews de packs."""
+    from utils.drive_previews import fetch_previews
+    previews = fetch_previews()
+    return render_template('packs.html', previews=previews)
+
+
 @client_bp.route('/', methods=['GET'])
 def home():
     from modules import forum as forum_db

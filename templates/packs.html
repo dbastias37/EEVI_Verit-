@@ -1,31 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}Previews{% endblock %}
+{% block title %}Packs{% endblock %}
 
 {% block content %}
-  <h1>Previews</h1>
-  {% for p in previews %}
-  <div class="preview">
-    <p>{{ p.name }}</p>
-    <div id="wave-{{ loop.index }}" class="h-24 w-full"></div>
-    <button onclick="players[{{ loop.index0 }}].playPause()">Play/Pause</button>
-  </div>
-  {% endfor %}
+  <h1>Packs</h1>
+  {% if not previews %}
+  <div>Aún no hay previews disponibles. Sube tus archivos *_preview.mp3 al folder EEVI-Previews en Google Drive.</div>
+  {% else %}
+    {% for p in previews %}
+    <h2>{{ p.name }}</h2>
+    <div id="wave-{{ loop.index }}"></div>
+    <button onclick="players['{{ loop.index }}'].playPause()">Play/Pause</button>
+    {% endfor %}
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}
   {{ super() }}
   <script>
-    window.players = [];
+    window.players = {};
     {% for p in previews %}
-    window.players[{{ loop.index0 }}] = WaveSurfer.create({
+    players['{{ loop.index }}'] = WaveSurfer.create({
       container: '#wave-{{ loop.index }}',
       waveColor: '#999',
       progressColor: '#333',
       height: 80
     });
-    window.players[{{ loop.index0 }}].load('{{ p.url }}');
+    players['{{ loop.index }}'].load('{{ p.url }}');
     {% endfor %}
   </script>
 {% endblock %}
-
