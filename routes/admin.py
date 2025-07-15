@@ -54,9 +54,18 @@ def admin():
         'pagado': sum(1 for p in projects if p.get('status') == 'pagado')
     }
     open_projects = [p for p in projects if p.get('status') != 'finalizado']
-    return render_template('admin_panel.html', projects=projects,
-                           comments=comments, stats=stats,
-                           open_projects=open_projects)
+    conn = get_db()
+    clients = conn.execute(
+        "SELECT id, email FROM users WHERE is_admin=0 ORDER BY id DESC"
+    ).fetchall()
+    return render_template(
+        'admin_panel.html',
+        projects=projects,
+        comments=comments,
+        stats=stats,
+        open_projects=open_projects,
+        clients=clients,
+    )
 
 
 @admin_bp.route('/projects')
@@ -74,9 +83,18 @@ def projects():
         'pagado': sum(1 for p in projects if p.get('status') == 'pagado')
     }
     open_projects = [p for p in projects if p.get('status') != 'finalizado']
-    return render_template('admin_panel.html', projects=projects,
-                           comments=comments, stats=stats,
-                           open_projects=open_projects)
+    conn = get_db()
+    clients = conn.execute(
+        "SELECT id, email FROM users WHERE is_admin=0 ORDER BY id DESC"
+    ).fetchall()
+    return render_template(
+        'admin_panel.html',
+        projects=projects,
+        comments=comments,
+        stats=stats,
+        open_projects=open_projects,
+        clients=clients,
+    )
 
 
 @admin_bp.route('/login', methods=['GET', 'POST'])
@@ -175,6 +193,47 @@ def admin_update_status(project_id):
     status = request.form.get('status', '')
     if status:
         mgr.update_status(project_id, status)
+    return redirect(url_for('admin.admin'))
+
+
+@admin_bp.route('/clients/add', methods=['POST'])
+@admin_required
+def add_client():
+    email = request.form['email']
+    password = request.form['password']
+    from app import create_user
+    try:
+        create_user(email, password)
+        _manager().get_or_create_client(email)
+        flash('Cliente creado', 'success')
+    except Exception:
+        flash('No se pudo crear el cliente', 'error')
+    return redirect(url_for('admin.admin'))
+
+
+@admin_bp.route('/clients/<int:user_id>/delete', methods=['POST'])
+@admin_required
+def delete_client(user_id):
+    conn = get_db()
+    email_row = conn.execute(
+        'SELECT email FROM users WHERE id=?', (user_id,)
+    ).fetchone()
+    conn.execute('DELETE FROM users WHERE id=?', (user_id,))
+    if email_row:
+        conn.execute('DELETE FROM clients WHERE email=?', (email_row['email'],))
+    conn.commit()
+    flash('Cliente eliminado', 'success')
+    return redirect(url_for('admin.admin'))
+
+
+@admin_bp.route('/clients/<int:user_id>/password', methods=['POST'])
+@admin_required
+def update_password(user_id):
+    password = request.form['password']
+    conn = get_db()
+    conn.execute('UPDATE users SET password=? WHERE id=?', (password, user_id))
+    conn.commit()
+    flash('Contraseña actualizada', 'success')
     return redirect(url_for('admin.admin'))
 
 

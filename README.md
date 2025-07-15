@@ -165,3 +165,4 @@ NUEVO ENDPOINT: `/packs`
 3. Si prefieres Base64, crea `GOOGLE_CREDS_B64` y el código ya lo soporta.
 4. Usa `/status` para verificar que la app responde.
 Cada nota en el camino es eco de la bestia digital.
+Su resonancia guia a futuras expediciones creativas.
