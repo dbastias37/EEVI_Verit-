@@ -232,4 +232,3 @@ body {
     90%  { opacity:1; }
     100% { opacity:0; filter:blur(2px);}
 }
-.word-anim { animation: fadeIO 10s linear forwards; }
