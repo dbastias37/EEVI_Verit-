@@ -116,9 +116,27 @@
       </div>
       
       <div id="clientes" class="section hidden" style="display:none;">
-  <h2>Gestión de Clientes</h2>
-  <p>Contenido de clientes próximamente...</p>
-</div>
+        <h2>Gestión de Clientes</h2>
+        <form action="{{ url_for('admin.add_client') }}" method="post" class="mb-1">
+          <input type="email" name="email" placeholder="Email" required class="form-control full-input">
+          <input type="text" name="password" placeholder="Contraseña" required class="form-control full-input">
+          <button type="submit" class="btn btn-primary">Agregar</button>
+        </form>
+        <ul class="clients-list">
+          {% for c in clients %}
+          <li>
+            <strong>{{ c.email }}</strong>
+            <form action="{{ url_for('admin.update_password', user_id=c.id) }}" method="post" class="inline-form">
+              <input type="text" name="password" placeholder="Nueva contraseña" class="form-control">
+              <button type="submit" class="btn btn-sm">Guardar</button>
+            </form>
+            <form action="{{ url_for('admin.delete_client', user_id=c.id) }}" method="post" class="inline-form" onsubmit="return confirm('¿Eliminar cliente?');">
+              <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
 
 <div id="usuarios" class="section hidden" style="display:none;">
   <h2>Gestión de Usuarios</h2>
