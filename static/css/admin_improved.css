@@ -465,3 +465,48 @@
     background: rgba(16, 185, 129, 0.2);
     color: var(--admin-success);
 }
+/* Transiciones mejoradas para las secciones */
+.section {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.section.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* Asegurar que fade-in funcione correctamente */
+.section.fade-in {
+    animation: fadeInSection 0.4s ease-out forwards;
+}
+
+@keyframes fadeInSection {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fix para evitar parpadeos durante la transición */
+.panel-content {
+    position: relative;
+    min-height: 600px; /* Altura mínima para evitar saltos */
+}
+
+/* Asegurar que las secciones ocultas no interfieran */
+.section[style*="display: none"] {
+    position: absolute;
+    visibility: hidden;
+}
+
+/* Debug - opcional, remover en producción */
+.sidebar-nav button::after {
+    content: attr(data-section);
+    font-size: 0; /* Invisible pero ayuda en debug */
+}
