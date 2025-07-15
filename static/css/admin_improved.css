@@ -55,9 +55,20 @@
 }
 
 /* Avatar en sidebar */
-.sidebar .avatar {
+.sidebar .avatar-wrapper {
     text-align: center;
     margin: 20px auto;
+}
+
+.sidebar .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--admin-bg-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
 }
 
 .sidebar .avatar img {
@@ -65,13 +76,11 @@
     height: 70px;
     border-radius: 50%;
     border: 2px solid var(--admin-accent);
-    display: block;
-    margin: 0 auto;
     object-fit: cover;
-    background: var(--admin-bg-3);
 }
 
 .sidebar .avatar-label {
+    display: block;
     margin-top: 0.5rem;
     font-size: 0.875rem;
     color: var(--admin-text-muted);
