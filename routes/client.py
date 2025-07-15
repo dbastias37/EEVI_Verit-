@@ -8,6 +8,12 @@ from utils.validators import is_valid_url
 client_bp = Blueprint('client', __name__)
 
 
+@client_bp.route('/status', methods=['GET'])
+def status():
+    """Health check endpoint."""
+    return jsonify(ok=True)
+
+
 def _projects():
     return ProjectManager(current_app.config['DB_PATH'])
 
@@ -50,16 +56,18 @@ def packs():
 @client_bp.route('/', methods=['GET'])
 def home():
     from modules import forum as forum_db
+    from utils.drive_previews import fetch_previews
     latest = forum_db.get_latest_topic()
     packs = get_all_packs()
     services = get_all_services()
+    previews = fetch_previews()
     stats = {
         'total_sounds': len(packs) * 50 if packs else 800,
         'projects_completed': 120,
         'satisfaction': 98,
         'avg_delivery': '24h'
     }
-    return render_template('home.html', latest=latest, packs=packs, services=services, stats=stats)
+    return render_template('home.html', latest=latest, packs=packs, services=services, stats=stats, previews=previews)
 
 
 

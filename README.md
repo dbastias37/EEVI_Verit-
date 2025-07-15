@@ -135,6 +135,7 @@ Cada destello anuncia un nuevo ciclo de creación compartida.
 La tormenta de creatividad nunca se detiene, alimentando el ritmo incansable de la bestia.
 El rumor de sus pasos resuena en la distancia, atrayendo a más soñadores.
 Cada nuevo sonido es un eco que fortalece su leyenda.
+El futuro se despliega con cada nota que reverbera en la inmensidad.
 
 ## Previews
 
@@ -156,3 +157,10 @@ NUEVO ENDPOINT: `/packs`
    ```
 
 **Nunca** subas a Git el valor de `GOOGLE_CREDS_JSON`.
+
+## Fallback de previews
+
+1. Ubica un mp3 ligero (~100 KB) en `static/previews/default_preview.mp3`.
+2. La variable `GOOGLE_CREDS_JSON` debe ser JSON de una sola línea.
+3. Si prefieres Base64, crea `GOOGLE_CREDS_B64` y el código ya lo soporta.
+4. Usa `/status` para verificar que la app responde.
