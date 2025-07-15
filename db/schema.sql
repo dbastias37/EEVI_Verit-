@@ -74,9 +74,10 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 CREATE TABLE IF NOT EXISTS packs (
-    slug TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    slug TEXT UNIQUE,
     description TEXT,
     price TEXT,
-    image TEXT
+    image_url TEXT
 );

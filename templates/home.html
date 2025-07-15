@@ -135,16 +135,16 @@
            {% for pack in packs %}
            <div class="product-card">
                <div class="product-image">
-                   {% if 'naturaleza' in pack.titulo.lower() %}🌲
-                   {% elif 'ciudad' in pack.titulo.lower() %}🏙️
-                   {% elif 'lluvia' in pack.titulo.lower() %}🌧️
+                   {% if 'naturaleza' in pack.name.lower() %}🌲
+                   {% elif 'ciudad' in pack.name.lower() %}🏙️
+                   {% elif 'lluvia' in pack.name.lower() %}🌧️
                    {% else %}🎵{% endif %}
                </div>
                <div class="product-content">
-                   <h3 class="product-title">{{ pack.titulo }}</h3>
-                   <p class="product-description">{{ pack.descripcion }}</p>
-                   <div class="product-price">{{ pack.precio }}</div>
-                   <a href="{{ url_for('client.pack_detail', slug=pack.id) }}" class="product-cta">Comprar Ahora</a>
+                   <h3 class="product-title">{{ pack.name }}</h3>
+                   <p class="product-description">{{ pack.description }}</p>
+                   <div class="product-price">{{ pack.price }}</div>
+                   <a href="{{ url_for('client.pack_detail', id=pack.id) }}" class="product-cta">Comprar Ahora</a>
                </div>
            </div>
            {% endfor %}

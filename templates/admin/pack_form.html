@@ -1,0 +1,11 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+<h1>{{ pack and 'Editar Pack' or 'Nuevo Pack' }}</h1>
+<form method="post">
+  {% for field in ['name','slug','description','price','image_url'] %}
+    <label>{{ field.replace('_',' ').title() }}</label>
+    <input name="{{ field }}" value="{{ pack[field] if pack else '' }}" required>
+  {% endfor %}
+  <button class="btn btn-primary">{{ pack and 'Actualizar' or 'Crear' }}</button>
+</form>
+{% endblock %}

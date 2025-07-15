@@ -1,0 +1,25 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+<h1>Gestionar Packs</h1>
+<a href="{{ url_for('admin.pack_new') }}" class="btn btn-primary">+ Nuevo Pack</a>
+<table class="admin-packs-table">
+  <thead><tr><th>ID</th><th>Nombre</th><th>Slug</th><th>Precio</th><th>Acciones</th></tr></thead>
+  <tbody>
+  {% for p in packs %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.name }}</td>
+      <td>{{ p.slug }}</td>
+      <td>{{ p.price }}</td>
+      <td>
+        <a href="{{ url_for('admin.pack_edit', id=p.id) }}" class="btn btn-secondary">Editar</a>
+        <form action="{{ url_for('admin.pack_delete', id=p.id) }}" method="post" style="display:inline">
+          <input type="password" name="password" placeholder="Clave" required>
+          <button class="btn btn-danger">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,21 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ pack.titulo or pack.title }}{% endblock %}
+{% block title %}{{ pack.name }}{% endblock %}
 
 {% block content %}
 <div class="pack-detail">
   <div class="pack-info">
-    <h1>{{ pack.titulo or pack.title }}</h1>
-    <p class="price">{{ pack.precio }}</p>
-    <p class="description">{{ pack.descripcion or pack.description }}</p>
+    <h1>{{ pack.name }}</h1>
+    <p class="price">{{ pack.price }}</p>
+    <p class="description">{{ pack.description }}</p>
     <button class="purchase">Comprar Ahora</button>
-  </div>
-  <div class="pack-preview" data-audio="{{ pack.default_preview_url }}">
-    <div class="audio-control">
-      <svg class="play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      <svg class="pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
-    </div>
-    <canvas class="waveform"></canvas>
   </div>
 </div>
 {% if sounds %}
