@@ -136,18 +136,21 @@ La tormenta de creatividad nunca se detiene, alimentando el ritmo incansable de 
 El rumor de sus pasos resuena en la distancia, atrayendo a más soñadores.
 Cada nuevo sonido es un eco que fortalece su leyenda.
 
-## Probar previews localmente
+## Previews
+
+NUEVO ENDPOINT: `/packs`
 
 1. Exporta las variables de entorno:
    ```bash
    export GOOGLE_CREDS_JSON='{"..."}'
    export DRIVE_PREVIEWS_FOLDER="<ID-de-carpeta>"
    ```
-2. Inicia la aplicación:
+2. Sube tus archivos terminados en `*_preview.mp3` al folder **EEVI-Previews** en Google Drive.
+3. Inicia la aplicación:
    ```bash
    flask run
    ```
-3. Abre el endpoint de pruebas:
+4. Visita el endpoint:
    ```bash
    curl http://localhost:5000/packs
    ```

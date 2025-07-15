@@ -15,7 +15,6 @@ from utils.db import db, migrate, get_db, close_db, init_db
 from utils.auth import ensure_admin_user
 from routes.admin import admin_bp
 from routes.client import client_bp
-from routes.packs import packs_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from modules import forum as forum_db
@@ -36,7 +35,6 @@ def create_app():
     app.jinja_env.globals['get_random_quote'] = get_random_quote
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(client_bp)
-    app.register_blueprint(packs_bp)
     app.teardown_appcontext(close_db)
 
     with app.app_context():
