@@ -3,6 +3,7 @@ import json
 import functools
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
 
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
 
@@ -13,10 +14,14 @@ def fetch_previews():
         creds_info, scopes=SCOPES
     )
     drive = build("drive", "v3", credentials=creds, cache_discovery=False)
-    res = drive.files().list(
-        q=f"'{os.getenv('DRIVE_PREVIEWS_FOLDER')}' in parents and mimeType contains 'audio/' and trashed=false",
-        fields="files(id,name,size)"
-    ).execute()
+    try:
+        res = drive.files().list(
+            q=f"'{os.getenv('DRIVE_PREVIEWS_FOLDER')}' in parents and mimeType contains 'audio/' and trashed=false",
+            fields="files(id,name,size)"
+        ).execute()
+    except HttpError as e:
+        print(f"[Drive API] {e}")
+        return []
     return [
         {
             "name": f["name"].replace('_preview.mp3', ''),

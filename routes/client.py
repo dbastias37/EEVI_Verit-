@@ -39,7 +39,7 @@ def get_all_services():
         return json.load(f)
 
 
-@client_bp.route('/packs')
+@client_bp.route('/packs', endpoint='packs')
 def packs():
     """Muestra la galería de previews de packs."""
     from utils.drive_previews import fetch_previews
