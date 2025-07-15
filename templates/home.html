@@ -31,6 +31,21 @@
    <div class="bg-pattern"></div>
 </section>
 
+<!-- Previews Section -->
+<section class="section reveal">
+   <div class="section-container">
+       <div class="section-header">
+           <div class="section-badge">🎧 Previews</div>
+           <h2 class="section-title">Escucha un adelanto</h2>
+       </div>
+       {% for p in previews %}
+       <h3>{{ p.name }}</h3>
+       <div id="wave-{{ loop.index }}"></div>
+       <button onclick="players['{{ loop.index }}'].playPause()">Play/Pause</button>
+       {% endfor %}
+   </div>
+</section>
+
 <!-- Stats Section -->
 <section class="section reveal">
    <div class="section-container">
@@ -178,6 +193,19 @@
 {% endblock %}
 
 {% block scripts %}
+{{ super() }}
 <script src="{{ url_for('static', filename='js/home_brutalista.js') }}"></script>
 <script src="{{ url_for('static', filename='js/rotate_words.js') }}" defer></script>
+<script>
+  window.players = {};
+  {% for p in previews %}
+  players['{{ loop.index }}'] = WaveSurfer.create({
+    container: '#wave-{{ loop.index }}',
+    waveColor: '#999',
+    progressColor: '#333',
+    height: 80
+  });
+  players['{{ loop.index }}'].load('{{ p.url }}');
+  {% endfor %}
+</script>
 {% endblock %}
