@@ -165,4 +165,33 @@ NUEVO ENDPOINT: `/packs`
 3. Si prefieres Base64, crea `GOOGLE_CREDS_B64` y el código ya lo soporta.
 4. Usa `/status` para verificar que la app responde.
 Cada nota en el camino es eco de la bestia digital.
+
+## Configuración de Firebase Firestore
+
+1. Crea un proyecto en Firebase y descarga `serviceAccountKey.json`.
+2. Guarda `serviceAccountKey.json` en la raíz del proyecto.
+3. Establece la variable de entorno `GOOGLE_APPLICATION_CREDENTIALS`:
+   ```bash
+   export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/serviceAccountKey.json"
+   ```
+   o en Windows PowerShell:
+   ```powershell
+   $Env:GOOGLE_APPLICATION_CREDENTIALS = "$(pwd)\serviceAccountKey.json"
+   ```
+4. Ejecuta el script de inicialización:
+   ```bash
+   python scripts/firebase_init.py
+   ```
+
+Para verificar la conexión a Firestore:
+```bash
+python - << 'EOF'
+from firebase_admin import firestore, initialize_app, credentials
+initialize_app(credentials.Certificate('serviceAccountKey.json'))
+db = firestore.client()
+print(db.collections())
+EOF
+```
+
 Su resonancia guia a futuras expediciones creativas.
+Las rutas que se dibujan llevan a horizontes inesperados.
