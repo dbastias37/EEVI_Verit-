@@ -1,20 +1,31 @@
 {% extends 'base.html' %}
 
-{% block title %}Packs Verité{% endblock %}
+{% block title %}Previews{% endblock %}
 
 {% block content %}
-  <h1 class="section-title">PACKS</h1>
-  <p class="section-description">Nuestros packs nacen de sesiones reales y buscan aportar texturas auténticas.</p>
-  <p class="section-description">Seleccionamos lo que de verdad sirve para contar historias con sonido propio.</p>
-  <div class="packs">
-    {% for pack in packs %}
-    <div class="pack-card">
-      <img src="{{ pack.imagen }}" alt="{{ pack.titulo }}">
-      <h2>{{ pack.titulo }}</h2>
-      <p>{{ pack.descripcion }}</p>
-      <p><strong>Precio:</strong> {{ pack.precio }}</p>
-      <a href="/pack/{{ pack.id }}">Ver detalles</a>
-    </div>
-    {% endfor %}
+  <h1>Previews</h1>
+  {% for p in previews %}
+  <div class="preview">
+    <p>{{ p.name }}</p>
+    <div id="wave-{{ loop.index }}" class="h-24 w-full"></div>
+    <button onclick="players[{{ loop.index0 }}].playPause()">Play/Pause</button>
   </div>
+  {% endfor %}
 {% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    window.players = [];
+    {% for p in previews %}
+    window.players[{{ loop.index0 }}] = WaveSurfer.create({
+      container: '#wave-{{ loop.index }}',
+      waveColor: '#999',
+      progressColor: '#333',
+      height: 80
+    });
+    window.players[{{ loop.index0 }}].load('{{ p.url }}');
+    {% endfor %}
+  </script>
+{% endblock %}
+

@@ -134,3 +134,22 @@ El horizonte se ilumina con cada rastro que dejamos en la arena.
 Cada destello anuncia un nuevo ciclo de creación compartida.
 La tormenta de creatividad nunca se detiene, alimentando el ritmo incansable de la bestia.
 El rumor de sus pasos resuena en la distancia, atrayendo a más soñadores.
+Cada nuevo sonido es un eco que fortalece su leyenda.
+
+## Probar previews localmente
+
+1. Exporta las variables de entorno:
+   ```bash
+   export GOOGLE_CREDS_JSON='{"..."}'
+   export DRIVE_PREVIEWS_FOLDER="<ID-de-carpeta>"
+   ```
+2. Inicia la aplicación:
+   ```bash
+   flask run
+   ```
+3. Abre el endpoint de pruebas:
+   ```bash
+   curl http://localhost:5000/packs
+   ```
+
+**Nunca** subas a Git el valor de `GOOGLE_CREDS_JSON`.

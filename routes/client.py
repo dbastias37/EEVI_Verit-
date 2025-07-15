@@ -54,9 +54,6 @@ def home():
     return render_template('home.html', latest=latest, packs=packs, services=services, stats=stats)
 
 
-@client_bp.route('/packs')
-def packs():
-    return render_template('packs.html', packs=get_all_packs())
 
 
 @client_bp.route('/services')
