@@ -33,4 +33,21 @@ document.addEventListener('DOMContentLoaded', function () {
       modal.classList.remove('show');
     });
   }
+
+  document.querySelectorAll('.sidebar-nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const active = document.querySelector('.section:not(.hidden)');
+      const targetId = btn.getAttribute('data-section');
+      const targetSection = document.getElementById(targetId);
+      if (!active || !targetSection) return;
+      if (active !== targetSection) {
+        active.classList.add('hidden');
+        setTimeout(() => {
+          active.style.display = 'none';
+          targetSection.style.display = 'block';
+          setTimeout(() => targetSection.classList.remove('hidden'), 50);
+        }, 600);
+      }
+    });
+  });
 });

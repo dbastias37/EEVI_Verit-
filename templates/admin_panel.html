@@ -8,21 +8,21 @@
 {% block content %}
 <div class="dashboard-container">
   <aside class="sidebar">
-    <nav>
-      <a href="{{ url_for('admin.admin') }}" class="{% if request.endpoint == 'admin.admin' %}active{% endif %}">Dashboard</a>
-      <a href="{{ url_for('admin.admin') }}">Proyectos</a>
-      <a href="{{ url_for('admin.admin_clients') }}">Clientes</a>
-      <a href="{{ url_for('admin.admin_users') }}">Usuarios</a>
-      <a href="{{ url_for('admin.admin_comments') }}">Comentarios</a>
-    </nav>
+    <div class="sidebar-nav">
+      <button data-section="proyectos">Proyectos</button>
+      <button data-section="clientes">Clientes</button>
+      <button data-section="usuarios">Usuarios</button>
+      <button data-section="comentarios">Comentarios</button>
+    </div>
   </aside>
-  <main class="main-content">
-    <header class="page-header">
-      <h2>Panel Admin</h2>
-      <form action="{{ url_for('admin.admin_logout') }}" method="post">
-        <button type="submit" class="btn-danger">Salir</button>
-      </form>
-    </header>
+  <div class="panel-content">
+    <div id="proyectos" class="section">
+      <header class="page-header">
+        <h2>Panel Admin</h2>
+        <form action="{{ url_for('admin.admin_logout') }}" method="post">
+          <button type="submit" class="btn-danger">Salir</button>
+        </form>
+      </header>
 
   {% set stat_items = [
      ('Proyectos',    stats.total),
@@ -86,7 +86,17 @@
         <span class="date">{{ c.date }}</span>
       </div>
     {% endfor %}
-  </main>
+    </div>
+    <div id="clientes" class="section hidden" style="display:none;">
+      <h1>Contenido Clientes</h1>
+    </div>
+    <div id="usuarios" class="section hidden" style="display:none;">
+      <h1>Contenido Usuarios</h1>
+    </div>
+    <div id="comentarios" class="section hidden" style="display:none;">
+      <h1>Contenido Comentarios</h1>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

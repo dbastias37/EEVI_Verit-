@@ -11,11 +11,7 @@
     <div class="avatar">
       <img src="{{ url_for('static', filename='img/avatar.png') }}" alt="admin">
     </div>
-    <nav class="menu">
-      <a href="{{ url_for('admin.admin') }}" class="menu-item{% if request.endpoint == 'admin.admin' %} active{% endif %}">
-        <i class="fa fa-chart-pie"></i> Dashboard
-      </a>
-    </nav>
+    <nav class="menu"></nav>
   </aside>
   <div class="main-content">
     <header class="header">
