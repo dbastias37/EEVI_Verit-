@@ -2,6 +2,8 @@ from flask import (
     Blueprint, render_template, request, redirect,
     url_for, session, current_app, flash
 )
+from werkzeug.utils import secure_filename
+import os
 from utils.db import get_db
 from utils.auth import ensure_admin_user
 from services.project_manager import ProjectManager
@@ -47,11 +49,11 @@ def admin():
     comments = cmt.get_all_comments()
     stats = {
         'total': len(projects),
-        'active': sum(1 for p in projects if p.get('status') == 'active'),
-        'completed': sum(1 for p in projects if p.get('status') == 'completed'),
-        'pending': sum(1 for p in projects if not p.get('paid'))
+        'revision': sum(1 for p in projects if p.get('status') == 'revision'),
+        'finalizado': sum(1 for p in projects if p.get('status') == 'finalizado'),
+        'pagado': sum(1 for p in projects if p.get('status') == 'pagado')
     }
-    open_projects = [p for p in projects if p.get('status') != 'completed']
+    open_projects = [p for p in projects if p.get('status') != 'finalizado']
     return render_template('admin_panel.html', projects=projects,
                            comments=comments, stats=stats,
                            open_projects=open_projects)
@@ -93,6 +95,26 @@ def admin_add_project():
     return redirect(url_for('admin.admin'))
 
 
+@admin_bp.route('/project/upload', methods=['POST'])
+@admin_required
+def admin_upload_project():
+    mgr = _manager()
+    title = request.form['title']
+    category = request.form['category']
+    client_email = request.form['client_email']
+    file = request.files.get('video_file')
+    video_url = ''
+    if file and file.filename:
+        filename = secure_filename(file.filename)
+        path = os.path.join('static', 'uploads', filename)
+        file.save(path)
+        video_url = '/' + path
+    else:
+        video_url = request.form.get('video_url', '')
+    mgr.add_project(title, category, video_url, client_email)
+    return redirect(url_for('admin.admin'))
+
+
 @admin_bp.route('/logout', methods=['POST'])
 @admin_required
 def admin_logout():
@@ -123,6 +145,16 @@ def admin_activate_payment(project_id):
 def admin_delete_video(project_id):
     mgr = _manager()
     mgr.delete_video(project_id)
+    return redirect(url_for('admin.admin'))
+
+
+@admin_bp.route('/project/<int:project_id>/status', methods=['POST'])
+@admin_required
+def admin_update_status(project_id):
+    mgr = _manager()
+    status = request.form.get('status', '')
+    if status:
+        mgr.update_status(project_id, status)
     return redirect(url_for('admin.admin'))
 
 

@@ -153,3 +153,27 @@ body {
     padding: 1rem;
   }
 }
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal.show { opacity: 1; pointer-events: auto; }
+.modal-content {
+  background: var(--bg-color);
+  padding: 1rem;
+  border-radius: var(--radius);
+  max-width: 500px;
+  width: 90%;
+}
+.status-form button { margin-right: .25rem; }

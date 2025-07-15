@@ -135,6 +135,10 @@ def delete_video(project_id):
     _proj_mgr().delete_video(project_id)
 
 
+def update_status(project_id, status):
+    _proj_mgr().update_status(project_id, status)
+
+
 def get_projects_for_email(email):
     return _proj_mgr().get_projects_for_email(email)
 

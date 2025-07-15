@@ -21,4 +21,16 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+
+  var openBtn = document.getElementById('open-upload');
+  var modal = document.getElementById('upload-modal');
+  var closeBtn = modal ? modal.querySelector('.close-modal') : null;
+  if (openBtn && modal && closeBtn) {
+    openBtn.addEventListener('click', function () {
+      modal.classList.add('show');
+    });
+    closeBtn.addEventListener('click', function () {
+      modal.classList.remove('show');
+    });
+  }
 });
