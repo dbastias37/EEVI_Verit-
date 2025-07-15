@@ -72,3 +72,11 @@ CREATE TABLE IF NOT EXISTS comments (
     FOREIGN KEY(project_id) REFERENCES projects(id),
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS packs (
+    slug TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    price TEXT,
+    image TEXT
+);
