@@ -47,10 +47,9 @@ def get_all_services():
 
 @client_bp.route('/packs', endpoint='packs')
 def packs():
-    """Muestra la galería de previews de packs."""
-    from utils.drive_previews import fetch_previews
-    previews = fetch_previews()
-    return render_template('packs.html', previews=previews)
+    """Muestra la galería de packs disponibles."""
+    packs = get_all_packs()
+    return render_template('packs.html', packs=packs)
 
 
 @client_bp.route('/', methods=['GET'])
@@ -181,12 +180,14 @@ def project_comments(project_id):
     return jsonify(cm.get_comments(project_id))
 
 
-@client_bp.route('/pack/<string:pack_id>')
-def ver_pack(pack_id):
+@client_bp.route('/packs/<string:slug>', endpoint='pack_detail')
+def pack_detail(slug):
+    """Vista detalle de un pack."""
     packs = get_all_packs()
-    pack = next((p for p in packs if p['id'] == pack_id), None)
+    pack = next((p for p in packs if p['id'] == slug), None)
     if pack:
-        return render_template('pack.html', pack=pack)
+        sounds = pack.get('sounds', [])
+        return render_template('pack_detail.html', pack=pack, sounds=sounds)
     return "Pack no encontrado", 404
 
 
