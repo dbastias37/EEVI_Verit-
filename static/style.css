@@ -905,3 +905,26 @@ body.forum-new {
   border-radius: 1rem;
   background: #222;
 }
+
+/* Admin packs table */
+.admin-packs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: #111;
+  color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.admin-packs-table th,
+.admin-packs-table td {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #333;
+}
+.admin-packs-table th {
+  background: #222;
+}
+.admin-packs-table img {
+  width: 60px;
+  border-radius: 4px;
+}
