@@ -144,7 +144,7 @@
                    <h3 class="product-title">{{ pack.titulo }}</h3>
                    <p class="product-description">{{ pack.descripcion }}</p>
                    <div class="product-price">{{ pack.precio }}</div>
-                   <a href="{{ url_for('client.ver_pack', pack_id=pack.id) }}" class="product-cta">Comprar Ahora</a>
+                   <a href="{{ url_for('client.pack_detail', slug=pack.id) }}" class="product-cta">Comprar Ahora</a>
                </div>
            </div>
            {% endfor %}
