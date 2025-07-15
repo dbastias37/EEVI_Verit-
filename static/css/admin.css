@@ -38,12 +38,27 @@ h1, h2, h3, h4 {
   left: 0;
   height: calc(100vh - 120px);
 }
+.sidebar .avatar {
+  text-align: center;
+  margin: 20px auto;
+}
 .sidebar .avatar img {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
+  border: 2px solid var(--accent-blue);
   display: block;
-  margin: 0 auto 1rem;
+  margin: 0 auto;
+  object-fit: cover;
+}
+
+.sidebar .avatar-label {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+  display: block;
+  margin-bottom: 20px;
 }
 .menu .menu-item {
   display: block;

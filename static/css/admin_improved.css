@@ -57,16 +57,25 @@
 /* Avatar en sidebar */
 .sidebar .avatar {
     text-align: center;
-    margin-bottom: 2rem;
+    margin: 20px auto;
 }
 
 .sidebar .avatar img {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    border: 3px solid var(--admin-primary);
-    padding: 3px;
+    border: 2px solid var(--admin-accent);
+    display: block;
+    margin: 0 auto;
+    object-fit: cover;
     background: var(--admin-bg-3);
+}
+
+.sidebar .avatar-label {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--admin-text-muted);
+    text-align: center;
 }
 
 /* Navegación del sidebar */
