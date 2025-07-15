@@ -29,16 +29,26 @@ body {
   background: var(--glass-bg);
   backdrop-filter: blur(8px);
 }
-.sidebar a {
-  display: block;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-  color: var(--text-color);
-  border-radius: var(--radius);
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
 }
-.sidebar a.active {
-  background: var(--accent);
+.sidebar-nav button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.sidebar-nav button:hover {
+  background: var(--glass-bg);
 }
 
 .main-content {
@@ -177,3 +187,17 @@ body {
   width: 90%;
 }
 .status-form button { margin-right: .25rem; }
+
+.section {
+  transition: opacity 0.6s ease, filter 0.6s ease;
+  opacity: 1;
+  filter: blur(0);
+  position: relative;
+}
+
+.section.hidden {
+  opacity: 0;
+  filter: blur(4px);
+  pointer-events: none;
+  position: absolute;
+}
