@@ -6,7 +6,9 @@
 
   <a class="logo" href="{{ url_for('client.home') }}">VERITÉ</a>
 
-  <a class="forum-link" href="{{ url_for('forum_index') }}">VFORUM</a>
+  <a class="forum-link" href="{{ url_for('admin.admin') }}">ADMIN</a>
+
+  <div id="quoteRotator">{{ get_random_quote() }}</div>
 
   <nav id="navPanel">
     <a href="{{ url_for('client.home') }}">Inicio</a>
@@ -14,7 +16,6 @@
     <a href="{{ url_for('client.services_page') }}">Services</a>
     <a href="{{ url_for('forum_index') }}">VForum</a>
     <a href="{{ url_for('client.academy') }}">Academia</a>
-    <a href="{{ url_for('client.dashboard') }}">Dashboard</a>
-    <a href="{{ url_for('admin.admin') }}">Admin</a>
+    <a href="{{ url_for('client.dashboard') }}">Mis proyectos</a>
   </nav>
 </header>
