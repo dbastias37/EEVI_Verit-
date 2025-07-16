@@ -9,17 +9,24 @@ from flask import (
 )
 from jinja2 import TemplateNotFound
 
-from firebase_admin import credentials, initialize_app, firestore
+from firebase_admin import credentials, initialize_app, firestore, exceptions
+from google.api_core.exceptions import GoogleAPICallError
 
-# Cargar credenciales desde env var o archivo local
-cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'serviceAccountKey.json')
-if not os.path.isfile(cred_path):
-    raise RuntimeError(f"Credenciales no encontradas: {cred_path}")
 
-# Inicializar Firebase Admin y obtener cliente Firestore
-cred = credentials.Certificate(cred_path)
-initialize_app(cred)
-fs_client = firestore.client()
+def init_firestore():
+    try:
+        cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'serviceAccountKey.json')
+        if not os.path.isfile(cred_path):
+            raise FileNotFoundError(f"Credenciales no encontradas: {cred_path}")
+        # Inicializar solo una vez
+        if not firestore._apps:
+            cred = credentials.Certificate(cred_path)
+            initialize_app(cred)
+        return firestore.client()
+    except exceptions.FirebaseError as e:
+        # Log de error y reintento o fallback
+        app.logger.error(f"Firebase init failed: {e}")
+        raise RuntimeError("No se pudo conectar a Firestore, revisa tus credenciales o secreto en Render.")
 
 from config import config
 from utils.db import db, migrate, get_db, close_db, init_db
@@ -47,6 +54,14 @@ def create_app():
     return app
 
 app = create_app()
+fs_client = init_firestore()
+
+
+@app.errorhandler(GoogleAPICallError)
+def handle_firestore_error(e):
+    app.logger.error(f"Firestore RPC failed: {e}")
+    return render_template('503.html'), 503
+
 
 # ---------- Helper functions used by tests and routes ----------
 
@@ -165,32 +180,48 @@ def get_all_comments():
 
 @app.route('/forum')
 def list_forum():
-    docs = fs_client.collection('foro')\
-        .order_by('timestamp', direction=firestore.Query.DESCENDING)\
-        .stream()
-    temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
-    return render_template('forum.html', temas=temas)
+    try:
+        docs = (
+            fs_client.collection('foro')
+            .order_by('timestamp', direction=firestore.Query.DESCENDING)
+            .stream()
+        )
+        temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
+        return render_template('forum.html', temas=temas)
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore query failed: {e}")
+        raise
 
 
 @app.route('/forum/new', methods=['POST'])
 def new_topic():
     payload = request.form or request.json
-    fs_client.collection('foro').add({
-        'titulo': payload['titulo'],
-        'contenido': payload['contenido'],
-        'autor': payload.get('autor', 'Anónimo'),
-        'timestamp': firestore.SERVER_TIMESTAMP
-    })
-    return redirect(url_for('list_forum'))
+    try:
+        fs_client.collection('foro').add(
+            {
+                'titulo': payload['titulo'],
+                'contenido': payload['contenido'],
+                'autor': payload.get('autor', 'Anónimo'),
+                'timestamp': firestore.SERVER_TIMESTAMP,
+            }
+        )
+        return redirect(url_for('list_forum'))
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore write failed: {e}")
+        raise
 
 
 @app.route('/forum/<topic_id>')
 def view_topic(topic_id):
-    doc = fs_client.collection('foro').document(topic_id).get()
-    if not doc.exists:
-        abort(404)
-    tema = {**doc.to_dict(), 'id': doc.id}
-    return render_template('topic.html', tema=tema)
+    try:
+        doc = fs_client.collection('foro').document(topic_id).get()
+        if not doc.exists:
+            abort(404)
+        tema = {**doc.to_dict(), 'id': doc.id}
+        return render_template('topic.html', tema=tema)
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore read failed: {e}")
+        raise
 
 
 @app.route('/<page>')
