@@ -244,3 +244,175 @@ def render_page(page):
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
+
+# Agregar estas rutas a tu app.py para el foro moderno
+
+from modules.forum import get_categories, get_topics, get_recent_topics
+
+@app.route('/forum')
+def list_forum():
+    """Lista principal del foro con filtros y categorías"""
+    try:
+        category_filter = request.args.get('category')
+        sort_filter = request.args.get('sort', 'recent')
+        search_query = request.args.get('q', '')
+        
+        # Obtener categorías fijas
+        categories = get_categories()
+        
+        # Obtener temas según filtros
+        if category_filter:
+            topics = get_topics(category=category_filter)
+        else:
+            topics = get_topics()
+        
+        # Aplicar ordenamiento
+        if sort_filter == 'popular':
+            topics = sorted(topics, key=lambda x: x.get('votes', 0), reverse=True)
+        elif sort_filter == 'unanswered':
+            topics = [t for t in topics if not t.get('responses') or len(t.get('responses', [])) == 0]
+        else:  # recent
+            topics = sorted(topics, key=lambda x: x.get('created_at'), reverse=True)
+        
+        # Aplicar búsqueda si hay query
+        if search_query:
+            topics = [t for t in topics if 
+                     search_query.lower() in t.get('title', '').lower() or 
+                     search_query.lower() in t.get('category', '').lower()]
+        
+        return render_template('forum.html', 
+                             topics=topics, 
+                             categories=categories,
+                             current_category=category_filter,
+                             current_sort=sort_filter,
+                             search_query=search_query)
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore query failed: {e}")
+        raise
+
+
+@app.route('/forum/new', methods=['GET', 'POST'])
+def forum_new():
+    """Crear nuevo tema en el foro"""
+    if request.method == 'GET':
+        categories = get_categories()
+        return render_template('forum_new.html', categories=categories)
+    
+    try:
+        payload = request.form or request.json
+        fs_client.collection('foro').add({
+            'titulo': payload['title'],
+            'contenido': payload['description'],
+            'category': payload['category'],
+            'autor': payload.get('autor', 'Anónimo'),
+            'timestamp': firestore.SERVER_TIMESTAMP,
+            'votes': 0
+        })
+        return redirect(url_for('list_forum'))
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore write failed: {e}")
+        raise
+
+
+@app.route('/forum/topic/<int:topic_id>')
+def forum_topic_view(topic_id):
+    """Vista individual de un tema del foro"""
+    try:
+        # Convertir topic_id a string para Firestore
+        doc = fs_client.collection('foro').document(str(topic_id)).get()
+        if not doc.exists:
+            abort(404)
+        
+        tema = {**doc.to_dict(), 'id': doc.id}
+        
+        # Obtener respuestas del tema
+        responses_ref = fs_client.collection('foro').document(str(topic_id)).collection('responses')
+        responses = []
+        for resp_doc in responses_ref.order_by('timestamp').stream():
+            responses.append({**resp_doc.to_dict(), 'id': resp_doc.id})
+        
+        return render_template('forum_topic.html', topic=tema, responses=responses)
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore read failed: {e}")
+        raise
+
+
+@app.route('/forum/topic/<int:topic_id>/reply', methods=['POST'])
+def forum_reply(topic_id):
+    """Agregar respuesta a un tema"""
+    try:
+        payload = request.form or request.json
+        
+        # Agregar respuesta a la subcolección del tema
+        fs_client.collection('foro').document(str(topic_id)).collection('responses').add({
+            'author': payload.get('author', 'Anónimo'),
+            'content': payload['content'],
+            'timestamp': firestore.SERVER_TIMESTAMP
+        })
+        
+        return redirect(url_for('forum_topic_view', topic_id=topic_id))
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore write failed: {e}")
+        raise
+
+
+# Funciones helper para el template
+@app.template_filter('truncate_words')
+def truncate_words(text, count=10):
+    """Truncar texto a cierto número de palabras"""
+    if not text:
+        return ""
+    words = text.split()
+    if len(words) <= count:
+        return text
+    return ' '.join(words[:count]) + '...'
+
+
+@app.template_filter('time_ago')
+def time_ago(timestamp):
+    """Convertir timestamp a formato 'hace X tiempo'"""
+    if not timestamp:
+        return "Fecha desconocida"
+    
+    from datetime import datetime, timezone
+    import math
+    
+    now = datetime.now(timezone.utc)
+    if hasattr(timestamp, 'timestamp'):
+        # Firestore timestamp
+        diff = now - timestamp.replace(tzinfo=timezone.utc)
+    else:
+        # String timestamp
+        try:
+            dt = datetime.fromisoformat(str(timestamp).replace('Z', '+00:00'))
+            diff = now - dt
+        except:
+            return str(timestamp)
+    
+    seconds = diff.total_seconds()
+    
+    if seconds < 60:
+        return "Hace unos segundos"
+    elif seconds < 3600:
+        minutes = math.floor(seconds / 60)
+        return f"Hace {minutes} minuto{'s' if minutes != 1 else ''}"
+    elif seconds < 86400:
+        hours = math.floor(seconds / 3600)
+        return f"Hace {hours} hora{'s' if hours != 1 else ''}"
+    else:
+        days = math.floor(seconds / 86400)
+        return f"Hace {days} día{'s' if days != 1 else ''}"
+
+
+# Context processor para datos globales del foro
+@app.context_processor
+def forum_context():
+    """Inyectar datos globales del foro en todos los templates"""
+    return {
+        'forum_stats': {
+            'total_topics': 342,
+            'total_responses': 1247,
+            'active_members': 89,
+            'online_now': 12
+        }
+    }
