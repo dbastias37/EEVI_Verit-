@@ -3,250 +3,144 @@
 {% block title %}VFORUM - Comunidad EEVI{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/forum_modern.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forum_interactive.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<header class="forum-header">
-    <div class="header-content">
-        <div class="logo">VFORUM</div>
-        
-        <div class="search-container">
-            <span class="search-icon">🔍</span>
-            <input type="text" class="search-input" placeholder="Buscar en el foro..." id="forumSearch">
-        </div>
-        
-        <div class="header-actions">
-            <a href="{{ url_for('client.home') }}" class="btn btn-secondary">Inicio</a>
-            <a href="{{ url_for('forum_new') }}" class="btn">+ Nuevo Tema</a>
-        </div>
-    </div>
-</header>
-
 <div class="forum-container">
-    <!-- Left Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-section">
-            <h3 class="sidebar-title">Categorías</h3>
-            <ul class="category-list">
-                <li class="category-item">
-                    <a href="{{ url_for('list_forum') }}" class="category-link {{ 'active' if not request.args.get('category') else '' }}">
-                        <span class="category-icon">🎵</span>
-                        Todas las categorías
-                    </a>
-                </li>
-                {% for category in categories %}
-                <li class="category-item">
-                    <a href="{{ url_for('list_forum') }}?category={{ category|urlencode }}" 
-                       class="category-link {{ 'active' if request.args.get('category') == category else '' }}">
-                        <span class="category-icon">
-                            {% if 'Grabación' in category %}🎤
-                            {% elif 'Diseño' in category %}🎨
-                            {% elif 'Foley' in category %}🔊
-                            {% elif 'vídeo' in category %}🎬
-                            {% elif 'audio' in category and 'Edición' in category %}🎧
-                            {% elif 'Mezcla' in category %}⚡
-                            {% elif 'Micrófonos' in category %}🎙️
-                            {% elif 'Workflows' in category %}🔧
-                            {% elif 'Ambientes' in category %}🌲
-                            {% elif 'Postproducción' in category %}🎞️
-                            {% elif 'Formatos' in category %}📄
-                            {% elif 'Consejos' in category %}💡
+    <header class="forum-header">
+        <h1 class="forum-title">VFORUM</h1>
+        <p class="forum-subtitle">Comunidad de creadores audiovisuales</p>
+    </header>
+
+    <!-- Botón Nuevo Tema -->
+    <button class="new-topic-btn" id="newTopicBtn">
+        <span>✏️</span>
+        Nuevo Tema
+    </button>
+
+    <!-- Formulario Nuevo Tema -->
+    <div class="new-topic-form" id="newTopicForm">
+        <form id="topicForm" action="{{ url_for('forum_new') }}" method="post">
+            <div class="form-group">
+                <label class="form-label" for="authorName">Nombre:</label>
+                <input type="text" id="authorName" name="autor" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="category">Categoría:</label>
+                <select id="category" name="category" class="form-select" required>
+                    <option value="">Selecciona una categoría</option>
+                    {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="title">Título:</label>
+                <input type="text" id="title" name="titulo" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="content">Contenido:</label>
+                <textarea id="content" name="contenido" class="form-textarea" placeholder="Escribe tus dudas o comparte tu conocimiento con la comunidad..." required></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Publicar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de Topics -->
+    <div class="topics-list" id="topicsList">
+        {% for topic in temas %}
+        <div class="topic-card {{ 'owned' if topic.author == session.get('current_user') else '' }}" data-topic-id="{{ topic.id }}">
+            <div class="topic-header">
+                <div class="topic-avatar">{{ topic.author[0].upper() if topic.author else 'A' }}</div>
+                <div class="topic-info">
+                    <h3 class="topic-title">{{ topic.titulo }}</h3>
+                    <div class="topic-meta">
+                        {% if topic.category %}
+                        <span class="topic-category">
+                            {% if 'Grabación' in topic.category %}🎤
+                            {% elif 'Diseño' in topic.category %}🎨
+                            {% elif 'Foley' in topic.category %}🔊
+                            {% elif 'vídeo' in topic.category %}🎬
+                            {% elif 'audio' in topic.category and 'Edición' in topic.category %}🎧
+                            {% elif 'Mezcla' in topic.category %}⚡
+                            {% elif 'Micrófonos' in topic.category %}🎙️
+                            {% elif 'Workflows' in topic.category %}🔧
+                            {% elif 'Ambientes' in topic.category %}🌲
+                            {% elif 'Postproducción' in topic.category %}🎞️
+                            {% elif 'Formatos' in topic.category %}📄
+                            {% elif 'Consejos' in topic.category %}💡
                             {% else %}🎵{% endif %}
+                            {{ topic.category }}
                         </span>
-                        {{ category }}
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        
-        <div class="sidebar-section">
-            <h3 class="sidebar-title">Filtros</h3>
-            <ul class="category-list">
-                <li class="category-item">
-                    <a href="{{ url_for('list_forum') }}?filter=trending" class="category-link">
-                        <span class="category-icon">🔥</span>
-                        Tendencias
-                    </a>
-                </li>
-                <li class="category-item">
-                    <a href="{{ url_for('list_forum') }}?filter=pinned" class="category-link">
-                        <span class="category-icon">📌</span>
-                        Fijados
-                    </a>
-                </li>
-                <li class="category-item">
-                    <a href="{{ url_for('list_forum') }}?filter=unanswered" class="category-link">
-                        <span class="category-icon">❓</span>
-                        Sin responder
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="content-header">
-            <h1 class="page-title">Discusiones</h1>
-            <div class="filter-tabs">
-                <button class="filter-tab {{ 'active' if not request.args.get('sort') or request.args.get('sort') == 'recent' else '' }}" 
-                        data-sort="recent">Recientes</button>
-                <button class="filter-tab {{ 'active' if request.args.get('sort') == 'popular' else '' }}" 
-                        data-sort="popular">Populares</button>
-                <button class="filter-tab {{ 'active' if request.args.get('sort') == 'unanswered' else '' }}" 
-                        data-sort="unanswered">Sin resolver</button>
-            </div>
-        </div>
-
-        <div class="topics-list">
-            {% for topic in temas %}
-            <div class="topic-card" onclick="window.location.href='{{ url_for('forum_topic_view', topic_id=topic.id) }}'">
-                <div class="topic-header">
-                    <div class="topic-avatar">{{ topic.author[0].upper() if topic.author else 'A' }}</div>
-                    <div class="topic-info">
-                        <h3 class="topic-title">{{ topic.title }}</h3>
-                        <div class="topic-meta">
-                            {% if topic.category %}
-                            <span class="topic-category">{{ topic.category }}</span>
-                            <span>•</span>
-                            {% endif %}
-                            <span>Por {{ topic.author or 'Anónimo' }}</span>
-                            <span>•</span>
-                            <span>{{ topic.created_at.strftime('%d %b') if topic.created_at else 'Fecha' }}</span>
-                        </div>
+                        <span>•</span>
+                        {% endif %}
+                        <span>Por {{ topic.author or 'Anónimo' }}</span>
+                        <span>•</span>
+                        <span>{{ topic.timestamp|time_ago if topic.timestamp else 'Hace un momento' }}</span>
                     </div>
-                    <div class="topic-stats">
-                        <div class="stat-item">
-                            <span>💬</span>
-                            <span>{{ topic.responses|length if topic.responses else 0 }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>👍</span>
-                            <span>{{ topic.votes or 0 }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>👁️</span>
-                            <span>{{ (topic.votes or 0) * 10 + (topic.responses|length if topic.responses else 0) * 5 + 20 }}</span>
-                        </div>
+                </div>
+                <div class="topic-stats">
+                    <div class="stat-item">
+                        <span>💬</span>
+                        <span id="responses-count-{{ topic.id }}">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>👁️</span>
+                        <span>{{ (topic.votes or 0) * 10 + 20 }}</span>
                     </div>
                 </div>
             </div>
-            {% else %}
-            <div class="topic-card">
-                <div class="topic-header">
-                    <div class="topic-avatar">🎵</div>
-                    <div class="topic-info">
-                        <h3 class="topic-title">¡Sé el primero en crear un tema!</h3>
-                        <div class="topic-meta">
-                            <span class="topic-category">Bienvenida</span>
-                            <span>•</span>
-                            <span>La comunidad te espera</span>
-                        </div>
+            <div class="topic-content">{{ topic.contenido }}</div>
+            {% if topic.author == session.get('current_user') %}
+            <button class="delete-btn" onclick="deleteTopic('{{ topic.id }}')">🗑️</button>
+            {% endif %}
+            
+            <!-- Topic Detail (Expandido) -->
+            <div class="topic-detail" id="detail-{{ topic.id }}">
+                <div class="responses-section">
+                    <h4 class="responses-title">Respuestas (<span id="responses-title-count-{{ topic.id }}">0</span>)</h4>
+                    <div id="responses-{{ topic.id }}">
+                        <!-- Las respuestas se cargan dinámicamente -->
                     </div>
-                    <div class="topic-stats">
-                        <div class="stat-item">
-                            <span>💬</span>
-                            <span>0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>👍</span>
-                            <span>0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>👁️</span>
-                            <span>1</span>
-                        </div>
+                    <div class="response-form">
+                        <form onsubmit="addResponse(event, '{{ topic.id }}')">
+                            <div class="form-group">
+                                <label class="form-label">Tu respuesta:</label>
+                                <textarea class="form-textarea" name="response_content" placeholder="Comparte tu conocimiento o experiencia..." required></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeTopic('{{ topic.id }}')">Cerrar</button>
+                                <button type="submit" class="btn btn-primary">Responder</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
-    </main>
+        {% else %}
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <p>No hay temas aún. ¡Sé el primero en crear uno!</p>
+        </div>
+        {% endfor %}
+    </div>
 
-    <!-- Right Sidebar -->
-    <aside class="right-sidebar">
-        <div class="widget">
-            <h3 class="widget-title">
-                <span>🟢</span>
-                Usuarios Activos
-            </h3>
-            <div class="online-users">
-                <div class="user-item">
-                    <div class="user-avatar"></div>
-                    <span class="user-name">VeriteStudio</span>
-                    <div class="online-indicator"></div>
-                </div>
-                <div class="user-item">
-                    <div class="user-avatar"></div>
-                    <span class="user-name">AudioMaster</span>
-                    <div class="online-indicator"></div>
-                </div>
-                <div class="user-item">
-                    <div class="user-avatar"></div>
-                    <span class="user-name">SoundHunter</span>
-                    <div class="online-indicator"></div>
-                </div>
-                <div class="user-item">
-                    <div class="user-avatar"></div>
-                    <span class="user-name">FoleyArtist</span>
-                    <div class="online-indicator"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="widget">
-            <h3 class="widget-title">
-                <span>📈</span>
-                Tendencias
-            </h3>
-            <div class="recent-topics">
-                {% for topic in temas[:3] %}
-                <div class="recent-topic" onclick="window.location.href='{{ url_for('forum_topic_view', topic_id=topic.id) }}'">
-                    <div class="recent-topic-title">{{ topic.title[:40] }}{{ '...' if topic.title|length > 40 else '' }}</div>
-                    <div class="recent-topic-meta">{{ (topic.votes or 0) * 10 + 20 }} vistas • {{ topic.responses|length if topic.responses else 0 }} respuestas</div>
-                </div>
-                {% else %}
-                <div class="recent-topic">
-                    <div class="recent-topic-title">Field recording con smartphone</div>
-                    <div class="recent-topic-meta">134 vistas • 8 respuestas</div>
-                </div>
-                <div class="recent-topic">
-                    <div class="recent-topic-title">Plugins gratuitos imprescindibles</div>
-                    <div class="recent-topic-meta">89 vistas • 12 respuestas</div>
-                </div>
-                <div class="recent-topic">
-                    <div class="recent-topic-title">Masterización para streaming</div>
-                    <div class="recent-topic-meta">156 vistas • 6 respuestas</div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="widget">
-            <h3 class="widget-title">
-                <span>ℹ️</span>
-                Estadísticas
-            </h3>
-            <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
-                <div style="margin-bottom: var(--space-1);"><strong>{{ temas|length }}</strong> temas totales</div>
-                <div style="margin-bottom: var(--space-1);"><strong>{{ temas|sum(attribute='responses')|length if temas else 0 }}</strong> respuestas</div>
-                <div style="margin-bottom: var(--space-1);"><strong>89</strong> miembros activos</div>
-                <div><strong>12</strong> conectados ahora</div>
-            </div>
-        </div>
-    </aside>
+    <!-- Floating Action Button -->
+    <button class="fab" id="fabBtn" title="Nuevo tema">
+        ✏️
+    </button>
 </div>
-
-<!-- Floating Action Button -->
-<button class="fab" title="Crear nuevo tema" onclick="window.location.href='{{ url_for('forum_new') }}'">
-    ✏️
-</button>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/forum_modern.js') }}"></script>
+<script src="{{ url_for('static', filename='js/forum_interactive.js') }}"></script>
 {% endblock %}
