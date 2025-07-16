@@ -247,48 +247,7 @@ if __name__ == '__main__':
 
 # Agregar estas rutas a tu app.py para el foro moderno
 
-from modules.forum import get_categories, get_topics, get_recent_topics
-
-@app.route('/forum')
-def list_forum():
-    """Lista principal del foro con filtros y categorías"""
-    try:
-        category_filter = request.args.get('category')
-        sort_filter = request.args.get('sort', 'recent')
-        search_query = request.args.get('q', '')
-        
-        # Obtener categorías fijas
-        categories = get_categories()
-        
-        # Obtener temas según filtros
-        if category_filter:
-            topics = get_topics(category=category_filter)
-        else:
-            topics = get_topics()
-        
-        # Aplicar ordenamiento
-        if sort_filter == 'popular':
-            topics = sorted(topics, key=lambda x: x.get('votes', 0), reverse=True)
-        elif sort_filter == 'unanswered':
-            topics = [t for t in topics if not t.get('responses') or len(t.get('responses', [])) == 0]
-        else:  # recent
-            topics = sorted(topics, key=lambda x: x.get('created_at'), reverse=True)
-        
-        # Aplicar búsqueda si hay query
-        if search_query:
-            topics = [t for t in topics if 
-                     search_query.lower() in t.get('title', '').lower() or 
-                     search_query.lower() in t.get('category', '').lower()]
-        
-        return render_template('forum.html', 
-                             topics=topics, 
-                             categories=categories,
-                             current_category=category_filter,
-                             current_sort=sort_filter,
-                             search_query=search_query)
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore query failed: {e}")
-        raise
+from modules.forum import get_categories
 
 
 @app.route('/forum/new', methods=['GET', 'POST'])
