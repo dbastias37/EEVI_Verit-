@@ -2,6 +2,8 @@ import os
 import re
 import sqlite3
 import time
+import firebase_admin
+from google.cloud import firestore
 from werkzeug.security import generate_password_hash
 from flask import (
     Flask, render_template, request, redirect, jsonify,
@@ -9,20 +11,28 @@ from flask import (
 )
 from jinja2 import TemplateNotFound
 
-from firebase_admin import credentials, initialize_app, firestore, exceptions
+from firebase_admin import credentials, firestore as fs, exceptions
 from google.api_core.exceptions import GoogleAPICallError
 
 
-def init_firestore():
+def init_firestore() -> "google.cloud.firestore.Client":
+    """
+    Devuelve un cliente Firestore usando Firebase Admin SDK como singleton.
+    Lee la ruta del JSON desde la variable de entorno GOOGLE_APPLICATION_CREDENTIALS
+    (en Render: /etc/secrets/serviceAccountKey.json).
+    """
     try:
-        cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'serviceAccountKey.json')
-        if not os.path.isfile(cred_path):
-            raise FileNotFoundError(f"Credenciales no encontradas: {cred_path}")
-        # Inicializar solo una vez
-        if not firestore._apps:
+        if not firebase_admin._apps:
+            cred_path = os.getenv(
+                "GOOGLE_APPLICATION_CREDENTIALS",
+                "serviceAccountKey.json"
+            )
+            if not os.path.isfile(cred_path):
+                raise FileNotFoundError(f"Credenciales no encontradas: {cred_path}")
             cred = credentials.Certificate(cred_path)
-            initialize_app(cred)
-        return firestore.client()
+            firebase_admin.initialize_app(cred)
+
+        return fs.client()
     except exceptions.FirebaseError as e:
         # Log de error y reintento o fallback
         app.logger.error(f"Firebase init failed: {e}")

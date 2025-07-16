@@ -5,4 +5,5 @@ gunicorn>=21.0
 google-auth>=2.0
 google-api-python-client>=2.97
 cachetools>=5
-firebase-admin>=6.0.0
+firebase-admin==6.4.0
+google-cloud-firestore==2.14.0
