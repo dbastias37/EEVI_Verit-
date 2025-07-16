@@ -2,7 +2,6 @@ import os
 import re
 import sqlite3
 import time
-import json
 from werkzeug.security import generate_password_hash
 from flask import (
     Flask, render_template, request, redirect, jsonify,
@@ -12,11 +11,14 @@ from jinja2 import TemplateNotFound
 
 from firebase_admin import credentials, initialize_app, firestore
 
-# Carga el JSON desde la variable
-creds_dict = json.loads(os.getenv("GOOGLE_CREDS_JSON"))
-cred = credentials.Certificate(creds_dict)
-initialize_app(cred)
+# Cargar credenciales desde env var o archivo local
+cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'serviceAccountKey.json')
+if not os.path.isfile(cred_path):
+    raise RuntimeError(f"Credenciales no encontradas: {cred_path}")
 
+# Inicializar Firebase Admin y obtener cliente Firestore
+cred = credentials.Certificate(cred_path)
+initialize_app(cred)
 db = firestore.client()
 
 from config import config
