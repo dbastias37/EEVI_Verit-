@@ -16,6 +16,7 @@ La brisa arrastra nuestras historias hacia nuevos horizontes.
 Cada paso resuena en los ecos digitales de nuestro viaje.
 
 Nuestros relatos se entretejen con la luz de cada proyecto completado.
+La sinfonia de nuestra colaboracion resuena en cada rincon digital.
 ──────────────────────────────────────────────
 
 📜 MANIFIESTO DE EEVI
@@ -166,32 +167,24 @@ NUEVO ENDPOINT: `/packs`
 4. Usa `/status` para verificar que la app responde.
 Cada nota en el camino es eco de la bestia digital.
 
-## Configuración de Firebase Firestore
+## Configuración Firebase Firestore
 
-1. Crea un proyecto en Firebase y descarga `serviceAccountKey.json`.
-2. Guarda `serviceAccountKey.json` en la raíz del proyecto.
-3. Establece la variable de entorno `GOOGLE_APPLICATION_CREDENTIALS`:
-   ```bash
-   export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/serviceAccountKey.json"
-   ```
-   o en Windows PowerShell:
-   ```powershell
-   $Env:GOOGLE_APPLICATION_CREDENTIALS = "$(pwd)\serviceAccountKey.json"
-   ```
-4. Ejecuta el script de inicialización:
-   ```bash
-   python scripts/firebase_init.py
-   ```
+* Crea la base de datos en Firebase Console (Firestore → Modo nativo).
+* Descarga y coloca `serviceAccountKey.json` en la raíz del proyecto.
+* Define la variable de entorno:
 
-Para verificar la conexión a Firestore:
-```bash
-python - << 'EOF'
-from firebase_admin import firestore, initialize_app, credentials
-initialize_app(credentials.Certificate('serviceAccountKey.json'))
-db = firestore.client()
-print(db.collections())
-EOF
-```
+  * Linux/macOS:
+
+    ```bash
+    export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/serviceAccountKey.json"
+    ```
+  * Windows PowerShell:
+
+    ```powershell
+    $Env:GOOGLE_APPLICATION_CREDENTIALS = "$(pwd)\serviceAccountKey.json"
+    ```
+* Instala dependencias: `pip install -r requirements.txt`
+* Probar inicialización: `python scripts/firebase_init.py`
 
 Su resonancia guia a futuras expediciones creativas.
 Las rutas que se dibujan llevan a horizontes inesperados.
