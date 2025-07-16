@@ -5,6 +5,7 @@ from services.comment_manager import CommentManager
 from utils.security import login_required
 from utils.db import get_db
 from utils.validators import is_valid_url
+from google.api_core.exceptions import GoogleAPICallError
 
 client_bp = Blueprint('client', __name__)
 
@@ -57,11 +58,20 @@ def home():
     from firebase_admin import firestore
     from utils.drive_previews import fetch_previews
     fs_client = firestore.client()
-    docs = fs_client.collection('foro').order_by('timestamp', direction=firestore.Query.DESCENDING).limit(1).stream()
-    latest = None
-    for d in docs:
-        latest = {**d.to_dict(), 'id': d.id}
-        break
+    try:
+        docs = (
+            fs_client.collection('foro')
+            .order_by('timestamp', direction=firestore.Query.DESCENDING)
+            .limit(1)
+            .stream()
+        )
+        latest = None
+        for d in docs:
+            latest = {**d.to_dict(), 'id': d.id}
+            break
+    except GoogleAPICallError as e:
+        current_app.logger.error(f"Firestore query failed: {e}")
+        raise
     packs = get_all_packs()
     services = get_all_services()
     previews = fetch_previews()
@@ -71,7 +81,9 @@ def home():
         'satisfaction': 98,
         'avg_delivery': '24h'
     }
-    return render_template('home.html', latest=latest, packs=packs, services=services, stats=stats, previews=previews)
+    return render_template(
+        'home.html', latest=latest, packs=packs, services=services, stats=stats, previews=previews
+    )
 
 
 
