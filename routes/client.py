@@ -54,9 +54,14 @@ def packs():
 
 @client_bp.route('/', methods=['GET'])
 def home():
-    from modules import forum as forum_db
+    from firebase_admin import firestore
     from utils.drive_previews import fetch_previews
-    latest = forum_db.get_latest_topic()
+    fs_client = firestore.client()
+    docs = fs_client.collection('foro').order_by('timestamp', direction=firestore.Query.DESCENDING).limit(1).stream()
+    latest = None
+    for d in docs:
+        latest = {**d.to_dict(), 'id': d.id}
+        break
     packs = get_all_packs()
     services = get_all_services()
     previews = fetch_previews()
