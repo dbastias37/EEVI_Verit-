@@ -10,6 +10,15 @@ from flask import (
 )
 from jinja2 import TemplateNotFound
 
+from firebase_admin import credentials, initialize_app, firestore
+
+# Carga el JSON desde la variable
+creds_dict = json.loads(os.getenv("GOOGLE_CREDS_JSON"))
+cred = credentials.Certificate(creds_dict)
+initialize_app(cred)
+
+db = firestore.client()
+
 from config import config
 from utils.db import db, migrate, get_db, close_db, init_db
 from utils.auth import ensure_admin_user
