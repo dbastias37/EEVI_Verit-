@@ -1,0 +1,5 @@
+<ul>
+{% for tema in temas %}
+  <li><a href="/forum/{{ tema.id }}">{{ tema.titulo }}</a></li>
+{% endfor %}
+</ul>

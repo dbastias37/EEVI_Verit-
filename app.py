@@ -19,7 +19,7 @@ if not os.path.isfile(cred_path):
 # Inicializar Firebase Admin y obtener cliente Firestore
 cred = credentials.Certificate(cred_path)
 initialize_app(cred)
-db = firestore.client()
+fs_client = firestore.client()
 
 from config import config
 from utils.db import db, migrate, get_db, close_db, init_db
@@ -28,15 +28,7 @@ from routes.admin import admin_bp
 from routes.client import client_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
-from modules import forum as forum_db
 from utils.quotes import get_random_quote
-from modules.forum import (
-    get_topic,
-    get_topic_by_id,
-    get_responses_for_topic,
-    vote_response,
-    get_response_topic,
-)
 
 def create_app():
     app = Flask(__name__)
@@ -50,7 +42,6 @@ def create_app():
 
     with app.app_context():
         init_db(app)
-        forum_db.init_db()
         ensure_admin_user()
 
     return app
@@ -173,90 +164,33 @@ def get_all_comments():
 # ------------- Forum routes (remain here) -------------
 
 @app.route('/forum')
-def forum_index():
-    try:
-        topics = forum_db.get_topics()
-    except Exception:
-        flash("Error al cargar el foro, inténtalo más tarde", "danger")
-        return redirect(url_for('client.home'))
-
-    return render_template(
-        'forum_index.html',
-        topics=topics,
-        quotes=forum_db.INSPIRATIONAL_QUOTES,
-    )
-
-# ─── Alias de endpoint para compatibilidad retroactiva ──
-@app.route('/forum', endpoint='forum.index', methods=['GET'])
-def forum_index_alias():
-    """Alias para que `url_for('forum.index')` funcione sin cambiar templates."""
-    return forum_index()
+def list_forum():
+    docs = fs_client.collection('foro')\
+        .order_by('timestamp', direction=firestore.Query.DESCENDING)\
+        .stream()
+    temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
+    return render_template('forum.html', temas=temas)
 
 
-@app.route('/forum/new', methods=['GET', 'POST'])
-def forum_new():
-    if request.method == 'POST':
-        topic_id = forum_db.create_topic(request.form, request.files)
-        return redirect(url_for('forum_topic_view', topic_id=topic_id))
-    return render_template('forum_new.html', categories=forum_db.get_categories())
+@app.route('/forum/new', methods=['POST'])
+def new_topic():
+    payload = request.form or request.json
+    fs_client.collection('foro').add({
+        'titulo': payload['titulo'],
+        'contenido': payload['contenido'],
+        'autor': payload.get('autor', 'Anónimo'),
+        'timestamp': firestore.SERVER_TIMESTAMP
+    })
+    return redirect(url_for('list_forum'))
 
 
-@app.route('/forum/tema/<int:topic_id>', methods=['GET', 'POST'])
-def forum_topic_view(topic_id):
-    if request.method == 'POST':
-        author = request.form['author']
-        content = request.form['response']
-        conn = sqlite3.connect(app.config['DB_PATH'])
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO responses (topic_id, author, content) VALUES (?, ?, ?)",
-            (topic_id, author, content)
-        )
-        conn.commit()
-        conn.close()
-        return redirect(url_for('forum_topic_view', topic_id=topic_id))
-    topic = get_topic(topic_id)
-    if not topic:
-        return render_template('404.html'), 404
-    responses = get_responses_for_topic(topic_id)
-    return render_template('forum_topic.html', topic=topic, responses=responses)
-
-
-@app.route('/forum/<int:topic_id>/reply', methods=['POST'])
-def forum_reply(topic_id):
-    author = request.form['author']
-    content = request.form['content']
-    forum_db.create_post(topic_id, author, content)
-    return redirect(url_for('forum_topic_view', topic_id=topic_id))
-
-
-@app.route('/forum/response/<int:response_id>/vote', methods=['POST'])
-def vote_response_route(response_id):
-    delta = int(request.form.get('delta', 0))
-    vote_response(response_id, delta)
-    topic_id = get_response_topic(response_id)
-    return redirect(url_for('forum_topic_view', topic_id=topic_id))
-
-
-@app.route('/forum/vote-topic', methods=['POST'])
-def vote_topic():
-    data = request.get_json()
-    forum_db.vote_topic(data['id'], data['direction'])
-    return jsonify(success=True)
-
-
-@app.route('/forum/vote-post', methods=['POST'])
-def vote_post():
-    data = request.get_json()
-    forum_db.vote_post(data['id'], data['direction'])
-    return jsonify(success=True)
-
-
-@app.route('/forum/<int:id>/delete', methods=['POST'])
-def delete_topic(id):
-    if request.form.get('password') == 'borrar1':
-        forum_db.delete_topic_by_id(id)
-    return redirect(url_for('forum_index'))
+@app.route('/forum/<topic_id>')
+def view_topic(topic_id):
+    doc = fs_client.collection('foro').document(topic_id).get()
+    if not doc.exists:
+        abort(404)
+    tema = {**doc.to_dict(), 'id': doc.id}
+    return render_template('topic.html', tema=tema)
 
 
 @app.route('/<page>')
