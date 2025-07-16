@@ -5,7 +5,7 @@
 {% block content %}
   {% if topic %}
   <div class="forum-topic-container">
-    <button onclick="window.location.href='{{ url_for('forum_index') }}'" class="back-btn">← Volver al foro</button>
+    <button onclick="window.location.href='{{ url_for('list_forum') }}'" class="back-btn">← Volver al foro</button>
     <h1 class="topic-title">{{ topic.title }}</h1>
     <p class="topic-meta">Categoría: {{ topic.category }} • {{ topic.created_at.strftime('%d %b %Y, %H:%M') }}</p>
     <div class="topic-body">{{ topic.description }}</div>
@@ -29,7 +29,7 @@
   </div>
   {% else %}
   <div class="alert alert-warning">
-    No encontramos ese tema. <a href="{{ url_for('forum_index') }}">Volver al foro</a>
+    No encontramos ese tema. <a href="{{ url_for('list_forum') }}">Volver al foro</a>
   </div>
   {% endif %}
 {% endblock %}

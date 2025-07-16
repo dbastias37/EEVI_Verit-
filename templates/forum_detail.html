@@ -10,7 +10,7 @@
         <div class="topic-meta-text">{{ topic.created_at.strftime('%d %b %Y – %H:%M') }}</div>
       </div>
     </div>
-    <a class="btn-secondary" href="{{ url_for('forum_index') }}">Volver al Foro</a>
+    <a class="btn-secondary" href="{{ url_for('list_forum') }}">Volver al Foro</a>
   </div>
   <div class="topic-content">{{ topic.description }}</div>
   {% if show_delete %}
