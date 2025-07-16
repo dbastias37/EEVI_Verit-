@@ -102,7 +102,7 @@
         </div>
 
         <div class="topics-list">
-            {% for topic in topics %}
+            {% for topic in temas %}
             <div class="topic-card" onclick="window.location.href='{{ url_for('forum_topic_view', topic_id=topic.id) }}'">
                 <div class="topic-header">
                     <div class="topic-avatar">{{ topic.author[0].upper() if topic.author else 'A' }}</div>
@@ -203,7 +203,7 @@
                 Tendencias
             </h3>
             <div class="recent-topics">
-                {% for topic in topics[:3] %}
+                {% for topic in temas[:3] %}
                 <div class="recent-topic" onclick="window.location.href='{{ url_for('forum_topic_view', topic_id=topic.id) }}'">
                     <div class="recent-topic-title">{{ topic.title[:40] }}{{ '...' if topic.title|length > 40 else '' }}</div>
                     <div class="recent-topic-meta">{{ (topic.votes or 0) * 10 + 20 }} vistas • {{ topic.responses|length if topic.responses else 0 }} respuestas</div>
@@ -231,8 +231,8 @@
                 Estadísticas
             </h3>
             <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
-                <div style="margin-bottom: var(--space-1);"><strong>{{ topics|length }}</strong> temas totales</div>
-                <div style="margin-bottom: var(--space-1);"><strong>{{ topics|sum(attribute='responses')|length if topics else 0 }}</strong> respuestas</div>
+                <div style="margin-bottom: var(--space-1);"><strong>{{ temas|length }}</strong> temas totales</div>
+                <div style="margin-bottom: var(--space-1);"><strong>{{ temas|sum(attribute='responses')|length if temas else 0 }}</strong> respuestas</div>
                 <div style="margin-bottom: var(--space-1);"><strong>89</strong> miembros activos</div>
                 <div><strong>12</strong> conectados ahora</div>
             </div>
