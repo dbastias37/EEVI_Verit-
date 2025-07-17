@@ -5,6 +5,7 @@ import time
 import datetime
 import firebase_admin
 from google.cloud import firestore
+fs_client = firestore.Client()
 from werkzeug.security import generate_password_hash
 from flask import (
     Flask, render_template, request, redirect, jsonify,
