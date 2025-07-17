@@ -4,7 +4,7 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_interactive.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -14,15 +14,26 @@
         <p class="forum-subtitle">Comunidad de creadores audiovisuales</p>
     </header>
 
-    <!-- Botón Nuevo Tema -->
-    <button class="new-topic-btn" id="newTopicBtn">
-        <span>✏️</span>
-        Nuevo Tema
-    </button>
+    <div class="forum-wrapper">
+        <aside class="sidebar">
+            <ul class="category-list">
+                <li class="category-item active" data-category="">Todos</li>
+                {% for category in categories %}
+                <li class="category-item" data-category="{{ category }}">{{ category }}</li>
+                {% endfor %}
+            </ul>
+        </aside>
 
-    <!-- Formulario Nuevo Tema -->
-    <div class="new-topic-form" id="newTopicForm">
-        <form id="topicForm" action="{{ url_for('forum_new') }}" method="post">
+        <section class="topics-area">
+            <!-- Botón Nuevo Tema -->
+            <button class="new-topic-btn" id="newTopicBtn">
+                <span>✏️</span>
+                Nuevo Tema
+            </button>
+
+            <!-- Formulario Nuevo Tema -->
+            <div class="new-topic-form" id="newTopicForm">
+                <form id="topicForm" action="{{ url_for('forum_new') }}" method="post">
             <div class="form-group">
                 <label class="form-label" for="authorName">Nombre:</label>
                 <input type="text" id="authorName" name="autor" class="form-input" required>
@@ -55,10 +66,10 @@
         </form>
     </div>
 
-    <!-- Lista de Topics -->
-    <div class="topics-list" id="topicsList">
-        {% for topic in temas %}
-        <div class="topic-card" data-topic-id="{{ topic.id }}">
+            <!-- Lista de Topics -->
+            <div class="topics-list" id="topicsList">
+                {% for topic in temas %}
+                <div class="topic-card" data-topic-id="{{ topic.id }}" data-category="{{ topic.category }}">
             <div class="topic-header">
                 <div class="topic-avatar">{{ topic.author[0].upper() if topic.author else 'A' }}</div>
                 <div class="topic-info">
@@ -70,7 +81,7 @@
                         {% endif %}
                         <span>Por {{ topic.author or 'Anónimo' }}</span>
                         <span>•</span>
-                        <span>Hace un momento</span>
+                                <span>{{ topic.timestamp | time_ago }}</span>
                     </div>
                 </div>
                 <div class="topic-stats">
@@ -84,7 +95,7 @@
                     </div>
                 </div>
             </div>
-            <div class="topic-content">{{ topic.contenido }}</div>
+                    <div class="topic-content">{{ topic.contenido | truncate_words(20) }}</div>
             
             <!-- Topic Detail (Expandido) -->
             <div class="topic-detail" id="detail-{{ topic.id }}">
@@ -107,12 +118,14 @@
                     </div>
                 </div>
             </div>
-        </div>
-        {% else %}
-        <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-            <p>No hay temas aún. ¡Sé el primero en crear uno!</p>
-        </div>
-        {% endfor %}
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p>No hay temas aún. ¡Sé el primero en crear uno!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
     </div>
 
     <!-- Floating Action Button -->

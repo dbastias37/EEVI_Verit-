@@ -17,6 +17,7 @@ class VForumInteractive {
         this.cancelBtn = document.getElementById('cancelBtn');
         this.fabBtn = document.getElementById('fabBtn');
         this.topicsList = document.getElementById('topicsList');
+        this.categories = document.querySelectorAll('.category-item');
     }
 
     bindEvents() {
@@ -42,11 +43,16 @@ class VForumInteractive {
         document.querySelectorAll('.topic-card').forEach(card => {
             const topicId = card.dataset.topicId;
             card.addEventListener('click', (e) => {
-                if (!e.target.closest('.topic-detail') && 
+                if (!e.target.closest('.topic-detail') &&
                     !e.target.closest('.form-actions')) {
                     this.toggleTopicDetail(topicId);
                 }
             });
+        });
+
+        // Filtro por categorías
+        this.categories.forEach(cat => {
+            cat.addEventListener('click', () => this.filterByCategory(cat));
         });
     }
 
@@ -130,6 +136,23 @@ class VForumInteractive {
         if (detail) {
             detail.classList.remove('show');
         }
+    }
+
+    filterByCategory(element) {
+        const category = element.dataset.category;
+        this.categories.forEach(c => c.classList.remove('active'));
+        element.classList.add('active');
+
+        document.querySelectorAll('.topic-card').forEach(card => {
+            const cardCat = card.dataset.category || '';
+            if (!category || cardCat === category) {
+                card.style.display = '';
+                card.style.opacity = '1';
+            } else {
+                card.style.opacity = '0';
+                setTimeout(() => { card.style.display = 'none'; }, 300);
+            }
+        });
     }
 }
 

@@ -1,7 +1,8 @@
 /* VFORUM Interactive CSS - Sistema Interactivo EEVI */
 
 :root {
-    --primary: #00D4B8;
+    /* Color principal para acentos en el foro */
+    --primary: #1abc9c;
     --accent: #FF6B35;
     --bg-primary: #0A0F1C;
     --bg-secondary: #1A2332;
@@ -26,7 +27,7 @@
 
 /* Override base styles for forum */
 .forum-container {
-    font-family: 'Inter', sans-serif !important;
+    font-family: 'Montserrat', 'Roboto', sans-serif !important;
     background: var(--bg-primary) !important;
     color: var(--text-primary) !important;
     line-height: 1.6;
@@ -38,6 +39,48 @@
 .forum-header {
     text-align: center;
     margin-bottom: var(--space-8);
+}
+
+/* Layout con barra lateral y área principal */
+.forum-wrapper {
+    display: flex;
+    gap: var(--space-5);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.sidebar {
+    width: 23%;
+}
+
+.topics-area {
+    width: 77%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.category-item {
+    cursor: pointer;
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    transition: background 0.3s, color 0.3s;
+}
+
+.category-item:hover,
+.category-item.active {
+    background: var(--bg-hover);
+    color: var(--primary);
 }
 
 .forum-title {
@@ -408,6 +451,15 @@
 @media (max-width: 768px) {
     .forum-container {
         padding: 1rem;
+    }
+
+    .forum-wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar,
+    .topics-area {
+        width: 100%;
     }
     
     .forum-title {
