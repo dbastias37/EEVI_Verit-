@@ -208,19 +208,6 @@ def get_all_comments():
 
 # ------------- Forum routes (remain here) -------------
 
-@app.route('/forum')
-def list_forum():
-    try:
-        docs = (
-            fs_client.collection('foro')
-            .order_by('timestamp', direction=firestore.Query.DESCENDING)
-            .stream()
-        )
-        temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
-        return render_template('forum.html', temas=temas)
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore query failed: {e}")
-        raise
 
 
 @app.route('/forum/new', methods=['POST'])
@@ -344,6 +331,7 @@ def list_forum():
         temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
         
         # Obtener categorías
+        from modules.forum import get_categories
         categories = get_categories()
         
         return render_template('forum.html', temas=temas, categories=categories)
@@ -355,9 +343,6 @@ if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
 
 # Agregar estas rutas a tu app.py para el foro moderno
-
-from modules.forum import get_categories
-
 
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():
