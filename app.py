@@ -3,6 +3,8 @@ import re
 import sqlite3
 import time
 import datetime
+import json
+from google.oauth2 import service_account
 from google.cloud import firestore
 from werkzeug.security import generate_password_hash
 from flask import (
@@ -13,7 +15,6 @@ from jinja2 import TemplateNotFound
 
 from google.api_core.exceptions import GoogleAPICallError
 from utils.template_filters import register_filters
-from utils.firebase import get_client as get_firestore_client
 
 
 
@@ -46,8 +47,19 @@ def create_app():
 app = create_app()
 
 # --- Firebase initialization (local/Render) ---
-fs_client = get_firestore_client()
+credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+
+if not credentials_json:
+    raise Exception("No se encontró la variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON")
+
+credentials_dict = json.loads(credentials_json)
+
+cred = service_account.Credentials.from_service_account_info(credentials_dict)
+
+fs_client = firestore.Client(credentials=cred)
+
 foro_ref = fs_client.collection("foro")
+respuestas_ref = fs_client.collection("respuestas")
 
 # Ejemplo de guardar una respuesta dentro de un tema
 def guardar_respuesta(id_tema, data_respuesta):

@@ -55,7 +55,7 @@ def packs():
 
 @client_bp.route('/', methods=['GET'])
 def home():
-    from firebase_admin import firestore
+    from google.cloud import firestore
     from utils.drive_previews import fetch_previews
     from app import fs_client
     try:
