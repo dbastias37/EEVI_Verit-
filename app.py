@@ -3,9 +3,8 @@ import re
 import sqlite3
 import time
 import datetime
-import firebase_admin
 from google.cloud import firestore
-fs_client = firestore.Client()
+from utils.firestore_client import get_fs_client
 from werkzeug.security import generate_password_hash
 from flask import (
     Flask, render_template, request, redirect, jsonify,
@@ -13,7 +12,6 @@ from flask import (
 )
 from jinja2 import TemplateNotFound
 
-from firebase_admin import credentials, firestore as fs, exceptions, initialize_app
 from google.api_core.exceptions import GoogleAPICallError
 from utils.template_filters import register_filters
 
@@ -47,9 +45,7 @@ def create_app():
 
 app = create_app()
 
-cred = credentials.Certificate('serviceAccountKey.json')
-initialize_app(cred)
-fs_client = firestore.client()
+fs_client = get_fs_client()
 foro_ref = fs_client.collection('foro')
 
 
