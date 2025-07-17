@@ -197,7 +197,7 @@ def get_all_comments():
 
 
 
-@app.route('/forum/<topic_id>')
+@app.route('/forum/<string:topic_id>')
 def view_topic(topic_id):
     try:
         doc = fs_client.collection('foro').document(topic_id).get()
@@ -218,7 +218,7 @@ def render_page(page):
         abort(404)
 # Agregar estas rutas al final de app.py, antes de if __name__ == '__main__':
 
-@app.route('/forum/topic/<topic_id>/responses')
+@app.route('/forum/topic/<string:topic_id>/responses')
 def get_topic_responses(topic_id):
     """Obtener respuestas de un tema específico"""
     try:
@@ -247,7 +247,7 @@ def get_topic_responses(topic_id):
         return jsonify([]), 500
 
 
-@app.route('/forum/topic/<topic_id>/delete', methods=['POST'])
+@app.route('/forum/topic/<string:topic_id>/delete', methods=['POST'])
 def delete_topic_route(topic_id):
     """Eliminar un tema del foro"""
     try:
@@ -295,7 +295,7 @@ if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
 
 
-@app.route('/forum/topic/<topic_id>')
+@app.route('/forum/topic/<string:topic_id>')
 def forum_topic_view(topic_id):
     """Vista individual de un tema del foro"""
     try:
@@ -328,7 +328,7 @@ def forum_topic_view(topic_id):
         raise
 
 
-@app.route('/forum/topic/<topic_id>/reply', methods=['POST'])
+@app.route('/forum/topic/<string:topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):
     """Agregar respuesta a un tema"""
     try:

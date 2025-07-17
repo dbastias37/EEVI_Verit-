@@ -14,7 +14,7 @@
   </div>
   <div class="topic-content">{{ topic.description or topic.contenido }}</div>
   {% if show_delete %}
-  <form action="{{ url_for('delete_topic', id=topic.id) }}" method="post">
+  <form action="{{ url_for('delete_topic_route', topic_id=topic.id) }}" method="post">
     <input type="hidden" name="password" value="borrar1">
     <button type="submit" class="btn-delete">🗑 Eliminar</button>
   </form>
