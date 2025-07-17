@@ -57,17 +57,18 @@ def packs():
 def home():
     from google.cloud import firestore
     from utils.drive_previews import fetch_previews
+    from utils.forum_utils import normalize_topic_data
     from app import fs_client
     try:
         docs = (
             fs_client.collection('foro')
-            .order_by('timestamp', direction=firestore.Query.DESCENDING)
+            .order_by('created_at', direction=firestore.Query.DESCENDING)
             .limit(1)
             .stream()
         )
         latest = None
         for d in docs:
-            latest = {**d.to_dict(), 'id': d.id}
+            latest = normalize_topic_data({**d.to_dict(), 'id': d.id})
             break
     except GoogleAPICallError as e:
         current_app.logger.error(f"Firestore query failed: {e}")

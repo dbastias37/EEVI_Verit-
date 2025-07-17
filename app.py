@@ -27,6 +27,7 @@ from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.quotes import get_random_quote
 from modules.forum import get_categories
+from utils.forum_utils import normalize_topic_data
 
 def create_app():
     app = Flask(__name__)
@@ -197,10 +198,11 @@ def new_topic():
     try:
         fs_client.collection('foro').add(
             {
-                'titulo': payload['titulo'],
-                'contenido': payload['contenido'],
-                'autor': payload.get('autor', 'Anónimo'),
-                'timestamp': firestore.SERVER_TIMESTAMP,
+                'title': payload.get('title') or payload.get('titulo'),
+                'description': payload.get('description') or payload.get('contenido'),
+                'author': payload.get('author') or payload.get('autor', 'Anónimo'),
+                'category': payload.get('category') or payload.get('categoria'),
+                'created_at': firestore.SERVER_TIMESTAMP,
             }
         )
         return redirect(url_for('list_forum'))
@@ -215,7 +217,7 @@ def view_topic(topic_id):
         doc = fs_client.collection('foro').document(topic_id).get()
         if not doc.exists:
             abort(404)
-        tema = {**doc.to_dict(), 'id': doc.id}
+        tema = normalize_topic_data({**doc.to_dict(), 'id': doc.id})
         return render_template('topic.html', tema=tema)
     except GoogleAPICallError as e:
         app.logger.error(f"Firestore read failed: {e}")
@@ -250,13 +252,13 @@ def get_topic_responses(topic_id):
 
         responses_ref = fs_client.collection('foro').document(topic_id).collection('responses')
         responses = []
-        for resp_doc in responses_ref.order_by('timestamp').stream():
+        for resp_doc in responses_ref.order_by('created_at').stream():
             response_data = resp_doc.to_dict()
             responses.append({
                 'id': resp_doc.id,
-                'author': response_data.get('author', 'Anónimo'),
-                'content': response_data.get('content', ''),
-                'timestamp': response_data.get('timestamp')
+                'author': response_data.get('author') or response_data.get('autor', 'Anónimo'),
+                'content': response_data.get('content') or response_data.get('contenido', ''),
+                'timestamp': response_data.get('created_at') or response_data.get('fecha_creacion') or response_data.get('timestamp')
             })
         return jsonify(responses)
     except Exception as e:
@@ -284,20 +286,20 @@ def delete_topic_route(topic_id):
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():
     if request.method == 'POST':
-        nombre = request.form.get('nombre', 'Anónimo')
-        categoria = request.form.get('categoria', '')
-        titulo = request.form.get('titulo', '')
-        contenido = request.form.get('contenido', '')
+        nombre = request.form.get('author') or request.form.get('nombre', 'Anónimo')
+        categoria = request.form.get('category') or request.form.get('categoria', '')
+        titulo = request.form.get('title') or request.form.get('titulo', '')
+        contenido = request.form.get('description') or request.form.get('contenido', '')
 
         if not titulo or not contenido:
             return "Título y contenido son obligatorios", 400
 
         nuevo_tema = {
-            'nombre': nombre,
-            'categoria': categoria,
-            'titulo': titulo,
-            'contenido': contenido,
-            'fecha': datetime.datetime.utcnow().isoformat()
+            'author': nombre,
+            'category': categoria,
+            'title': titulo,
+            'description': contenido,
+            'created_at': datetime.datetime.utcnow().isoformat()
         }
 
         fs_client.collection('foro').add(nuevo_tema)
@@ -330,13 +332,20 @@ def forum_topic_view(topic_id):
         if not doc.exists:
             abort(404)
 
-        tema = {**doc.to_dict(), 'id': doc.id}
+        tema = normalize_topic_data({**doc.to_dict(), 'id': doc.id})
 
         # Obtener respuestas del tema
         responses_ref = fs_client.collection('foro').document(str(topic_id)).collection('responses')
         responses = []
-        for resp_doc in responses_ref.order_by('timestamp').stream():
-            responses.append({**resp_doc.to_dict(), 'id': resp_doc.id})
+        for resp_doc in responses_ref.order_by('created_at').stream():
+            rdata = resp_doc.to_dict()
+            responses.append({
+                **rdata,
+                'id': resp_doc.id,
+                'author': rdata.get('author') or rdata.get('autor'),
+                'content': rdata.get('content') or rdata.get('contenido'),
+                'created_at': rdata.get('created_at') or rdata.get('fecha_creacion') or rdata.get('timestamp'),
+            })
 
         return render_template('forum_topic.html', topic=tema, responses=responses)
     except GoogleAPICallError as e:
@@ -359,7 +368,7 @@ def forum_reply(topic_id):
         fs_client.collection('foro').document(str(topic_id)).collection('responses').add({
             'author': payload.get('author', 'Anónimo'),
             'content': payload['content'],
-            'timestamp': firestore.SERVER_TIMESTAMP
+            'created_at': firestore.SERVER_TIMESTAMP
         })
 
         return redirect(url_for('forum_topic_view', topic_id=topic_id))
@@ -377,9 +386,9 @@ def responder(post_id):
             return jsonify({'error': 'La respuesta no puede estar vacía'}), 400
 
         respuesta_data = {
-            'contenido': contenido,
-            'fecha_creacion': datetime.datetime.utcnow(),
-            'autor': 'Anónimo'
+            'content': contenido,
+            'created_at': datetime.datetime.utcnow(),
+            'author': 'Anónimo'
         }
 
         fs_client.collection('foro').document(post_id).collection('respuestas').add(respuesta_data)
@@ -457,8 +466,11 @@ def forum_context():
 @app.route('/forum')
 def list_forum():
     try:
-        temas = [{**doc.to_dict(), 'id': doc.id} for doc in foro_ref.stream()]
-        temas = sorted(temas, key=lambda x: x.get('fecha', ''), reverse=True)
+        temas = [
+            normalize_topic_data({**doc.to_dict(), 'id': doc.id})
+            for doc in foro_ref.stream()
+        ]
+        temas = sorted(temas, key=lambda x: x.get('created_at', ''), reverse=True)
 
         # Obtener categorías
         categories = get_categories()
