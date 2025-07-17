@@ -62,20 +62,24 @@ def _parse_datetime(value):
     return value
 
 # Categorías fijas para el foro
-FIXED_CATEGORIES = [
-    "Grabación en vivo",
-    "Diseño sonoro",
-    "Foley y efectos",
-    "Edición de vídeo",
-    "Edición de audio",
-    "Mezcla y masterización",
-    "Micrófonos y equipamiento",
-    "Workflows DAW y plugins",
-    "Ambientes y field recording",
-    "Postproducción",
-    "Formatos y codecs",
-    "Consejos de producción",
-]
+# Agregar esta función al archivo modules/forum.py si no existe
+
+def get_categories() -> List[str]:
+    """Devuelve la lista de categorías predefinidas."""
+    return [
+        "Grabación en vivo",
+        "Diseño sonoro", 
+        "Foley y efectos",
+        "Edición de vídeo",
+        "Edición de audio",
+        "Mezcla y masterización",
+        "Micrófonos y equipamiento",
+        "Workflows DAW y plugins",
+        "Ambientes y field recording",
+        "Postproducción",
+        "Formatos y codecs",
+        "Consejos de producción",
+    ]
 
 # 40 frases motivacionales para el carrusel de VFORUM
 INSPIRATIONAL_QUOTES = [
