@@ -6,7 +6,7 @@
 <div class="forum-new-container">
   <h1 class="section-title">CREAR NUEVO TEMA</h1>
   <p class="section-desc">Comparte tu reto audiovisual y colabora con la comunidad VFORUM.</p>
-  <form action="{{ url_for('forum_new') }}" method="post" enctype="multipart/form-data">
+  <form action="{{ url_for('create_new_forum') }}" method="post" enctype="multipart/form-data">
     <label for="title">Título</label>
     <input id="title" name="title" type="text" required>
 
