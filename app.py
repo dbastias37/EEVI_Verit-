@@ -234,6 +234,20 @@ def render_page(page):
 def get_topic_responses(topic_id):
     """Obtener respuestas de un tema específico"""
     try:
+        if str(topic_id).isdigit():
+            from modules import forum as forum_db
+            rows = forum_db.get_responses_for_topic(int(topic_id))
+            responses = [
+                {
+                    'id': r[0],
+                    'author': r[1],
+                    'content': r[2],
+                    'timestamp': r[3],
+                }
+                for r in rows
+            ]
+            return jsonify(responses)
+
         responses_ref = fs_client.collection('foro').document(topic_id).collection('responses')
         responses = []
         for resp_doc in responses_ref.order_by('timestamp').stream():
@@ -254,6 +268,11 @@ def get_topic_responses(topic_id):
 def delete_topic_route(topic_id):
     """Eliminar un tema del foro"""
     try:
+        if str(topic_id).isdigit():
+            from modules import forum as forum_db
+            forum_db.delete_topic_by_id(int(topic_id))
+            return jsonify({'success': True})
+
         fs_client.collection('foro').document(topic_id).delete()
         return jsonify({'success': True})
     except Exception as e:
@@ -293,42 +312,56 @@ if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
 
 
-@app.route('/forum/topic/<int:topic_id>')
+@app.route('/forum/topic/<topic_id>')
 def forum_topic_view(topic_id):
     """Vista individual de un tema del foro"""
     try:
-        # Convertir topic_id a string para Firestore
+        if str(topic_id).isdigit():
+            # Compatibilidad con IDs numéricos de SQLite
+            from modules import forum as forum_db
+            tema = forum_db.get_topic_by_id(int(topic_id))
+            if not tema:
+                abort(404)
+            responses = forum_db.get_responses_for_topic(int(topic_id))
+            return render_template('forum_topic.html', topic=tema, responses=responses)
+
+        # ID de Firestore (string)
         doc = fs_client.collection('foro').document(str(topic_id)).get()
         if not doc.exists:
             abort(404)
-        
+
         tema = {**doc.to_dict(), 'id': doc.id}
-        
+
         # Obtener respuestas del tema
         responses_ref = fs_client.collection('foro').document(str(topic_id)).collection('responses')
         responses = []
         for resp_doc in responses_ref.order_by('timestamp').stream():
             responses.append({**resp_doc.to_dict(), 'id': resp_doc.id})
-        
+
         return render_template('forum_topic.html', topic=tema, responses=responses)
     except GoogleAPICallError as e:
         app.logger.error(f"Firestore read failed: {e}")
         raise
 
 
-@app.route('/forum/topic/<int:topic_id>/reply', methods=['POST'])
+@app.route('/forum/topic/<topic_id>/reply', methods=['POST'])
 def forum_reply(topic_id):
     """Agregar respuesta a un tema"""
     try:
         payload = request.form or request.json
-        
-        # Agregar respuesta a la subcolección del tema
+
+        if str(topic_id).isdigit():
+            from modules import forum as forum_db
+            forum_db.create_response(int(topic_id), payload.get('author', 'Anónimo'), payload['content'])
+            return redirect(url_for('forum_topic_view', topic_id=topic_id))
+
+        # Agregar respuesta a la subcolección del tema en Firestore
         fs_client.collection('foro').document(str(topic_id)).collection('responses').add({
             'author': payload.get('author', 'Anónimo'),
             'content': payload['content'],
             'timestamp': firestore.SERVER_TIMESTAMP
         })
-        
+
         return redirect(url_for('forum_topic_view', topic_id=topic_id))
     except GoogleAPICallError as e:
         app.logger.error(f"Firestore write failed: {e}")
