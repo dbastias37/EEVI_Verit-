@@ -6,15 +6,15 @@
   {% if topic %}
   <div class="forum-topic-container">
     <button onclick="window.location.href='{{ url_for('list_forum') }}'" class="back-btn">← Volver al foro</button>
-    <h1 class="topic-title">{{ topic.title }}</h1>
-    <p class="topic-meta">Categoría: {{ topic.category }} • {{ topic.created_at.strftime('%d %b %Y, %H:%M') }}</p>
-    <div class="topic-body">{{ topic.description }}</div>
+    <h1 class="topic-title">{{ topic.title or topic.titulo }}</h1>
+    <p class="topic-meta">Categoría: {{ topic.category or topic.categoria }} • {{ (topic.created_at or topic.fecha or topic.timestamp) | time_ago }}</p>
+    <div class="topic-body">{{ topic.description or topic.contenido }}</div>
     <hr/>
     <h2 class="responses-title">Respuestas</h2>
     {% for r in responses %}
       <div class="response-card">
         <p class="response-body">{{ r.content or r.body }}</p>
-        <p class="response-meta">por {{ r.author }} • {{ r.created_at.strftime('%d %b %Y, %H:%M') }}</p>
+        <p class="response-meta">por {{ r.author }} • {{ (r.created_at or r.timestamp) | time_ago }}</p>
       </div>
     {% else %}
       <p class="no-resp">Sé el primero en responder este tema.</p>

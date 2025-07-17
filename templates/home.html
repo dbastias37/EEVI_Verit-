@@ -162,9 +162,10 @@
        </div>
        
        <div class="latest-topic-card">
-           <h3><a href="{{ url_for('forum_topic_view', topic_id=latest.id) }}">{{ latest.title }}</a></h3>
-           <p class="topic-category">{{ latest.category }}</p>
-           <p>{{ latest.description[:300] }}{% if latest.description|length > 300 %}...{% endif %}</p>
+           <h3><a href="{{ url_for('forum_topic_view', topic_id=latest.id) }}">{{ latest.title or latest.titulo }}</a></h3>
+           <p class="topic-category">{{ latest.category or latest.categoria }}</p>
+           {% set desc = latest.description or latest.contenido %}
+           <p>{{ desc[:300] }}{% if desc and desc|length > 300 %}...{% endif %}</p>
            <a href="{{ url_for('forum_topic_view', topic_id=latest.id) }}" class="btn btn-secondary">Leer más →</a>
        </div>
    </div>

@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}{{ topic.title }}{% endblock %}
+{% block title %}{{ topic.title or topic.titulo }}{% endblock %}
 {% block content %}
 <div class="topic-detail-card">
   <div class="topic-header">
     <div class="topic-info">
       <div class="avatar"></div>
       <div>
-        <div class="breadcrumb-text">{{ session.get('user', 'Anónimo') }} &#8250;&#8250; {{ topic.category }} &#8250; {{ topic.title }}</div>
-        <div class="topic-meta-text">{{ topic.created_at.strftime('%d %b %Y – %H:%M') }}</div>
+        <div class="breadcrumb-text">{{ session.get('user', 'Anónimo') }} &#8250;&#8250; {{ topic.category or topic.categoria }} &#8250; {{ topic.title or topic.titulo }}</div>
+        <div class="topic-meta-text">{{ (topic.created_at or topic.fecha or topic.timestamp) | time_ago }}</div>
       </div>
     </div>
     <a class="btn-secondary" href="{{ url_for('list_forum') }}">Volver al Foro</a>
   </div>
-  <div class="topic-content">{{ topic.description }}</div>
+  <div class="topic-content">{{ topic.description or topic.contenido }}</div>
   {% if show_delete %}
   <form action="{{ url_for('delete_topic', id=topic.id) }}" method="post">
     <input type="hidden" name="password" value="borrar1">
