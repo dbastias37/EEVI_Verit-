@@ -37,3 +37,14 @@ def normalize_response_data(data):
             or data.get('fecha_creacion')
             or data.get('timestamp'),
     }
+
+def get_content_from_form(payload):
+    """Extract response content supporting multiple possible field names."""
+    return (
+        payload.get('content')
+        or payload.get('contenido')
+        or payload.get('response_content')
+        or payload.get('respuesta')
+        or payload.get('response')
+        or ''
+    )

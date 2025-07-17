@@ -28,7 +28,12 @@ from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.quotes import get_random_quote
 from modules.forum import get_categories
-from utils.forum_utils import normalize_topic_data, mapeo_datos, normalize_response_data
+from utils.forum_utils import (
+    normalize_topic_data,
+    mapeo_datos,
+    normalize_response_data,
+    get_content_from_form,
+)
 
 def create_app():
     app = Flask(__name__)
@@ -333,16 +338,17 @@ def forum_reply(topic_id):
     """Agregar respuesta a un tema"""
     try:
         payload = request.form or request.json
+        content = get_content_from_form(payload)
 
         if str(topic_id).isdigit():
             from modules import forum as forum_db
-            forum_db.create_response(int(topic_id), payload.get('author', 'Anónimo'), payload['content'])
+            forum_db.create_response(int(topic_id), payload.get('author', 'Anónimo'), content)
             return redirect(url_for('forum_topic_view', topic_id=topic_id))
 
         # Agregar respuesta a la subcolección del tema en Firestore
         fs_client.collection('foro').document(str(topic_id)).collection('responses').add({
             'author': payload.get('author', 'Anónimo'),
-            'content': payload['content'],
+            'content': content,
             'created_at': firestore.SERVER_TIMESTAMP
         })
 
@@ -356,7 +362,8 @@ def forum_reply(topic_id):
 def responder(post_id):
     """Guardar una respuesta en la subcolección 'respuestas' de un post"""
     try:
-        contenido = request.form.get('respuesta') or (request.json or {}).get('respuesta')
+        payload = request.form or request.json or {}
+        contenido = get_content_from_form(payload)
         if not contenido:
             return jsonify({'error': 'La respuesta no puede estar vacía'}), 400
 
