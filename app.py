@@ -13,7 +13,27 @@ from jinja2 import TemplateNotFound
 
 from firebase_admin import credentials, firestore as fs, exceptions
 from google.api_core.exceptions import GoogleAPICallError
+from utils.template_filters import register_filters
 
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(config[os.getenv('APP_ENV', 'development')])
+    db.init_app(app)
+    migrate.init_app(app, db)
+    app.jinja_env.globals['get_random_quote'] = get_random_quote
+    
+    # Registrar filtros de template
+    register_filters(app)
+    
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(client_bp)
+    app.teardown_appcontext(close_db)
+
+    with app.app_context():
+        init_db(app)
+        ensure_admin_user()
+
+    return app
 
 def init_firestore() -> "google.cloud.firestore.Client":
     """
