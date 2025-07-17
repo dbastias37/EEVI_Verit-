@@ -57,7 +57,7 @@ def packs():
 def home():
     from firebase_admin import firestore
     from utils.drive_previews import fetch_previews
-    fs_client = firestore.client()
+    from app import fs_client
     try:
         docs = (
             fs_client.collection('foro')
