@@ -75,12 +75,12 @@
         <div class="new-topic-form" id="newTopicForm">
             <form id="topicForm" action="{{ url_for('create_new_forum') }}" method="post">
                 <div class="form-group">
-                    <label class="form-label" for="authorName">Nombre:</label>
-                    <input type="text" id="authorName" name="author" class="form-input" placeholder="Tu nombre" required>
+                    <label class="form-label" for="autor">Nombre:</label>
+                    <input type="text" id="autor" name="autor" class="form-input" placeholder="Tu nombre" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="category">Categoría:</label>
-                    <select id="category" name="category" class="form-select" required>
+                    <label class="form-label" for="categoria">Categoría:</label>
+                    <select id="categoria" name="categoria" class="form-select" required>
                         <option value="">Selecciona una categoría</option>
                         {% for cat in categories %}
                         <option value="{{ cat }}">{{ cat }}</option>
@@ -88,12 +88,12 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="title">Título:</label>
-                    <input type="text" id="title" name="title" class="form-input" placeholder="Un título descriptivo para tu tema" required>
+                    <label class="form-label" for="titulo">Título:</label>
+                    <input type="text" id="titulo" name="titulo" class="form-input" placeholder="Un título descriptivo para tu tema" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="content">Contenido:</label>
-                    <textarea id="content" name="content" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." required></textarea>
+                    <label class="form-label" for="contenido">Contenido:</label>
+                    <textarea id="contenido" name="contenido" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." required></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
