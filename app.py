@@ -319,19 +319,22 @@ if __name__ == '__main__':
 # Agregar estas rutas a tu app.py para el foro moderno
 
 @app.route('/forum/new', methods=['GET', 'POST'])
-def forum_new():
+def create_new_forum():
     """Crear nuevo tema en el foro"""
     if request.method == 'GET':
         categories = get_categories()
         return render_template('forum_new.html', categories=categories)
-    
+
     try:
         payload = request.form or request.json
+        titulo = payload.get('titulo') or payload.get('title')
+        contenido = payload.get('contenido') or payload.get('description')
+        autor = payload.get('autor') or payload.get('author', 'Anónimo')
         fs_client.collection('foro').add({
-            'titulo': payload['title'],
-            'contenido': payload['description'],
-            'category': payload['category'],
-            'autor': payload.get('autor', 'Anónimo'),
+            'titulo': titulo,
+            'contenido': contenido,
+            'category': payload.get('category', ''),
+            'autor': autor,
             'timestamp': firestore.SERVER_TIMESTAMP,
             'votes': 0
         })
