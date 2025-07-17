@@ -57,7 +57,7 @@ def packs():
 def home():
     from google.cloud import firestore
     from utils.drive_previews import fetch_previews
-    from utils.forum_utils import normalize_topic_data
+    from utils.forum_utils import mapeo_datos
     from app import fs_client
     try:
         docs = (
@@ -68,7 +68,7 @@ def home():
         )
         latest = None
         for d in docs:
-            latest = normalize_topic_data({**d.to_dict(), 'id': d.id})
+            latest = mapeo_datos({**d.to_dict(), 'id': d.id})
             break
     except GoogleAPICallError as e:
         current_app.logger.error(f"Firestore query failed: {e}")
