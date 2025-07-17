@@ -7,7 +7,7 @@
       <div class="avatar"></div>
       <div>
         <div class="breadcrumb-text">{{ session.get('user', 'Anónimo') }} &#8250;&#8250; {{ topic.category or topic.categoria }} &#8250; {{ topic.title or topic.titulo }}</div>
-        <div class="topic-meta-text">{{ (topic.created_at or topic.fecha or topic.timestamp) | time_ago }}</div>
+        <div class="topic-meta-text">{{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }}</div>
       </div>
     </div>
     <a class="btn-secondary" href="{{ url_for('list_forum') }}">Volver al Foro</a>
@@ -23,7 +23,7 @@
   {% for r in responses %}
   <div class="reply-card">
     <p>{{ r.content }}</p>
-    <p class="reply-meta">{{ r.created_at }}</p>
+    <p class="reply-meta">{{ r.created_at | timestamp_local }}</p>
   </div>
   {% else %}
   <p class="no-resp">No hay respuestas aún.</p>

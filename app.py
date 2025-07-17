@@ -39,6 +39,8 @@ def create_app():
     app.register_blueprint(client_bp)
     app.teardown_appcontext(close_db)
 
+    register_filters(app)
+
     with app.app_context():
         init_db(app)
         ensure_admin_user()
@@ -384,40 +386,6 @@ def truncate_words(text, count=10):
     return ' '.join(words[:count]) + '...'
 
 
-@app.template_filter('time_ago')
-def time_ago(timestamp):
-    """Convertir timestamp a formato 'hace X tiempo'"""
-    if not timestamp:
-        return "Fecha desconocida"
-    
-    from datetime import datetime, timezone
-    import math
-    
-    now = datetime.now(timezone.utc)
-    if hasattr(timestamp, 'timestamp'):
-        # Firestore timestamp
-        diff = now - timestamp.replace(tzinfo=timezone.utc)
-    else:
-        # String timestamp
-        try:
-            dt = datetime.fromisoformat(str(timestamp).replace('Z', '+00:00'))
-            diff = now - dt
-        except:
-            return str(timestamp)
-    
-    seconds = diff.total_seconds()
-    
-    if seconds < 60:
-        return "Hace unos segundos"
-    elif seconds < 3600:
-        minutes = math.floor(seconds / 60)
-        return f"Hace {minutes} minuto{'s' if minutes != 1 else ''}"
-    elif seconds < 86400:
-        hours = math.floor(seconds / 3600)
-        return f"Hace {hours} hora{'s' if hours != 1 else ''}"
-    else:
-        days = math.floor(seconds / 86400)
-        return f"Hace {days} día{'s' if days != 1 else ''}"
 
 
 # Context processor para datos globales del foro
