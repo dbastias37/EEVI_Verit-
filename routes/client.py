@@ -55,10 +55,9 @@ def packs():
 
 @client_bp.route('/', methods=['GET'])
 def home():
-    from google.cloud import firestore
+    from firebase_admin import firestore
     from utils.drive_previews import fetch_previews
-    from utils.firestore_client import get_fs_client
-    fs_client = get_fs_client()
+    fs_client = firestore.client()
     try:
         docs = (
             fs_client.collection('foro')

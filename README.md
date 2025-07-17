@@ -171,11 +171,19 @@ Cada nota en el camino es eco de la bestia digital.
 ## Configuración Firebase Firestore
 
 * Crea la base de datos en Firebase Console (Firestore → Modo nativo).
-* Obtén el JSON de tu clave de servicio y asígnalo a la variable `GOOGLE_APPLICATION_CREDENTIALS_JSON`:
+* Descarga y coloca `serviceAccountKey.json` en la raíz del proyecto.
+* Define la variable de entorno:
 
-  ```bash
-  export GOOGLE_APPLICATION_CREDENTIALS_JSON='{"type": "service_account", ...}'
-  ```
+  * Linux/macOS:
+
+    ```bash
+    export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/serviceAccountKey.json"
+    ```
+  * Windows PowerShell:
+
+    ```powershell
+    $Env:GOOGLE_APPLICATION_CREDENTIALS = "$(pwd)\serviceAccountKey.json"
+    ```
 * Instala dependencias: `pip install -r requirements.txt`
 * Probar inicialización: `python scripts/firebase_init.py`
 
