@@ -319,25 +319,6 @@ def forum_new():
         return redirect(url_for('list_forum'))
 
 
-# Actualizar la ruta list_forum para incluir las categorías
-@app.route('/forum')
-def list_forum():
-    try:
-        docs = (
-            fs_client.collection('foro')
-            .order_by('timestamp', direction=firestore.Query.DESCENDING)
-            .stream()
-        )
-        temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
-        
-        # Obtener categorías
-        from modules.forum import get_categories
-        categories = get_categories()
-        
-        return render_template('forum.html', temas=temas, categories=categories)
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore query failed: {e}")
-        raise
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
@@ -469,3 +450,24 @@ def forum_context():
             'online_now': 12
         }
     }
+
+
+# Ruta principal del foro
+@app.route('/forum')
+def list_forum():
+    try:
+        docs = (
+            fs_client.collection('foro')
+            .order_by('timestamp', direction=firestore.Query.DESCENDING)
+            .stream()
+        )
+        temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
+
+        # Obtener categorías
+        from modules.forum import get_categories
+        categories = get_categories()
+
+        return render_template('forum.html', temas=temas, categories=categories)
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore query failed: {e}")
+        raise
