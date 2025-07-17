@@ -2,6 +2,7 @@ import os
 import re
 import sqlite3
 import time
+import datetime
 import firebase_admin
 from google.cloud import firestore
 from werkzeug.security import generate_password_hash
@@ -11,52 +12,11 @@ from flask import (
 )
 from jinja2 import TemplateNotFound
 
-from firebase_admin import credentials, firestore as fs, exceptions
+from firebase_admin import credentials, firestore as fs, exceptions, initialize_app
 from google.api_core.exceptions import GoogleAPICallError
 from utils.template_filters import register_filters
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(config[os.getenv('APP_ENV', 'development')])
-    db.init_app(app)
-    migrate.init_app(app, db)
-    app.jinja_env.globals['get_random_quote'] = get_random_quote
-    
-    # Registrar filtros de template
-    register_filters(app)
-    
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(client_bp)
-    app.teardown_appcontext(close_db)
 
-    with app.app_context():
-        init_db(app)
-        ensure_admin_user()
-
-    return app
-
-def init_firestore() -> "google.cloud.firestore.Client":
-    """
-    Devuelve un cliente Firestore usando Firebase Admin SDK como singleton.
-    Lee la ruta del JSON desde la variable de entorno GOOGLE_APPLICATION_CREDENTIALS
-    (en Render: /etc/secrets/serviceAccountKey.json).
-    """
-    try:
-        if not firebase_admin._apps:
-            cred_path = os.getenv(
-                "GOOGLE_APPLICATION_CREDENTIALS",
-                "serviceAccountKey.json"
-            )
-            if not os.path.isfile(cred_path):
-                raise FileNotFoundError(f"Credenciales no encontradas: {cred_path}")
-            cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred)
-
-        return fs.client()
-    except exceptions.FirebaseError as e:
-        # Log de error y reintento o fallback
-        app.logger.error(f"Firebase init failed: {e}")
-        raise RuntimeError("No se pudo conectar a Firestore, revisa tus credenciales o secreto en Render.")
 
 from config import config
 from utils.db import db, migrate, get_db, close_db, init_db
@@ -66,6 +26,7 @@ from routes.client import client_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.quotes import get_random_quote
+from modules.forum import get_categories
 
 def create_app():
     app = Flask(__name__)
@@ -84,7 +45,11 @@ def create_app():
     return app
 
 app = create_app()
-fs_client = init_firestore()
+
+cred = credentials.Certificate('serviceAccountKey.json')
+initialize_app(cred)
+fs_client = firestore.client()
+foro_ref = fs_client.collection('foro')
 
 
 @app.errorhandler(GoogleAPICallError)
@@ -280,68 +245,36 @@ def delete_topic_route(topic_id):
         return jsonify({'error': str(e)}), 500
 
 
-# Actualizar la ruta existente forum_new para manejar mejor los datos
+# Endpoint para crear nuevos temas en Firestore
 @app.route('/forum/new', methods=['GET', 'POST'])
 def forum_new():
-    """Crear nuevo tema en el foro"""
-    if request.method == 'GET':
-        categories = get_categories()
-        return render_template('forum_new.html', categories=categories)
-    
-    try:
-        payload = request.form or request.json
-        
-        # Crear el documento en Firestore
-        doc_ref = fs_client.collection('foro').add({
-            'titulo': payload['titulo'],
-            'contenido': payload['contenido'],
-            'category': payload.get('category', ''),
-            'author': payload.get('autor', 'Anónimo'),
-            'timestamp': firestore.SERVER_TIMESTAMP,
-            'votes': 0
-        })
-        
-        # Redirigir al foro principal después de crear
+    if request.method == 'POST':
+        nombre = request.form.get('nombre', 'Anónimo')
+        categoria = request.form.get('categoria', '')
+        titulo = request.form.get('titulo', '')
+        contenido = request.form.get('contenido', '')
+
+        if not titulo or not contenido:
+            return "Título y contenido son obligatorios", 400
+
+        nuevo_tema = {
+            'nombre': nombre,
+            'categoria': categoria,
+            'titulo': titulo,
+            'contenido': contenido,
+            'fecha': datetime.datetime.utcnow().isoformat()
+        }
+
+        fs_client.collection('foro').add(nuevo_tema)
         return redirect(url_for('list_forum'))
-        
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore write failed: {e}")
-        raise
-    except Exception as e:
-        app.logger.error(f"Error creating topic: {e}")
-        return redirect(url_for('list_forum'))
+
+    categories = get_categories()
+    return render_template('forum_new.html', categories=categories)
 
 
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
-
-# Agregar estas rutas a tu app.py para el foro moderno
-
-@app.route('/forum/new', methods=['GET', 'POST'])
-def create_new_forum():
-    """Crear nuevo tema en el foro"""
-    if request.method == 'GET':
-        categories = get_categories()
-        return render_template('forum_new.html', categories=categories)
-
-    try:
-        payload = request.form or request.json
-        titulo = payload.get('titulo') or payload.get('title')
-        contenido = payload.get('contenido') or payload.get('description')
-        autor = payload.get('autor') or payload.get('author', 'Anónimo')
-        fs_client.collection('foro').add({
-            'titulo': titulo,
-            'contenido': contenido,
-            'category': payload.get('category', ''),
-            'autor': autor,
-            'timestamp': firestore.SERVER_TIMESTAMP,
-            'votes': 0
-        })
-        return redirect(url_for('list_forum'))
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore write failed: {e}")
-        raise
 
 
 @app.route('/forum/topic/<int:topic_id>')
@@ -452,15 +385,10 @@ def forum_context():
 @app.route('/forum')
 def list_forum():
     try:
-        docs = (
-            fs_client.collection('foro')
-            .order_by('timestamp', direction=firestore.Query.DESCENDING)
-            .stream()
-        )
-        temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
+        temas = [{**doc.to_dict(), 'id': doc.id} for doc in foro_ref.stream()]
+        temas = sorted(temas, key=lambda x: x.get('fecha', ''), reverse=True)
 
         # Obtener categorías
-        from modules.forum import get_categories
         categories = get_categories()
 
         return render_template('forum.html', temas=temas, categories=categories)
