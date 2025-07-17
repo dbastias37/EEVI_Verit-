@@ -316,6 +316,29 @@ def forum_reply(topic_id):
         raise
 
 
+@app.route('/forum/<string:post_id>/responder', methods=['POST'])
+def responder(post_id):
+    """Guardar una respuesta en la subcolección 'respuestas' de un post"""
+    try:
+        contenido = request.form.get('respuesta') or (request.json or {}).get('respuesta')
+        if not contenido:
+            return jsonify({'error': 'La respuesta no puede estar vacía'}), 400
+
+        respuesta_data = {
+            'contenido': contenido,
+            'fecha_creacion': datetime.datetime.utcnow(),
+            'autor': 'Anónimo'
+        }
+
+        fs_client.collection('foro').document(post_id).collection('respuestas').add(respuesta_data)
+
+        return jsonify({'success': True, 'mensaje': 'Respuesta guardada correctamente'}), 200
+
+    except Exception as e:
+        print(f'Error al guardar respuesta: {e}')
+        return jsonify({'error': str(e)}), 500
+
+
 # Funciones helper para el template
 @app.template_filter('truncate_words')
 def truncate_words(text, count=10):
