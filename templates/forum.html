@@ -3,140 +3,264 @@
 {% block title %}VFORUM - Comunidad EEVI{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/forum_interactive.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forum_modern.css') }}">
+{% endblock %}
+
+{% block header %}
+<header class="header">
+    <a href="{{ url_for('client.home') }}" class="logo">VERITÉ</a>
+    <nav class="header-nav">
+        <a href="{{ url_for('client.home') }}" class="nav-link">Inicio</a>
+        <a href="{{ url_for('client.packs') }}" class="nav-link">Packs</a>
+        <a href="{{ url_for('client.services_page') }}" class="nav-link">Services</a>
+        <a href="{{ url_for('list_forum') }}" class="nav-link">VForum</a>
+        <a href="{{ url_for('client.academy') }}" class="nav-link">Academia</a>
+    </nav>
+</header>
 {% endblock %}
 
 {% block content %}
-<div class="forum-container">
-    <header class="forum-header">
-        <h1 class="forum-title">VFORUM</h1>
-        <p class="forum-subtitle">Comunidad de creadores audiovisuales</p>
-    </header>
+<div class="forum-layout">
+    <!-- Sidebar Izquierda -->
+    <aside class="sidebar-left">
+        <div class="sidebar-title">Navegación</div>
+        <a href="{{ url_for('list_forum') }}" class="nav-item active">
+            <div class="nav-icon">🏠</div>
+            Inicio
+        </a>
+        <a href="#" id="newTopicBtnSidebar" class="nav-item">
+            <div class="nav-icon">✏️</div>
+            Nuevo Tema
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">🔥</div>
+            Tendencias
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">⭐</div>
+            Favoritos
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">👥</div>
+            Miembros
+        </a>
 
-    <div class="forum-wrapper">
-        <aside class="sidebar">
-            <ul class="category-list">
-                <li class="category-item active" data-category="">Todos</li>
-                {% for category in categories %}
-                <li class="category-item" data-category="{{ category }}">{{ category }}</li>
-                {% endfor %}
-            </ul>
-        </aside>
+        <div class="sidebar-title" style="margin-top: var(--space-xl);">Tags Populares</div>
+        <div class="tags-grid">
+            <div class="tag-item">#grabación</div>
+            <div class="tag-item">#foley</div>
+            <div class="tag-item">#mezcla</div>
+            <div class="tag-item">#plugins</div>
+            <div class="tag-item">#workflow</div>
+            <div class="tag-item">#daw</div>
+        </div>
+    </aside>
 
-        <section class="topics-area">
-            <!-- Botón Nuevo Tema -->
-            <button class="new-topic-btn" id="newTopicBtn">
-                <span>✏️</span>
-                Nuevo Tema
-            </button>
-
-            <!-- Formulario Nuevo Tema -->
-            <div class="new-topic-form" id="newTopicForm">
-                <form id="topicForm" action="{{ url_for('create_new_forum') }}" method="post">
-            <div class="form-group">
-                <label class="form-label" for="authorName">Nombre:</label>
-                <input type="text" id="authorName" name="author" class="form-input" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="category">Categoría:</label>
-                <select id="category" name="category" class="form-select" required>
-                    <option value="">Selecciona una categoría</option>
-                    {% for category in categories %}
-                    <option value="{{ category }}">{{ category }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="title">Título:</label>
-                <input type="text" id="title" name="title" class="form-input" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="content">Contenido:</label>
-                <textarea id="content" name="description" class="form-textarea" placeholder="Escribe tus dudas o comparte tu conocimiento con la comunidad..." required></textarea>
-            </div>
-            
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Publicar</button>
-            </div>
-        </form>
-    </div>
-
-            <!-- Lista de Topics -->
-            <div class="topics-list" id="topicsList">
-                {% for topic in temas %}
-                <div class="topic-card" data-topic-id="{{ topic.id }}" data-category="{{ topic.category }}">
-            <div class="topic-header">
-                <div class="topic-avatar">{{ (topic.author or topic.autor)[0].upper() if (topic.author or topic.autor) else 'A' }}</div>
-                <div class="topic-info">
-                    <h3 class="topic-title">{{ topic.title or topic.titulo }}</h3>
-                    <div class="topic-meta">
-                        {% set cat = topic.category or topic.categoria %}
-                        {% if cat %}
-                        <span class="topic-category">🎵 {{ cat }}</span>
-                        <span>•</span>
-                        {% endif %}
-                        <span>Por {{ topic.author or topic.autor or 'Anónimo' }}</span>
-                        <span>•</span>
-                                <span>{{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }}</span>
-                    </div>
-                </div>
-                <div class="topic-stats">
-                    <div class="stat-item">
-                        <span>💬</span>
-                        <span>0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span>👁️</span>
-                        <span>{{ (loop.index * 15) + 20 }}</span>
-                    </div>
-                </div>
-            </div>
-                    <div class="topic-content">{{ (topic.description or topic.contenido) | truncate_words(20) }}</div>
-            
-            <!-- Topic Detail (Expandido) -->
-            <div class="topic-detail" id="detail-{{ topic.id }}">
-                <div class="responses-section">
-                    <h4 class="responses-title">Respuestas (0)</h4>
-                    <div id="responses-{{ topic.id }}">
-                        <p style="color: var(--text-muted); font-style: italic;">Sé el primero en responder este tema.</p>
-                    </div>
-                    <div class="response-form">
-                        <form onsubmit="addResponse(event, '{{ topic.id }}')">
-                            <div class="form-group">
-                                <label class="form-label">Tu respuesta:</label>
-                                <textarea class="form-textarea" name="response_content" placeholder="Comparte tu conocimiento o experiencia..." required></textarea>
-                            </div>
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-secondary" onclick="closeTopic('{{ topic.id }}')">Cerrar</button>
-                                <button type="submit" class="btn btn-primary">Responder</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-                </div>
-                {% else %}
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                    <p>No hay temas aún. ¡Sé el primero en crear uno!</p>
-                </div>
-                {% endfor %}
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Únete a VFORUM</h1>
+                <p class="hero-subtitle">Conecta con creadores audiovisuales reales. Comparte conocimiento, resuelve problemas y colabora en proyectos únicos.</p>
+                <button class="cta-button" id="newTopicBtn">
+                    <span>✏️</span>
+                    Crear Tema
+                </button>
             </div>
         </section>
-    </div>
 
-    <!-- Floating Action Button -->
-    <button class="fab" id="fabBtn" title="Nuevo tema">
-        ✏️
-    </button>
+        <!-- Formulario Nuevo Tema -->
+        <div class="new-topic-form" id="newTopicForm">
+            <form id="topicForm" action="{{ url_for('create_new_forum') }}" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="authorName">Nombre:</label>
+                    <input type="text" id="authorName" name="autor" class="form-input" placeholder="Tu nombre" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="category">Categoría:</label>
+                    <select id="category" name="category" class="form-select" required>
+                        <option value="">Selecciona una categoría</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="title">Título:</label>
+                    <input type="text" id="title" name="titulo" class="form-input" placeholder="Un título descriptivo para tu tema" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="content">Contenido:</label>
+                    <textarea id="content" name="contenido" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="cta-button">Publicar Tema</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Categorías -->
+        <section class="categories-section">
+            <div class="section-header">
+                <h2 class="section-title">Categorías del Foro</h2>
+                <div class="view-toggle">
+                    <button class="toggle-btn active">Grid</button>
+                    <button class="toggle-btn">Lista</button>
+                </div>
+            </div>
+
+            <div class="categories-grid">
+                {% set icon_map = {
+                    'Grabación en vivo': '🎤',
+                    'Diseño sonoro': '🎵',
+                    'Foley y efectos': '🔊',
+                    'Edición de vídeo': '🎬',
+                    'Mezcla y masterización': '🎛️',
+                    'Workflows DAW y plugins': '⚙️'
+                } %}
+                {% set gradient_map = {
+                    'Grabación en vivo': '#EF4444, #F97316',
+                    'Diseño sonoro': '#8B5CF6, #A855F7',
+                    'Foley y efectos': '#10B981, #059669',
+                    'Edición de vídeo': '#3B82F6, #1D4ED8',
+                    'Mezcla y masterización': '#F59E0B, #D97706',
+                    'Workflows DAW y plugins': '#6366F1, #4F46E5'
+                } %}
+                {% for cat in categories %}
+                <div class="category-card" data-category="{{ cat }}">
+                    <div class="category-header">
+                        {% set grad = gradient_map.get(cat, '#6366F1, #4F46E5') %}
+                        <div class="category-icon" style="background: linear-gradient(135deg, {{ grad }});">
+                            {{ icon_map.get(cat, '🎧') }}
+                        </div>
+                        <div class="category-info">
+                            <div class="category-name">{{ cat }}</div>
+                            <div class="category-description">&nbsp;</div>
+                        </div>
+                    </div>
+                    <div class="category-stats">
+                        <div class="stat-item">
+                            <span>💬</span>
+                            <span>{{ loop.index * 5 + 20 }} temas</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>👥</span>
+                            <span>{{ loop.index * 12 + 50 }} posts</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Temas Recientes -->
+            <div style="margin-top: var(--space-2xl);">
+                <h3 class="section-title">Últimos temas</h3>
+                <div class="topics-list" id="topicsList">
+                    {% for topic in temas %}
+                    <a href="{{ url_for('forum_topic_view', topic_id=topic.id) }}" class="topic-card" data-category="{{ topic.category }}">
+                        <div class="topic-header">
+                            <div class="topic-avatar">{{ (topic.author or topic.autor)[0].upper() if (topic.author or topic.autor) else 'A' }}</div>
+                            <div class="topic-content">
+                                <div class="topic-title">{{ topic.title or topic.titulo }}</div>
+                                <div class="topic-meta">
+                                    {% if topic.category %}
+                                    <span class="topic-tag">{{ topic.category }}</span>
+                                    <span>•</span>
+                                    {% endif %}
+                                    <span>{{ topic.author or topic.autor or 'Anónimo' }}</span>
+                                    <span>•</span>
+                                    <span>{{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }}</span>
+                                </div>
+                                <div class="topic-preview">{{ (topic.description or topic.contenido) | truncate_words(20) }}</div>
+                            </div>
+                        </div>
+                    </a>
+                    {% else %}
+                    <div style="text-align:center; padding:2rem; color:var(--text-muted);">No hay temas aún. ¡Sé el primero en crear uno!</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Sidebar Derecha -->
+    <aside class="sidebar-right">
+        <div class="widget">
+            <div class="widget-title">
+                <span>🟢</span>
+                Staff Online
+            </div>
+            <div class="user-list">
+                <div class="user-item">
+                    <div class="user-avatar"></div>
+                    <div class="user-info">
+                        <div class="user-name">Diego Bastías</div>
+                        <div class="user-role">Admin Developer</div>
+                    </div>
+                    <div class="online-indicator"></div>
+                </div>
+                <div class="user-item">
+                    <div class="user-avatar"></div>
+                    <div class="user-info">
+                        <div class="user-name">Ana García</div>
+                        <div class="user-role">Moderadora</div>
+                    </div>
+                    <div class="online-indicator"></div>
+                </div>
+            </div>
+        </div>
+        <div class="widget">
+            <div class="widget-title">
+                <span>📊</span>
+                Estadísticas
+            </div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-md);">
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Total temas:</span>
+                    <span style="font-weight:600;">{{ temas|length }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Total posts:</span>
+                    <span style="font-weight:600;">{{ temas|length * 3 }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Miembros:</span>
+                    <span style="font-weight:600;">89</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Online ahora:</span>
+                    <span style="font-weight:600; color:var(--success);">12</span>
+                </div>
+            </div>
+        </div>
+        <div class="widget">
+            <div class="widget-title">
+                <span>🔥</span>
+                Trending
+            </div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-md);">
+                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+                    <strong style="color:var(--text-primary);">Grabación en exteriores</strong><br>
+                    Técnicas para eliminar ruido ambiente
+                </div>
+                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+                    <strong style="color:var(--text-primary);">Plugins de masterización</strong><br>
+                    Comparativa de herramientas profesionales
+                </div>
+                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+                    <strong style="color:var(--text-primary);">Workflow multicámara</strong><br>
+                    Sincronización eficiente de audio
+                </div>
+            </div>
+        </div>
+    </aside>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/forum_interactive.js') }}"></script>
+<script src="{{ url_for('static', filename='js/forum_modern.js') }}"></script>
 {% endblock %}
