@@ -1,37 +1,118 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ topic.title if topic else 'Tema no encontrado' }}{% endblock %}
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forum_modern.css') }}">
+{% endblock %}
+{% block header %}
+<header class="header">
+    <a href="{{ url_for('client.home') }}" class="logo">VERITÉ</a>
+    <nav class="header-nav">
+        <a href="{{ url_for('client.home') }}" class="nav-link">Inicio</a>
+        <a href="{{ url_for('client.packs') }}" class="nav-link">Packs</a>
+        <a href="{{ url_for('client.services_page') }}" class="nav-link">Services</a>
+        <a href="{{ url_for('list_forum') }}" class="nav-link">VForum</a>
+        <a href="{{ url_for('client.academy') }}" class="nav-link">Academia</a>
+    </nav>
+</header>
+{% endblock %}
 
 {% block content %}
-  {% if topic %}
-  <div class="forum-topic-container">
-    <button onclick="window.location.href='{{ url_for('list_forum') }}'" class="back-btn">← Volver al foro</button>
-    <h1 class="topic-title">{{ topic.title or topic.titulo }}</h1>
-    <p class="topic-meta">Categoría: {{ topic.category or topic.categoria }} • {{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }}</p>
-    <div class="topic-body">{{ topic.description or topic.contenido }}</div>
-    <hr/>
-    <h2 class="responses-title">Respuestas</h2>
-    {% for response in responses %}
-    <div class="response-card">
-      <div class="response-author">Escrito por: {{ response[1] }}</div>
-      <p class="content">{{ response[2] }}</p>
-      <p class="meta">{{ response[3] }}</p>
-    </div>
-    {% else %}
-    <p class="no-resp">No hay respuestas aún. Sé el primero en responder:</p>
-    {% endfor %}
-    <form action="{{ url_for('forum_reply', topic_id=topic.id) }}" method="post">
-      <div class="form-group">
-        <label for="author">Tu nombre</label>
-        <input id="author" name="author" type="text" required class="input-author" placeholder="Tu nombre…">
-      </div>
-      <textarea name="content" required class="response-input" placeholder="Tu respuesta…"></textarea>
-      <button type="submit">Responder</button>
-    </form>
-  </div>
-  {% else %}
-  <div class="alert alert-warning">
+{% if topic %}
+<div class="topic-layout">
+    <aside class="sidebar-left">
+        <div class="sidebar-title">Navegación</div>
+        <a href="{{ url_for('list_forum') }}" class="nav-item"><div class="nav-icon">🏠</div>Inicio</a>
+        <a href="#" id="newTopicBtnSidebar" class="nav-item"><div class="nav-icon">✏️</div>Nuevo Tema</a>
+        <a href="#" class="nav-item"><div class="nav-icon">🔥</div>Tendencias</a>
+        <a href="#" class="nav-item"><div class="nav-icon">⭐</div>Favoritos</a>
+        <a href="#" class="nav-item"><div class="nav-icon">👥</div>Miembros</a>
+        <div class="sidebar-title" style="margin-top: var(--space-xl);">Tags Populares</div>
+        <div class="tags-grid">
+            <div class="tag-item">#grabación</div>
+            <div class="tag-item">#foley</div>
+            <div class="tag-item">#mezcla</div>
+            <div class="tag-item">#plugins</div>
+            <div class="tag-item">#workflow</div>
+            <div class="tag-item">#daw</div>
+        </div>
+    </aside>
+
+    <main class="topic-content">
+        <nav class="breadcrumb" style="margin-bottom: var(--space-md);">
+            <a href="{{ url_for('list_forum') }}">Foro</a> › {{ topic.category or topic.categoria }}
+        </nav>
+        <div class="topic-header">
+            <h1 class="hero-title" style="margin-bottom: var(--space-sm);">{{ topic.title or topic.titulo }}</h1>
+            <div class="topic-meta">Por {{ topic.author or topic.autor or 'Anónimo' }} • {{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }} • {{ topic.category or topic.categoria }}</div>
+        </div>
+        <div class="topic-body" style="margin-top: var(--space-lg);">{{ topic.description or topic.contenido }}</div>
+
+        <div class="responses-section">
+            <h3>Respuestas ({{ responses|length }})</h3>
+            {% for r in responses %}
+            <div class="response-card">
+                <div class="response-meta">{{ r.author }} • {{ r.created_at | timestamp_local }}</div>
+                <div class="response-content">{{ r.content }}</div>
+            </div>
+            {% else %}
+            <p class="no-resp">No hay respuestas aún. Sé el primero en responder.</p>
+            {% endfor %}
+        </div>
+
+        <div class="reply-form">
+            <form action="{{ url_for('forum_reply', topic_id=topic.id) }}" method="post">
+                <div class="form-group">
+                    <label class="form-label" for="author">Tu nombre</label>
+                    <input type="text" id="author" name="author" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="content">Respuesta</label>
+                    <textarea id="content" name="content" class="form-textarea" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="cta-button">Responder</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <aside class="sidebar-right">
+        <div class="widget">
+            <div class="widget-title"><span>📊</span> Estadísticas</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-md);">
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Respuestas:</span>
+                    <span style="font-weight:600;">{{ responses|length }}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="color:var(--text-secondary);">Vistas:</span>
+                    <span style="font-weight:600;">{{ topic.views or 0 }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="widget">
+            <div class="widget-title"><span>🔥</span> Trending</div>
+            <div style="display:flex; flex-direction:column; gap:var(--space-md);">
+                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+                    <strong style="color:var(--text-primary);">Grabación en exteriores</strong><br>
+                    Técnicas para eliminar ruido ambiente
+                </div>
+                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+                    <strong style="color:var(--text-primary);">Plugins de masterización</strong><br>
+                    Comparativa de herramientas profesionales
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+{% else %}
+<div class="alert alert-warning">
     No encontramos ese tema. <a href="{{ url_for('list_forum') }}">Volver al foro</a>
-  </div>
-  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/forum_modern.js') }}"></script>
 {% endblock %}
