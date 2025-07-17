@@ -58,58 +58,40 @@
     <!-- Lista de Topics -->
     <div class="topics-list" id="topicsList">
         {% for topic in temas %}
-        <div class="topic-card {{ 'owned' if topic.author == session.get('current_user') else '' }}" data-topic-id="{{ topic.id }}">
+        <div class="topic-card" data-topic-id="{{ topic.id }}">
             <div class="topic-header">
                 <div class="topic-avatar">{{ topic.author[0].upper() if topic.author else 'A' }}</div>
                 <div class="topic-info">
                     <h3 class="topic-title">{{ topic.titulo }}</h3>
                     <div class="topic-meta">
                         {% if topic.category %}
-                        <span class="topic-category">
-                            {% if 'Grabación' in topic.category %}🎤
-                            {% elif 'Diseño' in topic.category %}🎨
-                            {% elif 'Foley' in topic.category %}🔊
-                            {% elif 'vídeo' in topic.category %}🎬
-                            {% elif 'audio' in topic.category and 'Edición' in topic.category %}🎧
-                            {% elif 'Mezcla' in topic.category %}⚡
-                            {% elif 'Micrófonos' in topic.category %}🎙️
-                            {% elif 'Workflows' in topic.category %}🔧
-                            {% elif 'Ambientes' in topic.category %}🌲
-                            {% elif 'Postproducción' in topic.category %}🎞️
-                            {% elif 'Formatos' in topic.category %}📄
-                            {% elif 'Consejos' in topic.category %}💡
-                            {% else %}🎵{% endif %}
-                            {{ topic.category }}
-                        </span>
+                        <span class="topic-category">🎵 {{ topic.category }}</span>
                         <span>•</span>
                         {% endif %}
                         <span>Por {{ topic.author or 'Anónimo' }}</span>
                         <span>•</span>
-                        <span>{{ topic.timestamp|time_ago if topic.timestamp else 'Hace un momento' }}</span>
+                        <span>Hace un momento</span>
                     </div>
                 </div>
                 <div class="topic-stats">
                     <div class="stat-item">
                         <span>💬</span>
-                        <span id="responses-count-{{ topic.id }}">0</span>
+                        <span>0</span>
                     </div>
                     <div class="stat-item">
                         <span>👁️</span>
-                        <span>{{ (topic.votes or 0) * 10 + 20 }}</span>
+                        <span>{{ (loop.index * 15) + 20 }}</span>
                     </div>
                 </div>
             </div>
             <div class="topic-content">{{ topic.contenido }}</div>
-            {% if topic.author == session.get('current_user') %}
-            <button class="delete-btn" onclick="deleteTopic('{{ topic.id }}')">🗑️</button>
-            {% endif %}
             
             <!-- Topic Detail (Expandido) -->
             <div class="topic-detail" id="detail-{{ topic.id }}">
                 <div class="responses-section">
-                    <h4 class="responses-title">Respuestas (<span id="responses-title-count-{{ topic.id }}">0</span>)</h4>
+                    <h4 class="responses-title">Respuestas (0)</h4>
                     <div id="responses-{{ topic.id }}">
-                        <!-- Las respuestas se cargan dinámicamente -->
+                        <p style="color: var(--text-muted); font-style: italic;">Sé el primero en responder este tema.</p>
                     </div>
                     <div class="response-form">
                         <form onsubmit="addResponse(event, '{{ topic.id }}')">
