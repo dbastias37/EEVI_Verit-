@@ -240,7 +240,96 @@ def render_page(page):
         return render_template(f"{page}.html")
     except TemplateNotFound:
         abort(404)
+# Agregar estas rutas al final de app.py, antes de if __name__ == '__main__':
 
+@app.route('/forum/topic/<topic_id>/responses')
+def get_topic_responses(topic_id):
+    """Obtener respuestas de un tema específico"""
+    try:
+        # Obtener respuestas de Firestore
+        responses_ref = fs_client.collection('foro').document(topic_id).collection('responses')
+        responses = []
+        for resp_doc in responses_ref.order_by('timestamp').stream():
+            response_data = resp_doc.to_dict()
+            responses.append({
+                'id': resp_doc.id,
+                'author': response_data.get('author', 'Anónimo'),
+                'content': response_data.get('content', ''),
+                'timestamp': response_data.get('timestamp')
+            })
+        
+        return jsonify(responses)
+    except Exception as e:
+        app.logger.error(f"Error getting responses: {e}")
+        return jsonify([]), 500
+
+
+@app.route('/forum/topic/<topic_id>/delete', methods=['POST'])
+def delete_topic(topic_id):
+    """Eliminar un tema del foro"""
+    try:
+        # Verificar que el usuario sea el autor (aquí deberías implementar tu lógica de autenticación)
+        # Por ahora, permitimos eliminar cualquier tema
+        
+        # Eliminar el documento de Firestore
+        fs_client.collection('foro').document(topic_id).delete()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        app.logger.error(f"Error deleting topic: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+# Actualizar la ruta existente forum_new para manejar mejor los datos
+@app.route('/forum/new', methods=['GET', 'POST'])
+def forum_new():
+    """Crear nuevo tema en el foro"""
+    if request.method == 'GET':
+        categories = get_categories()
+        return render_template('forum_new.html', categories=categories)
+    
+    try:
+        payload = request.form or request.json
+        
+        # Crear el documento en Firestore
+        doc_ref = fs_client.collection('foro').add({
+            'titulo': payload['titulo'],
+            'contenido': payload['contenido'],
+            'category': payload.get('category', ''),
+            'author': payload.get('autor', 'Anónimo'),
+            'timestamp': firestore.SERVER_TIMESTAMP,
+            'votes': 0
+        })
+        
+        # Redirigir al foro principal después de crear
+        return redirect(url_for('list_forum'))
+        
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore write failed: {e}")
+        raise
+    except Exception as e:
+        app.logger.error(f"Error creating topic: {e}")
+        return redirect(url_for('list_forum'))
+
+
+# Actualizar la ruta list_forum para incluir las categorías
+@app.route('/forum')
+def list_forum():
+    try:
+        docs = (
+            fs_client.collection('foro')
+            .order_by('timestamp', direction=firestore.Query.DESCENDING)
+            .stream()
+        )
+        temas = [{**doc.to_dict(), 'id': doc.id} for doc in docs]
+        
+        # Obtener categorías
+        categories = get_categories()
+        
+        return render_template('forum.html', temas=temas, categories=categories)
+    except GoogleAPICallError as e:
+        app.logger.error(f"Firestore query failed: {e}")
+        raise
 
 if __name__ == '__main__':
     app.run(debug=app.config['DEBUG'])
