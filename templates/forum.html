@@ -82,7 +82,7 @@
                         {% endif %}
                         <span>Por {{ topic.author or topic.autor or 'Anónimo' }}</span>
                         <span>•</span>
-                                <span>{{ (topic.created_at or topic.fecha or topic.timestamp) | time_ago }}</span>
+                                <span>{{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }}</span>
                     </div>
                 </div>
                 <div class="topic-stats">

@@ -1,42 +1,36 @@
 """Template filters for EEVI forum"""
 
-from datetime import datetime, timezone
-import math
+from datetime import datetime, timezone, timedelta
+
+CHILE_TZ = timezone(timedelta(hours=-3))
 
 
-def time_ago(timestamp):
-    """Convertir timestamp a formato 'hace X tiempo'"""
+def format_timestamp_local(timestamp):
+    """Convert a timestamp in UTC or ISO string to Chile local time."""
     if not timestamp:
         return "Fecha desconocida"
-    
-    now = datetime.now(timezone.utc)
-    
-    # Handle Firestore timestamp
-    if hasattr(timestamp, 'timestamp'):
+
+    if hasattr(timestamp, "timestamp"):
         dt = timestamp.replace(tzinfo=timezone.utc)
+    elif isinstance(timestamp, datetime):
+        dt = timestamp if timestamp.tzinfo else timestamp.replace(tzinfo=timezone.utc)
     else:
-        # Handle string timestamp
         try:
-            dt = datetime.fromisoformat(str(timestamp).replace('Z', '+00:00'))
-        except:
+            dt = datetime.fromisoformat(str(timestamp).replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+        except Exception:
             return str(timestamp)
-    
-    diff = now - dt
-    seconds = diff.total_seconds()
-    
-    if seconds < 60:
-        return "Hace unos segundos"
-    elif seconds < 3600:
-        minutes = math.floor(seconds / 60)
-        return f"Hace {minutes} minuto{'s' if minutes != 1 else ''}"
-    elif seconds < 86400:
-        hours = math.floor(seconds / 3600)
-        return f"Hace {hours} hora{'s' if hours != 1 else ''}"
-    else:
-        days = math.floor(seconds / 86400)
-        return f"Hace {days} día{'s' if days != 1 else ''}"
+
+    local_dt = dt.astimezone(CHILE_TZ)
+    return local_dt.strftime("%d/%m/%Y, %H:%M - Chile")
+
+
+def timestamp_local(timestamp):
+    """Template filter to show local Chile time."""
+    return format_timestamp_local(timestamp)
 
 
 def register_filters(app):
-    """Register all template filters with the Flask app"""
-    app.jinja_env.filters['time_ago'] = time_ago
+    """Register template filters with the Flask app"""
+    app.jinja_env.filters["timestamp_local"] = timestamp_local
