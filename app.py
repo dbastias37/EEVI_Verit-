@@ -253,7 +253,6 @@ def render_page(page):
 def get_topic_responses(topic_id):
     """Obtener respuestas de un tema específico"""
     try:
-        # Obtener respuestas de Firestore
         responses_ref = fs_client.collection('foro').document(topic_id).collection('responses')
         responses = []
         for resp_doc in responses_ref.order_by('timestamp').stream():
@@ -264,7 +263,6 @@ def get_topic_responses(topic_id):
                 'content': response_data.get('content', ''),
                 'timestamp': response_data.get('timestamp')
             })
-        
         return jsonify(responses)
     except Exception as e:
         app.logger.error(f"Error getting responses: {e}")
@@ -272,15 +270,10 @@ def get_topic_responses(topic_id):
 
 
 @app.route('/forum/topic/<topic_id>/delete', methods=['POST'])
-def delete_topic(topic_id):
+def delete_topic_route(topic_id):
     """Eliminar un tema del foro"""
     try:
-        # Verificar que el usuario sea el autor (aquí deberías implementar tu lógica de autenticación)
-        # Por ahora, permitimos eliminar cualquier tema
-        
-        # Eliminar el documento de Firestore
         fs_client.collection('foro').document(topic_id).delete()
-        
         return jsonify({'success': True})
     except Exception as e:
         app.logger.error(f"Error deleting topic: {e}")
