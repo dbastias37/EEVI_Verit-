@@ -3,6 +3,7 @@ import re
 import sqlite3
 import time
 import datetime
+from datetime import datetime as dt
 import json
 from google.oauth2 import service_account
 from google.cloud import firestore
@@ -386,6 +387,27 @@ def truncate_words(text, count=10):
     return ' '.join(words[:count]) + '...'
 
 
+def safe_get_timestamp(item):
+    """Safely extract a datetime object for sorting."""
+    ts = (
+        item.get('created_at')
+        or item.get('timestamp')
+        or item.get('fecha')
+    )
+    if ts is None:
+        return dt.min
+    if isinstance(ts, dt):
+        return ts
+    if isinstance(ts, str):
+        try:
+            if ts.endswith('Z'):
+                ts = ts[:-1] + '+00:00'
+            return dt.fromisoformat(ts)
+        except ValueError:
+            return dt.min
+    return dt.min
+
+
 
 
 # Context processor para datos globales del foro
@@ -410,7 +432,7 @@ def list_forum():
             mapeo_datos({**doc.to_dict(), 'id': doc.id})
             for doc in foro_ref.stream()
         ]
-        temas = sorted(temas, key=lambda x: x.get('created_at', ''), reverse=True)
+        temas = sorted(temas, key=safe_get_timestamp, reverse=True)
 
         # Obtener categorías
         categories = get_categories()
