@@ -27,7 +27,7 @@ from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.quotes import get_random_quote
 from modules.forum import get_categories
-from utils.forum_utils import normalize_topic_data
+from utils.forum_utils import normalize_topic_data, mapeo_datos, normalize_response_data
 
 def create_app():
     app = Flask(__name__)
@@ -192,23 +192,6 @@ def get_all_comments():
 
 
 
-@app.route('/forum/new', methods=['POST'])
-def new_topic():
-    payload = request.form or request.json
-    try:
-        fs_client.collection('foro').add(
-            {
-                'title': payload.get('title') or payload.get('titulo'),
-                'description': payload.get('description') or payload.get('contenido'),
-                'author': payload.get('author') or payload.get('autor', 'Anónimo'),
-                'category': payload.get('category') or payload.get('categoria'),
-                'created_at': firestore.SERVER_TIMESTAMP,
-            }
-        )
-        return redirect(url_for('list_forum'))
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore write failed: {e}")
-        raise
 
 
 @app.route('/forum/<topic_id>')
@@ -217,7 +200,7 @@ def view_topic(topic_id):
         doc = fs_client.collection('foro').document(topic_id).get()
         if not doc.exists:
             abort(404)
-        tema = normalize_topic_data({**doc.to_dict(), 'id': doc.id})
+        tema = mapeo_datos({**doc.to_dict(), 'id': doc.id})
         return render_template('topic.html', tema=tema)
     except GoogleAPICallError as e:
         app.logger.error(f"Firestore read failed: {e}")
@@ -253,13 +236,8 @@ def get_topic_responses(topic_id):
         responses_ref = fs_client.collection('foro').document(topic_id).collection('responses')
         responses = []
         for resp_doc in responses_ref.order_by('created_at').stream():
-            response_data = resp_doc.to_dict()
-            responses.append({
-                'id': resp_doc.id,
-                'author': response_data.get('author') or response_data.get('autor', 'Anónimo'),
-                'content': response_data.get('content') or response_data.get('contenido', ''),
-                'timestamp': response_data.get('created_at') or response_data.get('fecha_creacion') or response_data.get('timestamp')
-            })
+            rdata = normalize_response_data({**resp_doc.to_dict(), 'id': resp_doc.id})
+            responses.append(rdata)
         return jsonify(responses)
     except Exception as e:
         app.logger.error(f"Error getting responses: {e}")
@@ -283,7 +261,7 @@ def delete_topic_route(topic_id):
 
 
 # Endpoint para crear nuevos temas en Firestore
-@app.route('/forum/new', methods=['GET', 'POST'])
+@app.route('/forum/new', methods=['GET', 'POST'], endpoint='create_new_forum')
 def forum_new():
     if request.method == 'POST':
         nombre = request.form.get('author') or request.form.get('nombre', 'Anónimo')
@@ -332,20 +310,14 @@ def forum_topic_view(topic_id):
         if not doc.exists:
             abort(404)
 
-        tema = normalize_topic_data({**doc.to_dict(), 'id': doc.id})
+        tema = mapeo_datos({**doc.to_dict(), 'id': doc.id})
 
         # Obtener respuestas del tema
         responses_ref = fs_client.collection('foro').document(str(topic_id)).collection('responses')
         responses = []
         for resp_doc in responses_ref.order_by('created_at').stream():
-            rdata = resp_doc.to_dict()
-            responses.append({
-                **rdata,
-                'id': resp_doc.id,
-                'author': rdata.get('author') or rdata.get('autor'),
-                'content': rdata.get('content') or rdata.get('contenido'),
-                'created_at': rdata.get('created_at') or rdata.get('fecha_creacion') or rdata.get('timestamp'),
-            })
+            rdata = normalize_response_data({**resp_doc.to_dict(), 'id': resp_doc.id})
+            responses.append(rdata)
 
         return render_template('forum_topic.html', topic=tema, responses=responses)
     except GoogleAPICallError as e:
@@ -467,7 +439,7 @@ def forum_context():
 def list_forum():
     try:
         temas = [
-            normalize_topic_data({**doc.to_dict(), 'id': doc.id})
+            mapeo_datos({**doc.to_dict(), 'id': doc.id})
             for doc in foro_ref.stream()
         ]
         temas = sorted(temas, key=lambda x: x.get('created_at', ''), reverse=True)

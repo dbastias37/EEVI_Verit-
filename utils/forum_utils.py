@@ -17,3 +17,23 @@ def normalize_topic_data(data):
         'category': data.get('category') or data.get('categoria'),
         'created_at': data.get('created_at') or data.get('fecha') or data.get('timestamp'),
     }
+
+
+def mapeo_datos(data):
+    """Alias en castellano de ``normalize_topic_data``."""
+    return normalize_topic_data(data)
+
+
+def normalize_response_data(data):
+    """Normaliza los campos de una respuesta."""
+    if not data:
+        return None
+
+    return {
+        'id': data.get('id'),
+        'author': data.get('author') or data.get('autor', 'Anónimo'),
+        'content': data.get('content') or data.get('contenido'),
+        'created_at': data.get('created_at')
+            or data.get('fecha_creacion')
+            or data.get('timestamp'),
+    }
