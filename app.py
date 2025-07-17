@@ -48,7 +48,7 @@ app = create_app()
 
 cred = credentials.Certificate('serviceAccountKey.json')
 initialize_app(cred)
-fs_client = firestore.client()
+fs_client = firestore.Client()
 foro_ref = fs_client.collection('foro')
 
 
