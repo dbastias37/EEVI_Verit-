@@ -310,8 +310,19 @@ def forum_topic_view(topic_id):
             tema = forum_db.get_topic_by_id(int(topic_id))
             if not tema:
                 abort(404)
-            responses = forum_db.get_responses_for_topic(int(topic_id))
-            return render_template('forum_topic.html', topic=tema, responses=responses)
+            raw_responses = forum_db.get_responses_for_topic(int(topic_id))
+            responses = [
+                normalize_response_data(
+                    {
+                        "id": r[0],
+                        "author": r[1],
+                        "content": r[2],
+                        "created_at": r[3],
+                    }
+                )
+                for r in raw_responses
+            ]
+            return render_template("forum_topic.html", topic=tema, responses=responses)
 
         # ID de Firestore (string)
         doc = fs_client.collection('foro').document(str(topic_id)).get()
