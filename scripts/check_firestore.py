@@ -1,13 +1,18 @@
 import os, json, sys
-from firebase_admin import credentials, initialize_app, firestore
+from google.cloud import firestore
+from google.oauth2 import service_account
 
-# Carga credenciales
-path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "serviceAccountKey.json")
-cred = credentials.Certificate(path)
-initialize_app(cred)
+credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if credentials_json is None:
+    raise RuntimeError(
+        "No se encontró la variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON"
+    )
+
+credentials_dict = json.loads(credentials_json)
+credentials = service_account.Credentials.from_service_account_info(credentials_dict)
+db = firestore.Client(credentials=credentials, project=credentials.project_id)
 
 # Intenta leer las colecciones
-db = firestore.client()
 cols = db.collections()
 print("Colecciones en Firestore:")
 for c in cols:

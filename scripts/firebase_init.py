@@ -1,9 +1,16 @@
 import os
-from firebase_admin import credentials, initialize_app, firestore
+import json
+from google.cloud import firestore
+from google.oauth2 import service_account
 
-cred_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', 'serviceAccountKey.json')
-if not os.path.isfile(cred_path):
-    raise RuntimeError(f"Archivo no encontrado: {cred_path}")
+credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+if credentials_json is None:
+    raise RuntimeError(
+        "No se encontró la variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON"
+    )
 
-initialize_app(credentials.Certificate(cred_path))
-print('✅ Firestore inicializado correctamente')
+credentials_dict = json.loads(credentials_json)
+credentials = service_account.Credentials.from_service_account_info(credentials_dict)
+
+firestore.Client(credentials=credentials, project=credentials.project_id)
+print("✅ Firestore inicializado correctamente")
