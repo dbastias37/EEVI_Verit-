@@ -3,7 +3,7 @@ import re
 import sqlite3
 import time
 import datetime
-from datetime import datetime as dt
+from datetime import datetime as dt, timezone
 import json
 from google.oauth2 import service_account
 from google.cloud import firestore
@@ -395,17 +395,22 @@ def safe_get_timestamp(item):
         or item.get('fecha')
     )
     if ts is None:
-        return dt.min
+        return dt.min.replace(tzinfo=timezone.utc)
     if isinstance(ts, dt):
-        return ts
+        if ts.tzinfo is None:
+            return ts.replace(tzinfo=timezone.utc)
+        return ts.astimezone(timezone.utc)
     if isinstance(ts, str):
         try:
             if ts.endswith('Z'):
                 ts = ts[:-1] + '+00:00'
-            return dt.fromisoformat(ts)
+            ts_dt = dt.fromisoformat(ts)
         except ValueError:
-            return dt.min
-    return dt.min
+            return dt.min.replace(tzinfo=timezone.utc)
+        if ts_dt.tzinfo is None:
+            return ts_dt.replace(tzinfo=timezone.utc)
+        return ts_dt.astimezone(timezone.utc)
+    return dt.min.replace(tzinfo=timezone.utc)
 
 
 
