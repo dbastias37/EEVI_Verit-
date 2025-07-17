@@ -22,3 +22,5 @@ jobs:
           python scripts/firebase_init.py
       - name: Run tests
         run: pytest -q
+# - name: Run tests
+#   run: pytest -q
