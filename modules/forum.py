@@ -406,3 +406,21 @@ def delete_topic_by_id(topic_id: int) -> None:
     cur.execute('DELETE FROM topics WHERE id=?', (topic_id,))
     conn.commit()
     conn.close()
+
+
+def get_categories() -> List[str]:
+    """Devuelve la lista de categorías predefinidas."""
+    return [
+        "Grabación en vivo",
+        "Diseño sonoro",
+        "Foley y efectos",
+        "Edición de vídeo",
+        "Edición de audio",
+        "Mezcla y masterización",
+        "Micrófonos y equipamiento",
+        "Workflows DAW y plugins",
+        "Ambientes y field recording",
+        "Postproducción",
+        "Formatos y codecs",
+        "Consejos de producción",
+    ]
