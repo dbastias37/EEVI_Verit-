@@ -48,3 +48,12 @@ def get_content_from_form(payload):
         or payload.get('response')
         or ''
     )
+
+
+def get_form_field(req, field_names):
+    """Busca un campo en ``request.form`` usando múltiples nombres."""
+    for name in field_names:
+        value = req.form.get(name)
+        if value and value.strip():
+            return value.strip()
+    return None

@@ -33,6 +33,7 @@ from utils.forum_utils import (
     mapeo_datos,
     normalize_response_data,
     get_content_from_form,
+    get_form_field,
 )
 
 def create_app():
@@ -272,10 +273,12 @@ def delete_topic_route(topic_id):
 @app.route('/forum/new', methods=['GET', 'POST'], endpoint='create_new_forum')
 def forum_new():
     if request.method == 'POST':
-        nombre = request.form.get('author') or request.form.get('nombre', 'Anónimo')
-        categoria = request.form.get('category') or request.form.get('categoria', '')
-        titulo = request.form.get('title') or request.form.get('titulo', '')
-        contenido = request.form.get('description') or request.form.get('contenido', '')
+        print("Form data received:", request.form.to_dict())
+
+        nombre = get_form_field(request, ['autor', 'author', 'nombre']) or 'Anónimo'
+        categoria = get_form_field(request, ['categoria', 'category']) or ''
+        titulo = get_form_field(request, ['titulo', 'title'])
+        contenido = get_form_field(request, ['contenido', 'description', 'content'])
 
         if not titulo or not contenido:
             return "Título y contenido son obligatorios", 400

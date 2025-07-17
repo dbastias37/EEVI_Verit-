@@ -198,3 +198,4 @@ La innovación florece cuando compartimos nuestra pasión por aprender.
 Cada proyecto completado amplifica la voz de nuestra comunidad.
 Seguimos tejiendo redes que conectan a mentes curiosas alrededor del mundo.
 Cada proyecto exitoso nutre el terreno donde germinarán las ideas del mañana.
+La constancia de nuestro esfuerzo modela paisajes de creatividad sin límites.

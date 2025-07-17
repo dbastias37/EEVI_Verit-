@@ -7,18 +7,18 @@
   <h1 class="section-title">CREAR NUEVO TEMA</h1>
   <p class="section-desc">Comparte tu reto audiovisual y colabora con la comunidad VFORUM.</p>
   <form action="{{ url_for('create_new_forum') }}" method="post" enctype="multipart/form-data">
-    <label for="title">Título</label>
-    <input id="title" name="title" type="text" required>
+    <label for="titulo">Título</label>
+    <input id="titulo" name="titulo" type="text" required>
 
-    <label for="category">Categoría</label>
-    <select id="category" name="category" required>
+    <label for="categoria">Categoría</label>
+    <select id="categoria" name="categoria" required>
       {% for cat in categories %}
         <option value="{{ cat }}">{{ cat }}</option>
       {% endfor %}
     </select>
 
-    <label for="description">Descripción</label>
-    <textarea id="description" name="description" required></textarea>
+    <label for="contenido">Descripción</label>
+    <textarea id="contenido" name="contenido" required></textarea>
 
     <label for="file">Adjuntar imagen (opcional)</label>
     <input id="file" name="file" type="file" accept="image/*">
