@@ -76,7 +76,7 @@
             <form id="topicForm" action="{{ url_for('create_new_forum') }}" method="post">
                 <div class="form-group">
                     <label class="form-label" for="authorName">Nombre:</label>
-                    <input type="text" id="authorName" name="autor" class="form-input" placeholder="Tu nombre" required>
+                    <input type="text" id="authorName" name="author" class="form-input" placeholder="Tu nombre" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="category">Categoría:</label>
@@ -89,11 +89,11 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="title">Título:</label>
-                    <input type="text" id="title" name="titulo" class="form-input" placeholder="Un título descriptivo para tu tema" required>
+                    <input type="text" id="title" name="title" class="form-input" placeholder="Un título descriptivo para tu tema" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="content">Contenido:</label>
-                    <textarea id="content" name="contenido" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." required></textarea>
+                    <textarea id="content" name="content" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." required></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
