@@ -168,7 +168,7 @@ async function addResponse(event, topicId) {
     event.preventDefault();
     
     const form = event.target;
-    const textarea = form.querySelector('textarea[name="response_content"]');
+    const textarea = form.querySelector('textarea[name="content"]');
     const content = textarea.value.trim();
     const submitBtn = form.querySelector('button[type="submit"]');
     
