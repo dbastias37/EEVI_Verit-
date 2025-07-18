@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash
+from utils.user_auth import create_user, get_user, check_password
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -8,10 +9,15 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        from app import get_user, check_password
         user = get_user(email)
         if user and check_password(email, password):
             session['user'] = email
+            session['forum_user'] = {
+                'id': user['id'],
+                'email': email,
+                'username': user.get('username', email.split('@')[0]),
+                'role': user.get('role', 'user'),
+            }
             session['role'] = user.get('role', 'user')
             if user['role'] == 'admin':
                 session['admin'] = email
@@ -28,7 +34,6 @@ def register():
         email = request.form['email']
         username = request.form['username']
         password = request.form['password']
-        from app import create_user
         create_user(email, password, username=username, role='user')
         flash('Usuario creado. Revisa tu email para verificar', 'success')
         return redirect(url_for('auth.login'))

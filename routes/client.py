@@ -4,6 +4,7 @@ from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.security import login_required
 from utils.db import get_db
+from utils.user_auth import create_user, check_password, get_user, save_profile_pic
 from utils.validators import is_valid_url
 from google.api_core.exceptions import GoogleAPICallError
 
@@ -126,9 +127,15 @@ def dashboard_login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        from app import check_password
         if check_password(email, password):
             session['user'] = email
+            user = get_user(email)
+            session['forum_user'] = {
+                'id': user['id'],
+                'email': email,
+                'username': user.get('username', email.split('@')[0]),
+                'role': user.get('role', 'user'),
+            }
             return redirect(url_for('client.dashboard'))
     return render_template('dashboard_login.html')
 
@@ -138,7 +145,6 @@ def signup():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        from app import create_user
         create_user(email, password)
         return redirect(url_for('client.verify', email=email))
     return render_template('signup.html')
@@ -170,7 +176,6 @@ def upload_profile():
     if file and file.filename:
         path = os.path.join('static', 'uploads', file.filename)
         file.save(path)
-        from app import save_profile_pic
         save_profile_pic(user_email, '/' + path)
     return redirect(url_for('client.dashboard'))
 
@@ -179,8 +184,9 @@ def upload_profile():
 @login_required
 def logout():
     user_email = session.pop('user', None)
+    session.pop('forum_user', None)
     if user_email:
-        from app import get_user, remove_online
+        from app import remove_online
         user = get_user(user_email)
         if user:
             remove_online(user['id'])
@@ -194,7 +200,6 @@ def project_comments(project_id):
         user_email = session.get('user')
         if not user_email:
             abort(401)
-        from app import get_user
         user = get_user(user_email)
         text = request.form.get('text') or (request.get_json() or {}).get('text')
         if text:
