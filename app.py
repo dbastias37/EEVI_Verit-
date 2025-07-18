@@ -25,6 +25,12 @@ from utils.template_filters import register_filters
 from config import config
 from utils.db import db, migrate, get_db, close_db, init_db
 from utils.auth import ensure_admin_user
+from utils.user_auth import (
+    create_user,
+    get_user,
+    check_password,
+    save_profile_pic,
+)
 from routes.admin import admin_bp
 from routes.client import client_bp
 from routes.auth import auth_bp
