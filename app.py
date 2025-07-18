@@ -6,10 +6,8 @@ from datetime import datetime as dt, timezone, timedelta
 import json
 
 try:
-    from google.oauth2 import service_account
     from google.cloud import firestore
 except Exception:  # pragma: no cover - optional deps for tests
-    service_account = None
     firestore = None
 
 from werkzeug.security import generate_password_hash
@@ -35,6 +33,7 @@ from routes.projects import projects_bp
 from routes.messages import messages_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
+from services.fs_client import fs_client
 from utils.quotes import get_random_quote
 from modules.forum import get_categories
 from utils.forum_utils import (
@@ -66,17 +65,14 @@ app.register_blueprint(projects_bp)
 app.register_blueprint(messages_bp)
 
 # Inicializar Firebase/Firestore si está disponible
-fs_client = None
 usuarios_ref = None
 foro_ref = None
 
 try:
-    if service_account and firestore:
-        from utils.firebase import get_client
-        fs_client = get_client()
+    if fs_client:
         usuarios_ref = fs_client.collection('usuarios')
         foro_ref = fs_client.collection('foro')
-except Exception as e:
+except Exception as e:  # pragma: no cover - runtime env may lack Firestore
     print(f"Warning: Firebase no disponible: {e}")
 
 # Funciones helper para usuarios online

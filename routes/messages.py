@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, session
 from google.cloud import firestore
-from app import fs_client
+from services.fs_client import fs_client
 
 messages_bp = Blueprint('messages', __name__)
 

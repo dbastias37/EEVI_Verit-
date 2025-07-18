@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from google.cloud import firestore
 from datetime import datetime, timezone
-from app import fs_client
+from services.fs_client import fs_client
 
 projects_bp = Blueprint('projects', __name__)
 

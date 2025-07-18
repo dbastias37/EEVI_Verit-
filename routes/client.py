@@ -58,7 +58,7 @@ def home():
     from google.cloud import firestore
     from utils.drive_previews import fetch_previews
     from utils.forum_utils import mapeo_datos
-    from app import fs_client
+    from services.fs_client import fs_client
     try:
         docs = (
             fs_client.collection('foro')
