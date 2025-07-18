@@ -194,22 +194,18 @@
                 Staff Online
             </div>
             <div class="user-list">
+                {% for u in online_staff %}
                 <div class="user-item">
                     <div class="user-avatar"></div>
                     <div class="user-info">
-                        <div class="user-name">Diego Bastías</div>
-                        <div class="user-role">Admin Developer</div>
+                        <div class="user-name">{{ u.id }}</div>
+                        <div class="user-role">{{ u.role }}</div>
                     </div>
                     <div class="online-indicator"></div>
                 </div>
-                <div class="user-item">
-                    <div class="user-avatar"></div>
-                    <div class="user-info">
-                        <div class="user-name">Ana García</div>
-                        <div class="user-role">Moderadora</div>
-                    </div>
-                    <div class="online-indicator"></div>
-                </div>
+                {% else %}
+                <div class="user-item">No staff online</div>
+                {% endfor %}
             </div>
         </div>
         <div class="widget">

@@ -20,8 +20,8 @@ def ensure_admin_user():
     # Default admin password should be fixed for simplicity
     password = "admin2025"
     conn.execute(
-        "INSERT INTO users (email, password, is_admin, verified) VALUES (?, ?, 1, 1)",
-        ("admin@verite.cl", password),
+        "INSERT INTO users (email, password, is_admin, username, role, verified) VALUES (?, ?, 1, ?, 'admin', 1)",
+        ("admin@verite.cl", password, "admin"),
     )
     conn.commit()
     admin = conn.execute(
