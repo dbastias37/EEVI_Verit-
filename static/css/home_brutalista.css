@@ -88,7 +88,7 @@ body {
   right: 0;
   bottom: 0;
   left: 0;
-  background: url('/static/img/bg-pattern.png') center/cover no-repeat;
+  /* background: url('/static/img/bg-pattern.png') center/cover no-repeat; */
   opacity: .05;
 }
 .stats-container {

@@ -31,6 +31,18 @@ def timestamp_local(timestamp):
     return format_timestamp_local(timestamp)
 
 
+def truncate_words(text, num_words):
+    """Return the text truncated to ``num_words`` words with ellipsis."""
+    if not text:
+        return ""
+
+    words = str(text).split()
+    if len(words) <= num_words:
+        return str(text)
+    return " ".join(words[:num_words]) + "..."
+
+
 def register_filters(app):
     """Register template filters with the Flask app"""
     app.jinja_env.filters["timestamp_local"] = timestamp_local
+    app.jinja_env.filters["truncate_words"] = truncate_words
