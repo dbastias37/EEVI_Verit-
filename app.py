@@ -29,8 +29,21 @@ logging.basicConfig(level=logging.INFO)
 # Crear instancia Flask
 app = Flask(__name__)
 
-# Configuración básica
+# CONFIGURACIÓN CRÍTICA - AGREGAR:
+if os.environ.get('RENDER'):
+    app.config['DB_PATH'] = '/opt/render/project/src/verite.db'
+else:
+    app.config['DB_PATH'] = 'verite.db'
+
 app.secret_key = os.environ.get('SECRET_KEY', 'tu_secret_key_aqui')
+
+# Inicializar BD
+from utils.db import init_db
+try:
+    init_db(app)
+    print(f"✅ BD inicializada: {app.config['DB_PATH']}")
+except Exception as e:
+    print(f"⚠️ Error BD: {e}")
 
 # Registrar blueprints que SABEMOS que existen
 app.register_blueprint(admin_bp, url_prefix='/admin')
