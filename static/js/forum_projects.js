@@ -587,3 +587,36 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Agregar profesionales al modal de crear proyecto
+function actualizarModalProyecto() {
+    const modal = document.getElementById('project-modal');
+    const profesionesContainer = document.createElement('div');
+    profesionesContainer.className = 'profesiones-container';
+    profesionesContainer.innerHTML = `
+        <label>Profesiones requeridas:</label>
+        <div class="profesiones-grid">
+            ${PROFESIONES_DISPONIBLES.map(prof => `
+                <div class="profesion-selector" data-profesion="${prof}">
+                    <input type="checkbox" id="prof-${prof}" name="profesiones" value="${prof}">
+                    <label for="prof-${prof}" class="profesion-card">${prof}</label>
+                    <input type="number" class="cupos-input" min="1" max="10" value="1" 
+                           placeholder="Cupos" title="Número de cupos para ${prof}">
+                </div>
+            `).join('')}
+        </div>
+    `;
+    const descripcionField = modal.querySelector('textarea[name="descripcion"]').parentNode;
+    descripcionField.after(profesionesContainer);
+}
+
+const PROFESIONES_DISPONIBLES = [
+    "Editor", "Animador 3D", "Camarógrafo", "Narrador de voz",
+    "Fotógrafo", "Sonidista", "Guionista", "Doblaje", "Creador de contenido"
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('project-modal')) {
+        actualizarModalProyecto();
+    }
+});
+

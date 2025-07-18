@@ -265,12 +265,18 @@
                     <strong style="color:var(--text-primary);">Plugins de masterización</strong><br>
                     Comparativa de herramientas profesionales
                 </div>
-                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
-                    <strong style="color:var(--text-primary);">Workflow multicámara</strong><br>
-                    Sincronización eficiente de audio
-                </div>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+                <strong style="color:var(--text-primary);">Workflow multicámara</strong><br>
+                Sincronización eficiente de audio
             </div>
         </div>
+        <div class="usuarios-conectados">
+            <h3>Miembros Conectados</h3>
+            <div id="usuarios-online-list">
+                <div class="loading">Cargando usuarios...</div>
+            </div>
+        </div>
+    </div>
     </aside>
     {% if session.forum_user %}
     <div class="user-status" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); padding: 1rem; border-radius: 12px;">
@@ -422,6 +428,8 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='js/forum_modern.js') }}"></script>
 <script src="{{ url_for('static', filename='js/forum_projects.js') }}"></script>
+<script src="{{ url_for('static', filename='js/user_status.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user_status.css') }}">
 {% if session.forum_user %}
 <div data-user-id="{{ session.forum_user.id }}" style="display: none;"></div>
 {% endif %}
