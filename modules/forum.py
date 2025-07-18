@@ -27,14 +27,9 @@ def init_db():
     conn.close()
 
 def get_db():
-@@ -36,51 +36,51 @@ def get_db():
-          author TEXT NOT NULL,
-          content TEXT NOT NULL,
-          created_at TEXT NOT NULL
-        );
-        """
-    )
-    conn.commit()
+    """Return a connection to the main SQLite database."""
+    conn = sqlite3.connect("verite.db", timeout=10, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
     return conn
 
 # Genera un slug URL seguro basado en el título
@@ -53,7 +48,6 @@ def _parse_datetime(value):
         try:
             return datetime.fromisoformat(value)
         except Exception:
-            return datetime.utcnow()
             return datetime.now(timezone.utc)
     return value
 
@@ -80,7 +74,7 @@ def get_categories() -> List[str]:
 # Frases de Terence McKenna para inspirar la comunidad
 INSPIRATIONAL_QUOTES = [
     "La inteligencia humana es un destello del misterio que se comunica mediante el lenguaje",
-@@ -230,56 +230,56 @@ def get_topic_by_slug(slug: str) -> Dict:
+]
 
 def get_posts(topic_id: int) -> List[Dict]:
     conn = _connect()
@@ -106,13 +100,11 @@ def get_all_topics() -> Tuple[List[Dict], bool]:
             'title': 'Título demo',
             'body': 'Este es un contenido de demostración. ¡Crea tu primer tema!',
             'category': None,
-            'created_at': datetime.utcnow(),
             'created_at': datetime.now(timezone.utc),
             'likes': 0,
             'responses': [{
                 'author': 'Demo',
                 'body': 'Respuesta demo',
-                'created_at': datetime.utcnow()
                 'created_at': datetime.now(timezone.utc)
             }]
         }]
@@ -134,13 +126,13 @@ def get_topic_by_id(topic_id: int):
     if not row:
         return None
     return {
-        'id':          row[0],
-        'slug':        row[1],
-        'title':       row[2],
+        'id': row[0],
+        'slug': row[1],
+        'title': row[2],
         'description': row[3],
-        'category':    row[4],
-@@ -304,117 +304,117 @@ def get_response_score(response_id: int) -> int:
-        conn.close()
+        'category': row[4],
+        'created_at': row[5],
+    }
 
 
 def get_responses_for_topic(topic_id):
@@ -165,7 +157,6 @@ def create_response(topic_id: int, author: str, content: str) -> int:
     try:
         cur.execute(
             'INSERT INTO responses (topic_id, author, content, created_at) VALUES (?,?,?,?)',
-            (topic_id, author, content, datetime.utcnow())
             (topic_id, author, content, datetime.now(timezone.utc))
         )
         conn.commit()
@@ -184,7 +175,6 @@ def vote_response(response_id: int, delta: int) -> None:
     try:
         cur.execute(
             'INSERT INTO votes (response_id, delta, created_at) VALUES (?,?,?)',
-            (response_id, delta, datetime.utcnow())
             (response_id, delta, datetime.now(timezone.utc))
         )
         conn.commit()
@@ -222,7 +212,6 @@ def create_topic(form, files) -> int:
     cur = conn.cursor()
     cur.execute(
         'INSERT INTO topics (title, slug, category, description, image, created_at) VALUES (?,?,?,?,?,?)',
-        (title, slug, category, description, image, datetime.utcnow())
         (title, slug, category, description, image, datetime.now(timezone.utc))
     )
     conn.commit()
@@ -233,9 +222,10 @@ def create_topic(form, files) -> int:
 def create_post(topic_id: int, author: str, content: str) -> int:
     conn = _connect()
     cur = conn.cursor()
-    cur.execute('INSERT INTO posts (topic_id, author, content, created_at) VALUES (?,?,?,?)',
-                (topic_id, author, content, datetime.utcnow()))
-                (topic_id, author, content, datetime.now(timezone.utc)))
+    cur.execute(
+        'INSERT INTO posts (topic_id, author, content, created_at) VALUES (?,?,?,?)',
+        (topic_id, author, content, datetime.now(timezone.utc))
+    )
     conn.commit()
     post_id = cur.lastrowid
     conn.close()
