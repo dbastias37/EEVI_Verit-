@@ -178,7 +178,12 @@ def upload_profile():
 @client_bp.route('/dashboard/logout', methods=['POST'])
 @login_required
 def logout():
-    session.pop('user', None)
+    user_email = session.pop('user', None)
+    if user_email:
+        from app import get_user, remove_online
+        user = get_user(user_email)
+        if user:
+            remove_online(user['id'])
     return redirect(url_for('client.dashboard'))
 
 

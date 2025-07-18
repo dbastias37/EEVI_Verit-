@@ -5,14 +5,20 @@ import time
 import datetime
 from datetime import datetime as dt, timezone
 import json
-from google.oauth2 import service_account
-from google.cloud import firestore
+try:
+    from google.oauth2 import service_account
+    from google.cloud import firestore
+except Exception:  # pragma: no cover - optional deps for tests
+    service_account = None
+    firestore = None
 from werkzeug.security import generate_password_hash
 from flask import (
     Flask, render_template, request, redirect, jsonify,
     url_for, session, flash, abort
 )
 from jinja2 import TemplateNotFound
+
+ONLINE_USERS = {}
 
 from google.api_core.exceptions import GoogleAPICallError
 from utils.template_filters import register_filters
@@ -24,6 +30,7 @@ from utils.db import db, migrate, get_db, close_db, init_db
 from utils.auth import ensure_admin_user
 from routes.admin import admin_bp
 from routes.client import client_bp
+from routes.auth import auth_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.quotes import get_random_quote
@@ -36,6 +43,22 @@ from utils.forum_utils import (
     get_form_field,
 )
 
+def mark_online(user_id, role):
+    ONLINE_USERS[user_id] = {
+        'id': user_id,
+        'role': role,
+        'last': dt.utcnow()
+    }
+
+def prune_online():
+    now = dt.utcnow()
+    for uid, info in list(ONLINE_USERS.items()):
+        if (now - info['last']).total_seconds() > 300:
+            ONLINE_USERS.pop(uid, None)
+
+def remove_online(user_id):
+    ONLINE_USERS.pop(user_id, None)
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(config[os.getenv('APP_ENV', 'development')])
@@ -44,7 +67,17 @@ def create_app():
     app.jinja_env.globals['get_random_quote'] = get_random_quote
     app.register_blueprint(admin_bp)
     app.register_blueprint(client_bp)
+    app.register_blueprint(auth_bp)
     app.teardown_appcontext(close_db)
+
+    @app.before_request
+    def track_online():
+        user_email = session.get('user')
+        if user_email:
+            user = get_user(user_email)
+            if user:
+                mark_online(user['id'], user.get('role', 'user'))
+        prune_online()
 
     register_filters(app)
 
@@ -57,19 +90,19 @@ def create_app():
 app = create_app()
 
 # --- Firebase initialization (local/Render) ---
-credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-
-if not credentials_json:
-    raise Exception("No se encontró la variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON")
-
-credentials_dict = json.loads(credentials_json)
-
-cred = service_account.Credentials.from_service_account_info(credentials_dict)
-
-fs_client = firestore.Client(credentials=cred)
-
-foro_ref = fs_client.collection("foro")
-respuestas_ref = fs_client.collection("respuestas")
+if service_account and firestore:
+    credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    if not credentials_json:
+        raise Exception("No se encontró la variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON")
+    credentials_dict = json.loads(credentials_json)
+    cred = service_account.Credentials.from_service_account_info(credentials_dict)
+    fs_client = firestore.Client(credentials=cred)
+    foro_ref = fs_client.collection("foro")
+    respuestas_ref = fs_client.collection("respuestas")
+else:
+    fs_client = None
+    foro_ref = None
+    respuestas_ref = None
 
 # Ejemplo de guardar una respuesta dentro de un tema
 def guardar_respuesta(id_tema, data_respuesta):
@@ -93,15 +126,17 @@ def db_conn():
     return conn
 
 
-def create_user(email, password, is_admin=False):
+def create_user(email, password, username=None, role='user', is_admin=False):
     code = '123456789'
     conn = get_db()
+    if role == 'admin':
+        is_admin = True
     for _ in range(3):
         try:
             with conn:
                 conn.execute(
-                    'INSERT INTO users (email, password, is_admin, verification_code) VALUES (?,?,?,?)',
-                    (email, password, int(is_admin), code),
+                    'INSERT INTO users (email, password, is_admin, username, role, verification_code) VALUES (?,?,?,?,?,?)',
+                    (email, password, int(is_admin), username, role, code),
                 )
             print(f"Código de verificación para {email}: {code}")
             break
@@ -115,7 +150,7 @@ def create_user(email, password, is_admin=False):
 def get_user(email):
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute('SELECT id, email, profile_pic, verified, is_admin FROM users WHERE email=?', (email,))
+    cur.execute('SELECT id, email, profile_pic, verified, is_admin, username, role FROM users WHERE email=?', (email,))
     row = cur.fetchone()
     conn.close()
     if not row:
@@ -126,6 +161,8 @@ def get_user(email):
         'profile_pic': row[2],
         'verified': row[3],
         'is_admin': row[4],
+        'username': row[5],
+        'role': row[6],
     }
 
 
@@ -205,6 +242,8 @@ def get_all_comments():
 
 @app.route('/forum/<string:topic_id>')
 def view_topic(topic_id):
+    if not fs_client:
+        abort(503)
     try:
         doc = fs_client.collection('foro').document(topic_id).get()
         if not doc.exists:
@@ -445,8 +484,9 @@ def forum_context():
             'total_topics': 342,
             'total_responses': 1247,
             'active_members': 89,
-            'online_now': 12
-        }
+            'online_now': len(ONLINE_USERS)
+        },
+        'online_staff': [u for u in ONLINE_USERS.values() if u['role'] in ['admin', 'moderator']]
     }
 
 

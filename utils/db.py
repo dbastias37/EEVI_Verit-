@@ -104,6 +104,14 @@ def init_db(app):
 
     ensure_projects_schema(cursor)
 
+    # Ensure new columns exist in users table
+    cursor.execute("PRAGMA table_info(users)")
+    existing = [row[1] for row in cursor.fetchall()]
+    if 'username' not in existing:
+        cursor.execute("ALTER TABLE users ADD COLUMN username TEXT")
+    if 'role' not in existing:
+        cursor.execute("ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'")
+
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS comments (

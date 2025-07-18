@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE,
     password TEXT,
     is_admin INTEGER DEFAULT 0,
+    username TEXT,
+    role TEXT DEFAULT 'user',
     verified INTEGER DEFAULT 0,
     verification_code TEXT,
     profile_pic TEXT,
