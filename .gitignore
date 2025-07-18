@@ -4,5 +4,4 @@ __pycache__/
 *.sqlite3
 *.log
 logs/
-static/previews/default_preview.mp3
 serviceAccountKey.json
