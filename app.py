@@ -3,7 +3,7 @@ import re
 import sqlite3
 import time
 import datetime
-from datetime import datetime as dt, timezone
+from datetime import datetime as dt, timezone, timedelta
 import json
 try:
     from google.oauth2 import service_account
@@ -48,11 +48,11 @@ def mark_online(user_id, role):
     ONLINE_USERS[user_id] = {
         'id': user_id,
         'role': role,
-        'last': dt.utcnow()
+        'last': dt.now(timezone.utc)
     }
 
 def prune_online():
-    now = dt.utcnow()
+    now = dt.now(timezone.utc)
     for uid, info in list(ONLINE_USERS.items()):
         if (now - info['last']).total_seconds() > 300:
             ONLINE_USERS.pop(uid, None)
@@ -75,7 +75,7 @@ def get_online_staff():
     if not usuarios_ref:
         return []
 
-    five_minutes_ago = datetime.utcnow() - timedelta(minutes=5)
+    five_minutes_ago = datetime.datetime.now(datetime.timezone.utc) - timedelta(minutes=5)
     online_staff = []
     staff_query = usuarios_ref.where('role', 'in', ['admin', 'moderator']).where('is_online', '==', True).stream()
 
@@ -366,7 +366,7 @@ def forum_new():
             'category': categoria,
             'title': titulo,
             'description': contenido,
-            'created_at': datetime.datetime.utcnow().isoformat()
+            'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
 
         fs_client.collection('foro').add(nuevo_tema)
@@ -461,7 +461,7 @@ def responder(post_id):
 
         respuesta_data = {
             'content': contenido,
-            'created_at': datetime.datetime.utcnow(),
+            'created_at': datetime.datetime.now(datetime.timezone.utc),
             'author': 'Anónimo'
         }
 
@@ -535,7 +535,7 @@ def forum_context():
 
     online_count = 0
     if usuarios_ref:
-        five_minutes_ago = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
+        five_minutes_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=5)
         online_users = usuarios_ref.where('is_online', '==', True).stream()
         for doc in online_users:
             user = doc.to_dict()

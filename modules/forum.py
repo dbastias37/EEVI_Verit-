@@ -1,6 +1,6 @@
 import sqlite3
 import re
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Tuple
 from flask import current_app
 
@@ -58,7 +58,7 @@ def _parse_datetime(value):
         try:
             return datetime.fromisoformat(value)
         except Exception:
-            return datetime.utcnow()
+            return datetime.now(timezone.utc)
     return value
 
 # Categorías fijas para el foro
@@ -252,12 +252,12 @@ def get_all_topics() -> Tuple[List[Dict], bool]:
             'title': 'Título demo',
             'body': 'Este es un contenido de demostración. ¡Crea tu primer tema!',
             'category': None,
-            'created_at': datetime.utcnow(),
+            'created_at': datetime.now(timezone.utc),
             'likes': 0,
             'responses': [{
                 'author': 'Demo',
                 'body': 'Respuesta demo',
-                'created_at': datetime.utcnow()
+                'created_at': datetime.now(timezone.utc)
             }]
         }]
         demo_mode = True
@@ -326,7 +326,7 @@ def create_response(topic_id: int, author: str, content: str) -> int:
     try:
         cur.execute(
             'INSERT INTO responses (topic_id, author, content, created_at) VALUES (?,?,?,?)',
-            (topic_id, author, content, datetime.utcnow())
+            (topic_id, author, content, datetime.now(timezone.utc))
         )
         conn.commit()
         return cur.lastrowid
@@ -344,7 +344,7 @@ def vote_response(response_id: int, delta: int) -> None:
     try:
         cur.execute(
             'INSERT INTO votes (response_id, delta, created_at) VALUES (?,?,?)',
-            (response_id, delta, datetime.utcnow())
+            (response_id, delta, datetime.now(timezone.utc))
         )
         conn.commit()
     except Exception as e:
@@ -381,7 +381,7 @@ def create_topic(form, files) -> int:
     cur = conn.cursor()
     cur.execute(
         'INSERT INTO topics (title, slug, category, description, image, created_at) VALUES (?,?,?,?,?,?)',
-        (title, slug, category, description, image, datetime.utcnow())
+        (title, slug, category, description, image, datetime.now(timezone.utc))
     )
     conn.commit()
     topic_id = cur.lastrowid
@@ -392,7 +392,7 @@ def create_post(topic_id: int, author: str, content: str) -> int:
     conn = _connect()
     cur = conn.cursor()
     cur.execute('INSERT INTO posts (topic_id, author, content, created_at) VALUES (?,?,?,?)',
-                (topic_id, author, content, datetime.utcnow()))
+                (topic_id, author, content, datetime.now(timezone.utc)))
     conn.commit()
     post_id = cur.lastrowid
     conn.close()
