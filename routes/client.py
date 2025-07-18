@@ -101,11 +101,22 @@ def academy():
 
 
 @client_bp.route('/dashboard')
-@login_required
 def dashboard():
+    # Verificar sesión Firebase primero
+    firebase_user = session.get('forum_user')
+    if firebase_user:
+        session['user'] = firebase_user['email']
+        user = get_user(firebase_user['email'])
+        if not user:
+            create_user(firebase_user['email'], 'firebase_auth',
+                        username=firebase_user['username'])
+            user = get_user(firebase_user['email'])
+    elif session.get('user'):
+        user = get_user(session['user'])
+    else:
+        return redirect(url_for('forum_auth.vforum_auth'))
+
     user_email = session['user']
-    from app import get_user
-    user = get_user(user_email)
     mgr = _projects()
     projects = mgr.get_projects_for_email(user_email)
     for proj in projects:

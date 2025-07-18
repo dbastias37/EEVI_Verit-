@@ -3,6 +3,11 @@ from google.cloud import firestore
 from datetime import datetime, timezone
 from services.fs_client import fs_client
 
+PROFESIONES_DISPONIBLES = [
+    "Editor", "Animador 3D", "Camarógrafo", "Narrador de voz",
+    "Fotógrafo", "Sonidista", "Guionista", "Doblaje", "Creador de contenido"
+]
+
 projects_bp = Blueprint('projects', __name__)
 
 @projects_bp.route('/api/projects')
@@ -41,6 +46,17 @@ def create_project():
         form_data = request.form
         import json
         tags = json.loads(form_data.get('tags', '[]'))
+
+        # NUEVO: Procesar profesiones con cupos
+        profesiones_requeridas = {}
+        for profesion in PROFESIONES_DISPONIBLES:
+            cupos = form_data.get(f'cupos_{profesion}')
+            if cupos and int(cupos) > 0:
+                profesiones_requeridas[profesion] = {
+                    'cupos': int(cupos),
+                    'ocupados': 0,
+                    'activo': True
+                }
         proyecto_data = {
             'titulo': form_data.get('titulo'),
             'descripcion': form_data.get('descripcion'),
@@ -49,6 +65,7 @@ def create_project():
             'duracion_estimada': form_data.get('duracion_estimada'),
             'roles_necesarios': form_data.get('roles_necesarios'),
             'tags': tags,
+            'profesiones_requeridas': profesiones_requeridas,  # NUEVO
             'autor_id': user['id'],
             'autor_nombre': user['username'],
             'estado': 'abierto',
@@ -153,22 +170,30 @@ def accept_member(project_id, user_id):
 
 @projects_bp.route('/get_project_requests', methods=['GET'])
 def get_project_requests():
-    """Obtener solicitudes de proyectos del usuario actual"""
+    if not session.get('forum_user'):
+        return jsonify({'success': False, 'error': 'No autenticado'}), 401
+
+    user_id = session['forum_user']['id']
+
     try:
-        if 'user_id' not in session:
-            return jsonify({'success': False, 'error': 'No autenticado'}), 401
+        proyectos_ref = fs_client.collection('proyectos')
+        mis_proyectos = proyectos_ref.where('autor_id', '==', user_id).stream()
 
-        user_id = session['user_id']
+        solicitudes_list = []
+        for proyecto_doc in mis_proyectos:
+            proyecto_id = proyecto_doc.id
 
-        # Por ahora devolver array vacío hasta implementar Firebase completo
-        solicitudes_mock = []
+            solicitudes_ref = fs_client.collection('solicitudes_proyecto')
+            solicitudes = solicitudes_ref.where('proyecto_id', '==', proyecto_id)\
+                                       .where('estado', '==', 'pendiente')\
+                                       .stream()
 
-        # TODO: Implementar query real a Firebase
-        # proyectos_query = db.collection('proyectos').where('autor_id', '==', user_id)
-        # ... lógica completa ...
+            for solicitud_doc in solicitudes:
+                solicitud = solicitud_doc.to_dict()
+                solicitud['id'] = solicitud_doc.id
+                solicitudes_list.append(solicitud)
 
-        return jsonify({'success': True, 'solicitudes': solicitudes_mock})
-
+        return jsonify({'success': True, 'solicitudes': solicitudes_list})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 

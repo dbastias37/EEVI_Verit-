@@ -12,8 +12,7 @@
   {% if not user %}
   <div class="auth-section">
     <h2>Accede a tu Dashboard</h2>
-    <a href="{{ url_for('client.signup') }}" class="dash-btn dash-btn-primary">Crear usuario</a>
-    <a href="{{ url_for('client.dashboard_login') }}" class="dash-btn dash-btn-secondary">Iniciar sesión</a>
+    <a href="{{ url_for('forum_auth.vforum_auth') }}" class="dash-btn dash-btn-primary">Iniciar sesión</a>
   </div>
   {% else %}
   
