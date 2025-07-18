@@ -1,94 +1,177 @@
 {% extends 'base.html' %}
 
-{% block title %}Mis Proyectos{% endblock %}
+{% block title %}Mis Proyectos - EEVI{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_modern.css') }}">
+{% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
   {% if not user %}
-  <div class="dashboard-login">
-    <a href="{{ url_for('client.signup') }}" class="btn">Crear usuario</a>
-    <a href="{{ url_for('client.dashboard_login') }}" class="btn">Log in</a>
+  <div class="auth-section">
+    <h2>Accede a tu Dashboard</h2>
+    <a href="{{ url_for('client.signup') }}" class="dash-btn dash-btn-primary">Crear usuario</a>
+    <a href="{{ url_for('client.dashboard_login') }}" class="dash-btn dash-btn-secondary">Iniciar sesión</a>
   </div>
   {% else %}
+  
+  <!-- Header Dashboard -->
   <div class="dashboard-header">
-    <h2>Mis proyectos</h2>
-    <div class="welcome">Bienvenido, {{ user.email }}</div>
-    <button id="theme-toggle">Modo</button>
-    <form action="{{ url_for('client.logout') }}" method="post" style="display:inline;">
-      <button type="submit">Salir</button>
-    </form>
-  </div>
-
-  <div class="stats">
-    <div class="stat-card"><span class="stat-icon">🎬</span> {{ stats.active }} Activos</div>
-    <div class="stat-card"><span class="stat-icon">🎞️</span> {{ stats.completed }} Terminados</div>
-    <div class="stat-card"><span class="stat-icon">📽️</span> {{ stats.scripts }} Guiones</div>
-    <div class="stat-card"><span class="stat-icon">💾</span> {{ stats.pending }} Pagos</div>
-  </div>
-
-  <h3>Proyectos Activos</h3>
-  <div class="projects">
-    {% for p in active_projects %}
-    <div class="project-card">
-      <h4>{{ p.title }}</h4>
-      <div class="progress">
-        <div class="progress-bar" style="width: {{ p.progress * 100 }}%"></div>
+    <div class="welcome-section">
+      <div class="user-avatar-dash">
+        {{ user.username[0].upper() if user.username else user.email[0].upper() }}
       </div>
-      <iframe
-        src="{{ p.embed_url }}"
-        frameborder="0"
-        allow="autoplay; encrypted-media"
-        allowfullscreen
-        style="width:100%;height:400px;"
-      ></iframe>
-      {% if not p.paid %}<button class="pay-btn">Pagar 50% restante</button>{% endif %}
-      <div class="comments" data-project="{{ p.id }}">
-        <div class="comments-list"></div>
-        <form class="comment-form">
-          <input type="text" name="text" placeholder="Nuevo comentario" required>
-          <button type="submit">Enviar</button>
+      <div class="welcome-text">
+        <h2>Bienvenido, {{ user.username or user.email.split('@')[0] }}</h2>
+        <p>Gestiona tus proyectos y colaboraciones</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" class="dash-btn dash-btn-secondary">🌙 Modo</button>
+      <form action="{{ url_for('client.logout') }}" method="post" style="display:inline;">
+        <button type="submit" class="dash-btn dash-btn-primary">Salir</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Grid Principal -->
+  <div class="dashboard-grid">
+    <!-- Contenido Principal -->
+    <div class="main-content">
+      <!-- Estadísticas -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon">🎬</div>
+          <div class="stat-value">{{ stats.active }}</div>
+          <div class="stat-label">Proyectos Activos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value">{{ stats.completed }}</div>
+          <div class="stat-label">Completados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-value">{{ stats.scripts }}</div>
+          <div class="stat-label">Guiones</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value">{{ stats.pending }}</div>
+          <div class="stat-label">Pagos Pendientes</div>
+        </div>
+      </div>
+
+      <!-- Proyectos Activos -->
+      <div class="projects-section">
+        <div class="section-header">
+          <h3 class="section-title">Proyectos Activos</h3>
+          <a href="{{ url_for('list_forum') }}" class="dash-btn dash-btn-secondary">
+            Ver más en VFORUM
+          </a>
+        </div>
+        
+        <div class="projects">
+          {% for p in active_projects %}
+          <div class="project-card">
+            <div class="project-header">
+              <div>
+                <h4 class="project-title">{{ p.title }}</h4>
+                <span class="project-category">{{ p.category or 'Sin categoría' }}</span>
+              </div>
+              <span class="project-status status-active">Activo</span>
+            </div>
+            
+            <div class="project-progress">
+              <span>Progreso: {{ (p.progress * 100)|int }}%</span>
+              <div class="progress">
+                <div class="progress-bar" style="width: {{ p.progress * 100 }}%"></div>
+              </div>
+            </div>
+            
+            {% if p.embed_url %}
+            <div class="video-preview">
+              <iframe src="{{ p.embed_url }}" allowfullscreen></iframe>
+            </div>
+            {% endif %}
+            
+            {% if not p.paid %}
+            <button class="pay-btn dash-btn dash-btn-primary">Pagar 50% restante</button>
+            {% endif %}
+            
+            <!-- Comentarios -->
+            <div class="comments" data-project="{{ p.id }}">
+              <div class="comments-list"></div>
+              <form class="comment-form">
+                <input type="text" name="text" placeholder="Agregar comentario..." 
+                       class="comment-input" required>
+                <button type="submit" class="dash-btn dash-btn-primary">Enviar</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Biblioteca de Guiones -->
+      <div class="scripts-section">
+        <div class="section-header">
+          <h3 class="section-title">Biblioteca de Guiones</h3>
+        </div>
+        <ul class="scripts-list">
+          {% for p in projects %}
+          <li>
+            <span>{{ p.title }}</span>
+            <button class="script-btn" data-script="{{ p.script|escape }}">Ver guión</button>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Sidebar - Mensajes de Proyectos -->
+    <aside class="sidebar">
+      <div class="messages-section" data-user-id="{{ user.id }}">
+        <div class="messages-header">
+          <h3 class="messages-title">Mensajes de Proyectos</h3>
+          <span class="unread-badge" id="unreadCount">0</span>
+        </div>
+        
+        <div class="messages-list" id="messagesList">
+          <!-- Los mensajes se cargarán dinámicamente -->
+        </div>
+      </div>
+
+      <!-- Perfil -->
+      <div class="profile-section">
+        <h3>Mi Perfil</h3>
+        <img src="{{ user.profile_pic or '/static/img/avatar.png' }}" alt="Foto de perfil" class="profile-pic">
+        <form action="{{ url_for('client.upload_profile') }}" method="post" enctype="multipart/form-data">
+          <input type="file" name="photo" accept="image/*" required style="margin-bottom: 1rem;">
+          <button type="submit" class="dash-btn dash-btn-primary" style="width: 100%;">Actualizar foto</button>
         </form>
       </div>
-    </div>
-    {% endfor %}
+    </aside>
   </div>
 
-  <h3>Proyectos Terminados</h3>
-  <div class="projects">
-    {% for p in completed_projects %}
-    <div class="project-card">
-      <h4>{{ p.title }}</h4>
-      <a href="{{ p.download }}">Descargar</a>
-    </div>
-    {% endfor %}
-  </div>
-
-  <h3>Biblioteca de Guiones</h3>
-  <ul class="scripts-list">
-    {% for p in projects %}
-    <li><button class="script-btn" data-script="{{ p.script|escape }}">{{ p.title }}</button></li>
-    {% endfor %}
-  </ul>
-
-  <div class="profile">
-    <h3>Perfil de Usuario</h3>
-    <img src="{{ user.profile_pic or '/static/img/pack1.jpg' }}" alt="Foto" class="profile-pic">
-    <form action="{{ url_for('client.upload_profile') }}" method="post" enctype="multipart/form-data">
-      <input type="file" name="photo" accept="image/*" required onchange="updateProfilePic(this.files[0])">
-      <button type="submit">Actualizar foto</button>
-    </form>
-  </div>
-
+  <!-- Modal para guiones -->
   <div id="script-modal" class="modal">
     <div class="modal-content">
       <span class="close-modal">&times;</span>
+      <h3>Guión del Proyecto</h3>
       <pre id="script-text"></pre>
     </div>
   </div>
+
   {% endif %}
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/dashboard.js"></script>
+{{ super() }}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard_messages.js') }}"></script>
 {% endblock %}
+
