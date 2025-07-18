@@ -191,3 +191,63 @@ def respond_project_request():
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@projects_bp.route('/request_join', methods=['POST'])
+def request_join():
+    """Enviar solicitud para unirse a proyecto"""
+    try:
+        if 'user_id' not in session:
+            return jsonify({'success': False, 'error': 'No autenticado'}), 401
+
+        data = request.get_json()
+        proyecto_id = data.get('proyecto_id')
+        profesion = data.get('profesion_solicitada')
+        mensaje = data.get('mensaje')
+
+        if not all([proyecto_id, profesion, mensaje]):
+            return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
+
+        solicitud = {
+            'proyecto_id': proyecto_id,
+            'solicitante_id': session['user_id'],
+            'solicitante_nombre': session.get('user_name', 'Usuario'),
+            'profesion_solicitada': profesion,
+            'mensaje': mensaje,
+            'estado': 'pendiente',
+            'fecha_solicitud': datetime.now()
+        }
+
+        # TODO: Guardar en Firebase cuando esté configurado
+        # db.collection('solicitudes_proyecto').add(solicitud)
+
+        return jsonify({'success': True, 'message': 'Solicitud enviada correctamente'})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@projects_bp.route('/get_all_projects', methods=['GET'])
+def get_all_projects():
+    """Obtener todos los proyectos disponibles"""
+    try:
+        projects_mock = [
+            {
+                'id': '1',
+                'titulo': 'Cortometraje Experimental',
+                'descripcion': 'Proyecto innovador sobre realidad urbana',
+                'estado_proyecto': 'abierto',
+                'autor_nombre': 'Director Creativo',
+                'moneda': 'CLP',
+                'presupuesto_rango': '500.000 - 1.000.000',
+                'profesiones_requeridas': {
+                    'Editor': {'cupos': 1, 'ocupados': 0, 'activo': True},
+                    'Camarógrafo': {'cupos': 2, 'ocupados': 1, 'activo': True}
+                }
+            }
+        ]
+
+        return jsonify({'success': True, 'projects': projects_mock})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500

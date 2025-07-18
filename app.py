@@ -40,6 +40,7 @@ from routes.messages import messages_bp
 from routes.friends import friends_bp
 from routes.chat import chat_bp
 from routes.user_status import status_bp
+from routes.forum_stats import forum_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from services.fs_client import fs_client
@@ -75,6 +76,7 @@ app.register_blueprint(messages_bp)
 app.register_blueprint(friends_bp, url_prefix='/friends')
 app.register_blueprint(chat_bp, url_prefix='/chat')
 app.register_blueprint(status_bp, url_prefix='/status')
+app.register_blueprint(forum_bp, url_prefix='/forum')
 
 # Inicializar Firebase/Firestore si está disponible
 usuarios_ref = None
