@@ -5,6 +5,7 @@
 {% block extra_head %}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_modern.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forum_projects.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -40,6 +41,10 @@
             Inicia sesión
         </a>
         {% endif %}
+        <a href="#" id="projectsBtn" class="nav-item">
+            <div class="nav-icon">🚀</div>
+            Buscar Proyectos
+        </a>
         <a href="#" class="nav-item">
             <div class="nav-icon">🔥</div>
             Tendencias
@@ -274,10 +279,151 @@
         <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
     </div>
     {% endif %}
+    <!-- Panel de Proyectos -->
+    <div id="projectsPanel" class="projects-panel">
+        <button class="close-projects-btn" id="closeProjectsBtn">
+            <span>✕</span> Cerrar
+        </button>
+        
+        <div class="projects-container">
+            <!-- Header -->
+            <div class="projects-header">
+                <h1 class="projects-title">Proyectos Colaborativos</h1>
+                <p class="projects-subtitle">
+                    Encuentra colaboradores para tu proyecto audiovisual o únete a proyectos en marcha
+                </p>
+                
+                <!-- Controles -->
+                <div class="projects-controls">
+                    <div class="project-search">
+                        <span class="project-search-icon">🔍</span>
+                        <input type="text" class="project-search-input" 
+                               placeholder="Buscar proyectos por título, categoría o tags...">
+                    </div>
+                    <button class="project-filter-btn">
+                        <span>⚙️</span> Filtros
+                    </button>
+                    {% if session.forum_user %}
+                    <button class="project-new-btn" id="newProjectBtn">
+                        <span>➕</span> Crear Proyecto
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Grid de Proyectos -->
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Los proyectos se cargarán dinámicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Crear/Ver Proyecto -->
+    <div id="projectModal" class="project-modal">
+        <div class="project-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Crear Nuevo Proyecto</h2>
+                <button class="modal-close" id="closeModalBtn">✕</button>
+            </div>
+            
+            <form id="projectForm" class="project-form">
+                <div class="form-group">
+                    <label class="form-label">Título del Proyecto</label>
+                    <input type="text" name="titulo" class="form-input" required 
+                           placeholder="Ej: Documental sobre música urbana">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Categoría</label>
+                        <select name="categoria" class="form-select" required>
+                            <option value="">Selecciona...</option>
+                            <option value="Cortometraje">Cortometraje</option>
+                            <option value="Documental">Documental</option>
+                            <option value="Videoclip">Videoclip</option>
+                            <option value="Podcast">Podcast</option>
+                            <option value="Serie Web">Serie Web</option>
+                            <option value="Publicidad">Publicidad</option>
+                            <option value="Videojuego">Videojuego</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Presupuesto</label>
+                        <select name="presupuesto" class="form-select">
+                            <option value="A definir">A definir</option>
+                            <option value="Sin presupuesto">Sin presupuesto</option>
+                            <option value="Menos de $500 USD">Menos de $500 USD</option>
+                            <option value="$500 - $2000 USD">$500 - $2000 USD</option>
+                            <option value="$2000 - $5000 USD">$2000 - $5000 USD</option>
+                            <option value="Más de $5000 USD">Más de $5000 USD</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Descripción</label>
+                    <textarea name="descripcion" class="form-textarea" rows="6" required 
+                              placeholder="Describe tu proyecto: objetivos, estilo visual/sonoro, referencias, etc."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Duración estimada</label>
+                        <input type="text" name="duracion_estimada" class="form-input" 
+                               placeholder="Ej: 2 semanas, 1 mes">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Roles necesarios</label>
+                        <input type="text" name="roles_necesarios" class="form-input" 
+                               placeholder="Ej: Editor, Sonidista, Compositor">
+                    </div>
+                </div>
+                
+                <div class="form-group tag-input-container">
+                    <label class="form-label">Tags (presiona Enter para agregar)</label>
+                    <input type="text" id="tagInput" class="form-input" 
+                           placeholder="Ej: indie, experimental, urbano">
+                    <div class="tag-list" id="tagList"></div>
+                    <input type="hidden" name="tags" id="tagsHidden">
+                </div>
+                
+                <div class="form-actions" style="display: flex; gap: var(--space-md); justify-content: flex-end;">
+                    <button type="button" class="btn-secondary" onclick="closeProjectModal()">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="cta-button">
+                        Publicar Proyecto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ver Detalle Proyecto -->
+    <div id="projectDetailModal" class="project-modal">
+        <div class="project-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailTitle">Título del Proyecto</h2>
+                <button class="modal-close" onclick="closeDetailModal()">✕</button>
+            </div>
+            
+            <div id="projectDetailContent">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script src="{{ url_for('static', filename='js/forum_modern.js') }}"></script>
+<script src="{{ url_for('static', filename='js/forum_projects.js') }}"></script>
+{% if session.forum_user %}
+<div data-user-id="{{ session.forum_user.id }}" style="display: none;"></div>
+{% endif %}
 {% endblock %}
+

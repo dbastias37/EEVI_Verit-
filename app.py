@@ -31,6 +31,8 @@ from routes.admin import admin_bp
 from routes.client import client_bp
 from routes.auth import auth_bp
 from routes.forum_auth import forum_auth_bp
+from routes.projects import projects_bp
+from routes.messages import messages_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.quotes import get_random_quote
@@ -60,6 +62,8 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(client_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(forum_auth_bp)
+app.register_blueprint(projects_bp)
+app.register_blueprint(messages_bp)
 
 # Inicializar Firebase/Firestore si está disponible
 fs_client = None
