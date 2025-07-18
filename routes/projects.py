@@ -158,8 +158,16 @@ def get_project_requests():
         if 'user_id' not in session:
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
 
-        # Por ahora devolver array vacío (funcional)
-        return jsonify({'success': True, 'solicitudes': []})
+        user_id = session['user_id']
+
+        # Por ahora devolver array vacío hasta implementar Firebase completo
+        solicitudes_mock = []
+
+        # TODO: Implementar query real a Firebase
+        # proyectos_query = db.collection('proyectos').where('autor_id', '==', user_id)
+        # ... lógica completa ...
+
+        return jsonify({'success': True, 'solicitudes': solicitudes_mock})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -171,8 +179,15 @@ def respond_project_request():
         if 'user_id' not in session:
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
 
-        # Por ahora solo confirmar recepción
-        return jsonify({'success': True, 'message': 'Funcionalidad en desarrollo'})
+        data = request.get_json()
+        solicitud_id = data.get('solicitud_id')
+        accion = data.get('accion')  # 'aceptar' o 'rechazar'
+
+        if not solicitud_id or not accion:
+            return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
+
+        # TODO: Implementar lógica real
+        return jsonify({'success': True, 'message': f'Solicitud {accion}ada correctamente'})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

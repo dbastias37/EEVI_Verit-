@@ -6,6 +6,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_modern.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_projects.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/solicitudes.css') }}">
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('forum-page');
+});
+</script>
 {% endblock %}
 
 {% block header %}
@@ -429,6 +435,7 @@
 <script src="{{ url_for('static', filename='js/forum_modern.js') }}"></script>
 <script src="{{ url_for('static', filename='js/forum_projects.js') }}"></script>
 <script src="{{ url_for('static', filename='js/user_status.js') }}"></script>
+<script src="{{ url_for('static', filename='js/solicitudes_manager.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user_status.css') }}">
 {% if session.forum_user %}
 <div data-user-id="{{ session.forum_user.id }}" style="display: none;"></div>

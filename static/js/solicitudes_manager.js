@@ -1,46 +1,65 @@
 class SolicitudesManager {
     constructor() {
+        // Solo inicializar si estamos en el foro Y usuario autenticado
+        if (!this.shouldShow()) {
+            return;
+        }
+        
         this.panel = null;
-        this.button = null;
+        this.tab = null;
         this.contador = 0;
         this.solicitudes = [];
         this.isPolling = false;
+        this.isOpen = false;
         this.init();
     }
 
+    shouldShow() {
+        // Verificar si estamos en el foro
+        const isForumPage = window.location.pathname.includes('/forum') || 
+                           document.querySelector('.forum-container') !== null ||
+                           document.querySelector('#forum-content') !== null;
+        
+        // Verificar si usuario está autenticado
+        const isAuthenticated = window.currentUser && window.currentUser.authenticated;
+        
+        return isForumPage && isAuthenticated;
+    }
+
     init() {
-        this.createButton();
+        this.createTab();
         this.createPanel();
         this.loadSolicitudes();
         this.startPolling();
         this.setupEventListeners();
     }
 
-    createButton() {
-        // Crear botón flotante con contador
-        this.button = document.createElement('div');
-        this.button.className = 'solicitudes-btn';
-        this.button.innerHTML = `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 6L9 17l-5-5"/>
-            </svg>
-            <div class="solicitudes-counter" style="display: none;">0</div>
+    createTab() {
+        // Crear pestaña lateral
+        this.tab = document.createElement('div');
+        this.tab.className = 'solicitudes-tab';
+        this.tab.innerHTML = `
+            <div class="tab-content">
+                <div class="bell-icon">🔔</div>
+                <div class="solicitudes-counter" style="display: none;">0</div>
+                <div class="neon-glow"></div>
+            </div>
         `;
         
-        document.body.appendChild(this.button);
+        document.body.appendChild(this.tab);
         
-        this.button.addEventListener('click', () => this.togglePanel());
+        this.tab.addEventListener('click', () => this.togglePanel());
     }
 
     createPanel() {
         this.panel = document.createElement('div');
-        this.panel.className = 'solicitudes-panel';
+        this.panel.className = 'solicitudes-panel-lateral';
         this.panel.innerHTML = `
-            <div class="solicitudes-header">
+            <div class="panel-header">
                 <h3>Solicitudes</h3>
                 <button class="close-btn">&times;</button>
             </div>
-            <div class="solicitudes-content">
+            <div class="panel-content">
                 <div class="solicitudes-tabs">
                     <button class="tab active" data-tab="proyectos">📁 Proyectos</button>
                     <button class="tab" data-tab="amigos">👤 Amigos</button>
@@ -67,9 +86,9 @@ class SolicitudesManager {
             });
         });
 
-        // Cerrar al hacer click fuera
+        // Cerrar al hacer click fuera (excepto en la pestaña)
         document.addEventListener('click', (e) => {
-            if (!this.panel.contains(e.target) && !this.button.contains(e.target)) {
+            if (!this.panel.contains(e.target) && !this.tab.contains(e.target) && this.isOpen) {
                 this.closePanel();
             }
         });
@@ -81,7 +100,7 @@ class SolicitudesManager {
             const proyectosResponse = await fetch('/projects/get_project_requests');
             const proyectosResult = await proyectosResponse.json();
 
-            // Cargar solicitudes de amistad  
+            // Cargar solicitudes de amistad
             const amigosResponse = await fetch('/friends/get_friend_requests');
             const amigosResult = await amigosResponse.json();
 
@@ -95,46 +114,88 @@ class SolicitudesManager {
 
         } catch (error) {
             console.error('Error loading solicitudes:', error);
-            // Fallback - no mostrar error al usuario aún
-            this.solicitudes = {
-                proyectos: [],
-                amigos: []
-            };
+            this.solicitudes = { proyectos: [], amigos: [] };
             this.updateContador();
             this.renderSolicitudes();
         }
     }
 
     updateContador() {
-        const total = (this.solicitudes.proyectos.length + this.solicitudes.amigos.length);
-        const counter = this.button.querySelector('.solicitudes-counter');
+        const total = this.solicitudes.proyectos.length + this.solicitudes.amigos.length;
+        const counter = this.tab.querySelector('.solicitudes-counter');
+        const neonGlow = this.tab.querySelector('.neon-glow');
         
         if (total > 0) {
             counter.textContent = total;
             counter.style.display = 'flex';
-            this.startBreathing();
+            this.startNeonBreathing();
         } else {
             counter.style.display = 'none';
-            this.stopBreathing();
+            this.stopNeonBreathing();
         }
         
         this.contador = total;
     }
 
-    startBreathing() {
-        this.button.classList.add('breathing');
+    startNeonBreathing() {
+        if (!this.isOpen) { // Solo si el panel está cerrado
+            this.tab.classList.add('breathing-neon');
+        }
     }
 
-    stopBreathing() {
-        this.button.classList.remove('breathing');
+    stopNeonBreathing() {
+        this.tab.classList.remove('breathing-neon');
+    }
+
+    togglePanel() {
+        if (this.isOpen) {
+            this.closePanel();
+        } else {
+            this.openPanel();
+        }
+    }
+
+    openPanel() {
+        this.panel.classList.add('open');
+        this.tab.classList.add('panel-open');
+        this.isOpen = true;
+        this.stopNeonBreathing(); // Parar breathing al abrir
+        this.loadSolicitudes(); // Recargar al abrir
+    }
+
+    closePanel() {
+        this.panel.classList.remove('open');
+        this.tab.classList.remove('panel-open');
+        this.isOpen = false;
+        
+        // Reiniciar breathing si hay solicitudes
+        if (this.contador > 0) {
+            this.startNeonBreathing();
+        }
+    }
+
+    startPolling() {
+        if (this.isPolling) return;
+        
+        this.isPolling = true;
+        setInterval(() => {
+            if (!this.isOpen) {
+                this.loadSolicitudes();
+            }
+        }, 120000); // 2 minutos
+    }
+
+    switchTab(tab) {
+        this.panel.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.panel.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        this.renderSolicitudes();
     }
 
     renderSolicitudes() {
         const activeTab = this.panel.querySelector('.tab.active').dataset.tab;
         const container = this.panel.querySelector('.solicitudes-list');
-        
         const solicitudes = this.solicitudes[activeTab] || [];
-        
+
         if (solicitudes.length === 0) {
             container.innerHTML = '<div class="no-solicitudes">No hay solicitudes pendientes</div>';
             return;
@@ -148,7 +209,6 @@ class SolicitudesManager {
             }
         }).join('');
 
-        // Agregar event listeners a los botones
         this.setupSolicitudButtons();
     }
 
@@ -159,19 +219,15 @@ class SolicitudesManager {
                 <div class="solicitud-content">
                     <div class="solicitud-titulo">${solicitud.proyecto_titulo}</div>
                     <div class="solicitud-texto">
-                        <strong>${solicitud.solicitante_nombre}</strong> quiere unirse como 
+                        <strong>${solicitud.solicitante_nombre}</strong> quiere unirse como
                         <span class="profesion">${solicitud.profesion_solicitada}</span>
                     </div>
                     <div class="solicitud-mensaje">"${solicitud.mensaje}"</div>
                     <div class="solicitud-fecha">${this.formatFecha(solicitud.fecha_solicitud)}</div>
                 </div>
                 <div class="solicitud-actions">
-                    <button class="btn-aceptar" data-action="accept" data-type="proyecto" data-id="${solicitud.id}">
-                        ✓
-                    </button>
-                    <button class="btn-rechazar" data-action="reject" data-type="proyecto" data-id="${solicitud.id}">
-                        ✗
-                    </button>
+                    <button class="btn-aceptar" data-action="accept" data-type="proyecto" data-id="${solicitud.id}">✓</button>
+                    <button class="btn-rechazar" data-action="reject" data-type="proyecto" data-id="${solicitud.id}">✗</button>
                 </div>
             </div>
         `;
@@ -189,12 +245,8 @@ class SolicitudesManager {
                     <div class="solicitud-fecha">${this.formatFecha(solicitud.fecha_solicitud)}</div>
                 </div>
                 <div class="solicitud-actions">
-                    <button class="btn-aceptar" data-action="accept" data-type="amigo" data-id="${solicitud.id}">
-                        ✓
-                    </button>
-                    <button class="btn-rechazar" data-action="reject" data-type="amigo" data-id="${solicitud.id}">
-                        ✗
-                    </button>
+                    <button class="btn-aceptar" data-action="accept" data-type="amigo" data-id="${solicitud.id}">✓</button>
+                    <button class="btn-rechazar" data-action="reject" data-type="amigo" data-id="${solicitud.id}">✗</button>
                 </div>
             </div>
         `;
@@ -206,7 +258,7 @@ class SolicitudesManager {
                 const action = e.target.dataset.action;
                 const type = e.target.dataset.type;
                 const id = e.target.dataset.id;
-                
+
                 await this.handleSolicitudAction(action, type, id);
             });
         });
@@ -231,12 +283,9 @@ class SolicitudesManager {
             });
 
             const result = await response.json();
-            
+
             if (result.success) {
-                // Mostrar toast de confirmación
                 this.showToast(`Solicitud ${action === 'accept' ? 'aceptada' : 'rechazada'} correctamente`, 'success');
-                
-                // Recargar solicitudes
                 await this.loadSolicitudes();
             } else {
                 this.showToast('Error al procesar solicitud', 'error');
@@ -248,50 +297,11 @@ class SolicitudesManager {
         }
     }
 
-    switchTab(tab) {
-        // Actualizar tabs activos
-        this.panel.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        this.panel.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-        
-        // Renderizar solicitudes del tab seleccionado
-        this.renderSolicitudes();
-    }
-
-    togglePanel() {
-        if (this.panel.classList.contains('open')) {
-            this.closePanel();
-        } else {
-            this.openPanel();
-        }
-    }
-
-    openPanel() {
-        this.panel.classList.add('open');
-        this.stopBreathing();
-        this.loadSolicitudes();
-    }
-
-    closePanel() {
-        this.panel.classList.remove('open');
-    }
-
-    startPolling() {
-        if (this.isPolling) return;
-
-        this.isPolling = true;
-        // Cambiar de 30 segundos a 2 minutos para reducir requests
-        setInterval(() => {
-            if (!this.panel.classList.contains('open')) {
-                this.loadSolicitudes();
-            }
-        }, 120000); // 2 minutos en lugar de 30 segundos
-    }
-
     formatFecha(fecha) {
         const date = new Date(fecha);
         const now = new Date();
         const diff = now - date;
-        
+
         if (diff < 60000) return 'Hace un momento';
         if (diff < 3600000) return `Hace ${Math.floor(diff/60000)} minutos`;
         if (diff < 86400000) return `Hace ${Math.floor(diff/3600000)} horas`;
@@ -302,9 +312,9 @@ class SolicitudesManager {
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.textContent = message;
-        
+
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -313,9 +323,10 @@ class SolicitudesManager {
     }
 }
 
-// Inicializar cuando el DOM esté listo
+// Inicializar solo si debe mostrarse
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.currentUser && window.currentUser.authenticated) {
-        new SolicitudesManager();
+    const manager = new SolicitudesManager();
+    if (manager.shouldShow()) {
+        window.solicitudesManager = manager;
     }
 });
