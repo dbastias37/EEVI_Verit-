@@ -62,3 +62,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// Al actualizar foto en dashboard
+async function updateProfilePic(file) {
+  // Subir archivo...
+  const newPicUrl = file; // placeholder for actual upload result
+
+  if (sessionStorage.getItem('forum_user_id')) {
+    await fetch('/api/update-forum-avatar', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        user_id: sessionStorage.getItem('forum_user_id'),
+        profile_pic: newPicUrl
+      })
+    });
+  }
+}

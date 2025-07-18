@@ -74,7 +74,7 @@
     <h3>Perfil de Usuario</h3>
     <img src="{{ user.profile_pic or '/static/img/pack1.jpg' }}" alt="Foto" class="profile-pic">
     <form action="{{ url_for('client.upload_profile') }}" method="post" enctype="multipart/form-data">
-      <input type="file" name="photo" accept="image/*" required>
+      <input type="file" name="photo" accept="image/*" required onchange="updateProfilePic(this.files[0])">
       <button type="submit">Actualizar foto</button>
     </form>
   </div>

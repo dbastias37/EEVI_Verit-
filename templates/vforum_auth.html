@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% block title %}VFORUM - Únete a la comunidad{% endblock %}
+
+{% block extra_head %}
+<style>
+:root {
+    --auth-primary: #00D4B8;
+    --auth-accent: #FF6B35;
+    --auth-bg: #0A0F1C;
+    --auth-card: #1A2332;
+    --auth-border: #2A3441;
+    --auth-shadow: 0 15px 35px rgba(0, 212, 184, 0.15);
+}
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--auth-bg);
+    padding: 2rem;
+}
+
+.auth-card {
+    background: var(--auth-card);
+    border-radius: 20px;
+    padding: 3rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: var(--auth-shadow);
+    border: 1px solid var(--auth-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--auth-primary), var(--auth-accent));
+}
+
+.auth-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--auth-primary), var(--auth-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #B8C5D1;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.profession-rotator {
+    color: var(--auth-accent);
+    font-weight: 700;
+    display: inline-block;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 1rem;
+    background: var(--auth-bg);
+    border: 2px solid var(--auth-border);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--auth-primary);
+    box-shadow: 0 0 0 3px rgba(0, 212, 184, 0.1);
+}
+
+.auth-button {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--auth-primary), var(--auth-accent));
+    border: none;
+    border-radius: 12px;
+    color: var(--auth-bg);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 1rem;
+}
+
+.auth-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 212, 184, 0.3);
+}
+
+.auth-toggle {
+    text-align: center;
+    margin-top: 2rem;
+    color: #B8C5D1;
+}
+
+.toggle-link {
+    color: var(--auth-primary);
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s;
+    display: inline-block;
+}
+
+.toggle-link:hover {
+    color: var(--auth-accent);
+}
+
+.auth-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.auth-links a {
+    color: #6B7A8A;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.auth-links a:hover {
+    color: var(--auth-primary);
+}
+
+/* Animaciones */
+.fade-rotate {
+    opacity: 0;
+    animation: fadeRotate 1s ease forwards;
+}
+
+@keyframes fadeRotate {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-container {
+    transition: all 0.4s ease;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">VFORUM</h1>
+        <p class="auth-subtitle">
+            Regístrate y sé parte de la comunidad de creadores independientes para 
+            <span class="profession-rotator" id="dynamicProfession">{{ professions[0] }}</span>
+        </p>
+
+        <!-- Formulario de Registro -->
+        <div id="registerForm" class="form-container">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-input" 
+                           placeholder="Nombre de usuario" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" class="form-input" 
+                           placeholder="Correo electrónico" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-input" 
+                           placeholder="Contraseña" required minlength="6">
+                </div>
+                <button type="submit" class="auth-button">Registrarme</button>
+            </form>
+            
+            <div class="auth-toggle">
+                <span id="loginPhrase" class="toggle-link fade-rotate">
+                    {{ login_phrases[0] }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Formulario de Login -->
+        <div id="loginForm" class="form-container hidden">
+            <p style="text-align: center; color: #B8C5D1; margin-bottom: 2rem;">
+                Ingresa con tus datos
+            </p>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <input type="email" name="email" class="form-input" 
+                           placeholder="Correo electrónico" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-input" 
+                           placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="auth-button">Ingresar</button>
+            </form>
+            
+            <div class="auth-toggle">
+                <span class="toggle-link" onclick="toggleForms()">
+                    Volver al registro
+                </span>
+            </div>
+        </div>
+
+        <div class="auth-links">
+            <a href="/recuperar-password">Recuperar contraseña</a>
+            <a href="{{ url_for('admin.admin_login') }}">Soy admin</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Rotación de profesiones
+const professions = {{ professions | tojson }};
+let profIndex = 0;
+
+function rotateProfession() {
+    profIndex = (profIndex + 1) % professions.length;
+    const element = document.getElementById('dynamicProfession');
+    element.style.opacity = '0';
+    
+    setTimeout(() => {
+        element.textContent = professions[profIndex];
+        element.style.opacity = '1';
+    }, 500);
+}
+
+setInterval(rotateProfession, 4000);
+
+// Rotación de frases de login
+const loginPhrases = {{ login_phrases | tojson }};
+let phraseIndex = 0;
+
+function rotateLoginPhrase() {
+    phraseIndex = (phraseIndex + 1) % loginPhrases.length;
+    const element = document.getElementById('loginPhrase');
+    element.classList.remove('fade-rotate');
+    
+    setTimeout(() => {
+        element.textContent = loginPhrases[phraseIndex];
+        element.classList.add('fade-rotate');
+    }, 100);
+}
+
+setInterval(rotateLoginPhrase, 3000);
+
+// Toggle entre formularios
+document.getElementById('loginPhrase').addEventListener('click', toggleForms);
+
+function toggleForms() {
+    const registerForm = document.getElementById('registerForm');
+    const loginForm = document.getElementById('loginForm');
+    
+    if (registerForm.classList.contains('hidden')) {
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+    } else {
+        registerForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+    }
+}
+
+// Manejo de registro
+async function handleRegister(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        const response = await fetch('/vforum/register', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert(data.error || 'Error al registrar');
+        }
+    } catch (error) {
+        alert('Error de conexión');
+    }
+}
+
+// Manejo de login
+async function handleLogin(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    try {
+        const response = await fetch('/vforum/login', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert(data.error || 'Error al ingresar');
+        }
+    } catch (error) {
+        alert('Error de conexión');
+    }
+}
+</script>
+{% endblock %}

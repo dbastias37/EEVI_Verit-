@@ -31,6 +31,7 @@ from utils.auth import ensure_admin_user
 from routes.admin import admin_bp
 from routes.client import client_bp
 from routes.auth import auth_bp
+from routes.forum_auth import forum_auth_bp
 from services.project_manager import ProjectManager
 from services.comment_manager import CommentManager
 from utils.quotes import get_random_quote
@@ -59,6 +60,37 @@ def prune_online():
 def remove_online(user_id):
     ONLINE_USERS.pop(user_id, None)
 
+# Sistema mejorado de usuarios online
+def update_online_status():
+    """Actualizar estado online en Firebase cada 5 minutos"""
+    if session.get('forum_user') and usuarios_ref:
+        user_id = session['forum_user']['id']
+        usuarios_ref.document(user_id).update({
+            'last_seen': firestore.SERVER_TIMESTAMP,
+            'is_online': True
+        })
+
+def get_online_staff():
+    """Obtener staff online desde Firebase"""
+    if not usuarios_ref:
+        return []
+
+    five_minutes_ago = datetime.utcnow() - timedelta(minutes=5)
+    online_staff = []
+    staff_query = usuarios_ref.where('role', 'in', ['admin', 'moderator']).where('is_online', '==', True).stream()
+
+    for doc in staff_query:
+        user = doc.to_dict()
+        if user.get('last_seen') and user['last_seen'] > five_minutes_ago:
+            online_staff.append({
+                'id': doc.id,
+                'username': user['username'],
+                'role': user['role'],
+                'profile_pic': user.get('profile_pic', '/static/img/avatar.png')
+            })
+
+    return online_staff
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(config[os.getenv('APP_ENV', 'development')])
@@ -68,6 +100,7 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(client_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(forum_auth_bp)
     app.teardown_appcontext(close_db)
 
     @app.before_request
@@ -78,6 +111,10 @@ def create_app():
             if user:
                 mark_online(user['id'], user.get('role', 'user'))
         prune_online()
+
+    @app.before_request
+    def track_forum_user():
+        update_online_status()
 
     register_filters(app)
 
@@ -99,10 +136,12 @@ if service_account and firestore:
     fs_client = firestore.Client(credentials=cred)
     foro_ref = fs_client.collection("foro")
     respuestas_ref = fs_client.collection("respuestas")
+    usuarios_ref = fs_client.collection("usuarios")
 else:
     fs_client = None
     foro_ref = None
     respuestas_ref = None
+    usuarios_ref = None
 
 # Ejemplo de guardar una respuesta dentro de un tema
 def guardar_respuesta(id_tema, data_respuesta):
@@ -435,6 +474,20 @@ def responder(post_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/update-forum-avatar', methods=['POST'])
+def update_forum_avatar():
+    """Sincronizar foto de perfil del foro"""
+    if not usuarios_ref:
+        return jsonify({'error': 'Servicio no disponible'}), 503
+    data = request.get_json() or {}
+    user_id = data.get('user_id')
+    profile_pic = data.get('profile_pic')
+    if not user_id or not profile_pic:
+        return jsonify({'error': 'Datos faltantes'}), 400
+    usuarios_ref.document(user_id).update({'profile_pic': profile_pic})
+    return jsonify(success=True)
+
+
 # Funciones helper para el template
 @app.template_filter('truncate_words')
 def truncate_words(text, count=10):
@@ -478,15 +531,25 @@ def safe_get_timestamp(item):
 # Context processor para datos globales del foro
 @app.context_processor
 def forum_context():
-    """Inyectar datos globales del foro en todos los templates"""
+    online_staff = get_online_staff() if usuarios_ref else []
+
+    online_count = 0
+    if usuarios_ref:
+        five_minutes_ago = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
+        online_users = usuarios_ref.where('is_online', '==', True).stream()
+        for doc in online_users:
+            user = doc.to_dict()
+            if user.get('last_seen') and user['last_seen'] > five_minutes_ago:
+                online_count += 1
+
     return {
         'forum_stats': {
-            'total_topics': 342,
-            'total_responses': 1247,
-            'active_members': 89,
-            'online_now': len(ONLINE_USERS)
+            'total_topics': len(list(foro_ref.stream())) if foro_ref else 0,
+            'total_responses': 0,
+            'active_members': len(list(usuarios_ref.stream())) if usuarios_ref else 0,
+            'online_now': online_count
         },
-        'online_staff': [u for u in ONLINE_USERS.values() if u['role'] in ['admin', 'moderator']]
+        'online_staff': online_staff
     }
 
 
