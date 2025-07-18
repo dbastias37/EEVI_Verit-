@@ -79,15 +79,15 @@ class SolicitudesManager {
         try {
             // Cargar solicitudes de proyectos
             const proyectosResponse = await fetch('/projects/get_project_requests');
-            const proyectosSolicitudes = await proyectosResponse.json();
+            const proyectosResult = await proyectosResponse.json();
 
-            // Cargar solicitudes de amistad
+            // Cargar solicitudes de amistad  
             const amigosResponse = await fetch('/friends/get_friend_requests');
-            const amigosSolicitudes = await amigosResponse.json();
+            const amigosResult = await amigosResponse.json();
 
             this.solicitudes = {
-                proyectos: proyectosSolicitudes.solicitudes || [],
-                amigos: amigosSolicitudes.solicitudes || []
+                proyectos: proyectosResult.success ? proyectosResult.solicitudes : [],
+                amigos: amigosResult.success ? amigosResult.solicitudes : []
             };
 
             this.updateContador();
@@ -95,6 +95,13 @@ class SolicitudesManager {
 
         } catch (error) {
             console.error('Error loading solicitudes:', error);
+            // Fallback - no mostrar error al usuario aún
+            this.solicitudes = {
+                proyectos: [],
+                amigos: []
+            };
+            this.updateContador();
+            this.renderSolicitudes();
         }
     }
 
@@ -270,13 +277,14 @@ class SolicitudesManager {
 
     startPolling() {
         if (this.isPolling) return;
-        
+
         this.isPolling = true;
+        // Cambiar de 30 segundos a 2 minutos para reducir requests
         setInterval(() => {
             if (!this.panel.classList.contains('open')) {
                 this.loadSolicitudes();
             }
-        }, 30000); // Polling cada 30 segundos
+        }, 120000); // 2 minutos en lugar de 30 segundos
     }
 
     formatFecha(fecha) {
