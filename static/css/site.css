@@ -7,9 +7,10 @@ header.app-bar{
   z-index:1000;
 }
 .app-bar .logo{
-  font-family:'Inter',sans-serif;font-weight:800;letter-spacing:.04em;
-  font-size:clamp(1.8rem,3vw,4rem);line-height:1;color:#fff;text-decoration:none;
+  font-family:'Poppins',sans-serif;font-weight:800;letter-spacing:.04em;
+  font-size:clamp(1.8rem,3vw,4rem);line-height:60px;color:#fff;text-decoration:none;
   background:none !important;transition:font-size .3s;
+  display:block;min-width:180px;min-height:60px;
 }
 .app-bar .logo:hover{background:none;font-size:clamp(2rem,3.4vw,4.4rem);}
 .forum-link{
@@ -71,3 +72,10 @@ header.app-bar{
   transition:opacity 1.8s ease;
 }
 #quoteRotator.hide{opacity:0;}
+
+@media (max-width: 600px) {
+  .app-bar .logo {
+    min-width: 180px;
+    min-height: 60px;
+  }
+}

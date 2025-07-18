@@ -27,7 +27,7 @@
 
 /* Override base styles for forum */
 .forum-container {
-    font-family: 'Montserrat', 'Roboto', sans-serif !important;
+    font-family: 'Poppins', 'Roboto', sans-serif !important;
     background: var(--bg-primary) !important;
     color: var(--text-primary) !important;
     line-height: 1.6;
