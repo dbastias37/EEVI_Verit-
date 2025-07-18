@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home_brutalista.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/solicitudes.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user_status.css') }}">
   {% block head_admin %}{% endblock %}
   {% block extra_head %}{% endblock %}
 </head>
@@ -28,5 +30,15 @@
   <script src="{{ url_for('static', filename='js/title-rotator.js') }}"></script>
   {% endif %}
   <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/solicitudes_manager.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/user_status.js') }}"></script>
+
+  <script>
+    window.currentUser = {
+        authenticated: {% if session.get('user_id') %}true{% else %}false{% endif %},
+        user_id: "{{ session.get('user_id', '') }}",
+        user_name: "{{ session.get('user_name', '') }}"
+    };
+  </script>
 </body>
 </html>

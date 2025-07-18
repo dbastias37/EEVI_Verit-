@@ -470,3 +470,215 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Profesiones en modal crear proyecto */
+.profesiones-container {
+    margin: 20px 0;
+}
+
+.profesiones-container label {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.profesiones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.profesion-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    transition: all 0.3s ease;
+}
+
+.profesion-selector:hover {
+    background: var(--border-color);
+}
+
+.profesion-selector input[type="checkbox"] {
+    margin: 0;
+}
+
+.profesion-card {
+    flex: 1;
+    margin: 0 !important;
+    padding: 4px 8px;
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profesion-selector input[type="checkbox"]:checked + .profesion-card {
+    background: var(--primary-color);
+    color: #000;
+    font-weight: 600;
+}
+
+.cupos-input {
+    width: 50px;
+    padding: 4px 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    text-align: center;
+    font-size: 12px;
+}
+
+.cupos-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Profesiones en vista de proyecto */
+.proyecto-profesiones {
+    margin: 16px 0;
+}
+
+.profesiones-requeridas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.profesion-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profesion-badge.disponible {
+    border-color: var(--primary-color);
+    background: rgba(0, 212, 184, 0.1);
+}
+
+.profesion-badge.disponible:hover {
+    background: var(--primary-color);
+    color: #000;
+    transform: scale(1.05);
+}
+
+.profesion-badge.completa {
+    background: var(--border-color);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.cupos-info {
+    background: var(--accent-color);
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+/* Selector de moneda */
+.moneda-selector {
+    display: flex;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.moneda-option {
+    flex: 1;
+    padding: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.moneda-option:hover {
+    background: var(--border-color);
+}
+
+.moneda-option.selected {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #000;
+}
+
+.moneda-simbolo {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.moneda-nombre {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Estados de proyecto */
+.proyecto-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.estado-abierto {
+    background: rgba(0, 212, 184, 0.2);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.estado-en-desarrollo {
+    background: rgba(252, 211, 77, 0.2);
+    color: #F59E0B;
+    border: 1px solid #F59E0B;
+}
+
+.estado-finalizado {
+    background: rgba(107, 114, 128, 0.2);
+    color: #6B7280;
+    border: 1px solid #6B7280;
+}
+
+@media (max-width: 768px) {
+    .profesiones-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .profesion-selector {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    
+    .moneda-selector {
+        flex-direction: column;
+    }
+}
