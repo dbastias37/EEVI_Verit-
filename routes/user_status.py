@@ -43,3 +43,33 @@ def get_online_users():
     except Exception as e:
         logging.error(f"Error getting online users: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@status_bp.route('/get_all_users_status', methods=['GET'])
+def get_all_users_status():
+    """Obtener estado de todos los usuarios"""
+    try:
+        users_mock = [
+            {
+                'user_id': '1',
+                'nombre': 'Usuario Demo',
+                'estado': 'online',
+                'ultima_actividad': datetime.now().isoformat(),
+                'proyectos_count': 3,
+                'rating': 4.5
+            },
+            {
+                'user_id': '2',
+                'nombre': 'Creador Pro',
+                'estado': 'ocupado',
+                'ultima_actividad': (datetime.now() - timedelta(minutes=5)).isoformat(),
+                'proyectos_count': 8,
+                'rating': 4.8
+            }
+        ]
+
+        return jsonify({'success': True, 'users': users_mock})
+
+    except Exception as e:
+        logging.error(f"Error getting all users status: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
