@@ -4,6 +4,7 @@ import sqlite3
 import time
 import datetime
 from datetime import datetime as dt, timezone
+from datetime import datetime as dt, timezone, timedelta
 import json
 try:
     from google.oauth2 import service_account
@@ -49,10 +50,12 @@ def mark_online(user_id, role):
         'id': user_id,
         'role': role,
         'last': dt.utcnow()
+        'last': dt.now(timezone.utc)
     }
 
 def prune_online():
     now = dt.utcnow()
+    now = dt.now(timezone.utc)
     for uid, info in list(ONLINE_USERS.items()):
         if (now - info['last']).total_seconds() > 300:
             ONLINE_USERS.pop(uid, None)
@@ -76,6 +79,7 @@ def get_online_staff():
         return []
 
     five_minutes_ago = datetime.utcnow() - timedelta(minutes=5)
+    five_minutes_ago = datetime.datetime.now(datetime.timezone.utc) - timedelta(minutes=5)
     online_staff = []
     staff_query = usuarios_ref.where('role', 'in', ['admin', 'moderator']).where('is_online', '==', True).stream()
 
@@ -101,246 +105,7 @@ def create_app():
     app.register_blueprint(client_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(forum_auth_bp)
-    app.teardown_appcontext(close_db)
-
-    @app.before_request
-    def track_online():
-        user_email = session.get('user')
-        if user_email:
-            user = get_user(user_email)
-            if user:
-                mark_online(user['id'], user.get('role', 'user'))
-        prune_online()
-
-    @app.before_request
-    def track_forum_user():
-        update_online_status()
-
-    register_filters(app)
-
-    with app.app_context():
-        init_db(app)
-        ensure_admin_user()
-
-    return app
-
-app = create_app()
-
-# --- Firebase initialization (local/Render) ---
-if service_account and firestore:
-    credentials_json = os.environ.get("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-    if not credentials_json:
-        raise Exception("No se encontró la variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON")
-    credentials_dict = json.loads(credentials_json)
-    cred = service_account.Credentials.from_service_account_info(credentials_dict)
-    fs_client = firestore.Client(credentials=cred)
-    foro_ref = fs_client.collection("foro")
-    respuestas_ref = fs_client.collection("respuestas")
-    usuarios_ref = fs_client.collection("usuarios")
-else:
-    fs_client = None
-    foro_ref = None
-    respuestas_ref = None
-    usuarios_ref = None
-
-# Ejemplo de guardar una respuesta dentro de un tema
-def guardar_respuesta(id_tema, data_respuesta):
-    """Guarda una respuesta en la subcolección 'respuestas' de un tema específico."""
-    respuestas_ref = foro_ref.document(id_tema).collection("respuestas")
-    respuestas_ref.add(data_respuesta)
-
-
-@app.errorhandler(GoogleAPICallError)
-def handle_firestore_error(e):
-    app.logger.error(f"Firestore RPC failed: {e}")
-    return render_template('503.html'), 503
-
-
-# ---------- Helper functions used by tests and routes ----------
-
-def db_conn():
-    conn = sqlite3.connect(app.config['DB_PATH'], timeout=10, check_same_thread=False)
-    conn.execute('PRAGMA journal_mode=WAL;')
-    conn.execute('PRAGMA synchronous=NORMAL;')
-    return conn
-
-
-def create_user(email, password, username=None, role='user', is_admin=False):
-    code = '123456789'
-    conn = get_db()
-    if role == 'admin':
-        is_admin = True
-    for _ in range(3):
-        try:
-            with conn:
-                conn.execute(
-                    'INSERT INTO users (email, password, is_admin, username, role, verification_code) VALUES (?,?,?,?,?,?)',
-                    (email, password, int(is_admin), username, role, code),
-                )
-            print(f"Código de verificación para {email}: {code}")
-            break
-        except sqlite3.OperationalError as e:
-            if 'database is locked' in str(e):
-                time.sleep(0.1)
-                continue
-            raise
-
-
-def get_user(email):
-    conn = db_conn()
-    cur = conn.cursor()
-    cur.execute('SELECT id, email, profile_pic, verified, is_admin, username, role FROM users WHERE email=?', (email,))
-    row = cur.fetchone()
-    conn.close()
-    if not row:
-        return None
-    return {
-        'id': row[0],
-        'email': row[1],
-        'profile_pic': row[2],
-        'verified': row[3],
-        'is_admin': row[4],
-        'username': row[5],
-        'role': row[6],
-    }
-
-
-def check_password(email, password):
-    conn = db_conn()
-    cur = conn.cursor()
-    cur.execute('SELECT password, verified FROM users WHERE email=?', (email,))
-    row = cur.fetchone()
-    conn.close()
-    return row and row[0] == password and row[1]
-
-
-def save_profile_pic(email, path):
-    conn = db_conn()
-    cur = conn.cursor()
-    cur.execute('UPDATE users SET profile_pic=? WHERE email=?', (path, email))
-    conn.commit()
-    conn.close()
-
-
-
-# Wrappers around services
-
-def _proj_mgr():
-    return ProjectManager(app.config['DB_PATH'])
-
-
-def _cmt_mgr():
-    return CommentManager(app.config['DB_PATH'])
-
-
-def add_project(title, category, url, client_email):
-    _proj_mgr().add_project(title, category, url, client_email)
-
-
-def update_project_video(project_id, url, client_email=None):
-    _proj_mgr().update_project_video(project_id, url, client_email)
-
-
-def activate_payment(project_id):
-    _proj_mgr().activate_payment(project_id)
-
-
-def delete_video(project_id):
-    _proj_mgr().delete_video(project_id)
-
-
-def update_status(project_id, status):
-    _proj_mgr().update_status(project_id, status)
-
-
-def get_projects_for_email(email):
-    return _proj_mgr().get_projects_for_email(email)
-
-
-def get_all_projects():
-    return _proj_mgr().get_all_projects()
-
-
-def add_comment(project_id, user_id, text):
-    _cmt_mgr().add_comment(project_id, user_id, text)
-
-
-def get_comments(project_id):
-    return _cmt_mgr().get_comments(project_id)
-
-
-def get_all_comments():
-    return _cmt_mgr().get_all_comments()
-
-
-# ------------- Forum routes (remain here) -------------
-
-
-
-
-
-@app.route('/forum/<string:topic_id>')
-def view_topic(topic_id):
-    if not fs_client:
-        abort(503)
-    try:
-        doc = fs_client.collection('foro').document(topic_id).get()
-        if not doc.exists:
-            abort(404)
-        tema = mapeo_datos({**doc.to_dict(), 'id': doc.id})
-        return render_template('topic.html', tema=tema)
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore read failed: {e}")
-        raise
-
-
-@app.route('/<page>')
-def render_page(page):
-    try:
-        return render_template(f"{page}.html")
-    except TemplateNotFound:
-        abort(404)
-# Agregar estas rutas al final de app.py, antes de if __name__ == '__main__':
-
-@app.route('/forum/topic/<string:topic_id>/responses')
-def get_topic_responses(topic_id):
-    """Obtener respuestas de un tema específico"""
-    try:
-        if str(topic_id).isdigit():
-            from modules import forum as forum_db
-            rows = forum_db.get_responses_for_topic(int(topic_id))
-            responses = [
-                {
-                    'id': r[0],
-                    'author': r[1],
-                    'content': r[2],
-                    'timestamp': r[3],
-                }
-                for r in rows
-            ]
-            return jsonify(responses)
-
-        responses_ref = fs_client.collection('foro').document(topic_id).collection('responses')
-        responses = []
-        for resp_doc in responses_ref.order_by('created_at').stream():
-            rdata = normalize_response_data({**resp_doc.to_dict(), 'id': resp_doc.id})
-            responses.append(rdata)
-        return jsonify(responses)
-    except Exception as e:
-        app.logger.error(f"Error getting responses: {e}")
-        return jsonify([]), 500
-
-
-@app.route('/forum/topic/<string:topic_id>/delete', methods=['POST'])
-def delete_topic_route(topic_id):
-    """Eliminar un tema del foro"""
-    try:
-        if str(topic_id).isdigit():
-            from modules import forum as forum_db
-            forum_db.delete_topic_by_id(int(topic_id))
-            return jsonify({'success': True})
-
-        fs_client.collection('foro').document(topic_id).delete()
+@@ -344,51 +344,51 @@ def delete_topic_route(topic_id):
         return jsonify({'success': True})
     except Exception as e:
         app.logger.error(f"Error deleting topic: {e}")
@@ -367,6 +132,7 @@ def forum_new():
             'title': titulo,
             'description': contenido,
             'created_at': datetime.datetime.utcnow().isoformat()
+            'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
 
         fs_client.collection('foro').add(nuevo_tema)
@@ -392,50 +158,7 @@ def forum_topic_view(topic_id):
             if not tema:
                 abort(404)
             raw_responses = forum_db.get_responses_for_topic(int(topic_id))
-            responses = [
-                normalize_response_data(
-                    {
-                        "id": r[0],
-                        "author": r[1],
-                        "content": r[2],
-                        "created_at": r[3],
-                    }
-                )
-                for r in raw_responses
-            ]
-            return render_template("forum_topic.html", topic=tema, responses=responses)
-
-        # ID de Firestore (string)
-        doc = fs_client.collection('foro').document(str(topic_id)).get()
-        if not doc.exists:
-            abort(404)
-
-        tema = mapeo_datos({**doc.to_dict(), 'id': doc.id})
-
-        # Obtener respuestas del tema
-        responses_ref = fs_client.collection('foro').document(str(topic_id)).collection('responses')
-        responses = []
-        for resp_doc in responses_ref.order_by('created_at').stream():
-            rdata = normalize_response_data({**resp_doc.to_dict(), 'id': resp_doc.id})
-            responses.append(rdata)
-
-        return render_template('forum_topic.html', topic=tema, responses=responses)
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore read failed: {e}")
-        raise
-
-
-@app.route('/forum/topic/<string:topic_id>/reply', methods=['POST'])
-def forum_reply(topic_id):
-    """Agregar respuesta a un tema"""
-    try:
-        payload = request.form or request.json
-        content = get_content_from_form(payload)
-
-        if str(topic_id).isdigit():
-            from modules import forum as forum_db
-            forum_db.create_response(int(topic_id), payload.get('author', 'Anónimo'), content)
-            return redirect(url_for('forum_topic_view', topic_id=topic_id))
+@@ -439,51 +439,51 @@ def forum_reply(topic_id):
 
         # Agregar respuesta a la subcolección del tema en Firestore
         fs_client.collection('foro').document(str(topic_id)).collection('responses').add({
@@ -462,6 +185,7 @@ def responder(post_id):
         respuesta_data = {
             'content': contenido,
             'created_at': datetime.datetime.utcnow(),
+            'created_at': datetime.datetime.now(datetime.timezone.utc),
             'author': 'Anónimo'
         }
 
@@ -487,29 +211,7 @@ def update_forum_avatar():
     usuarios_ref.document(user_id).update({'profile_pic': profile_pic})
     return jsonify(success=True)
 
-
-# Funciones helper para el template
-@app.template_filter('truncate_words')
-def truncate_words(text, count=10):
-    """Truncar texto a cierto número de palabras"""
-    if not text:
-        return ""
-    words = text.split()
-    if len(words) <= count:
-        return text
-    return ' '.join(words[:count]) + '...'
-
-
-def safe_get_timestamp(item):
-    """Safely extract a datetime object for sorting."""
-    ts = (
-        item.get('created_at')
-        or item.get('timestamp')
-        or item.get('fecha')
-    )
-    if ts is None:
-        return dt.min.replace(tzinfo=timezone.utc)
-    if isinstance(ts, dt):
+@@ -513,51 +513,51 @@ def safe_get_timestamp(item):
         if ts.tzinfo is None:
             return ts.replace(tzinfo=timezone.utc)
         return ts.astimezone(timezone.utc)
@@ -536,6 +238,7 @@ def forum_context():
     online_count = 0
     if usuarios_ref:
         five_minutes_ago = datetime.datetime.utcnow() - datetime.timedelta(minutes=5)
+        five_minutes_ago = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(minutes=5)
         online_users = usuarios_ref.where('is_online', '==', True).stream()
         for doc in online_users:
             user = doc.to_dict()
@@ -561,12 +264,3 @@ def list_forum():
             mapeo_datos({**doc.to_dict(), 'id': doc.id})
             for doc in foro_ref.stream()
         ]
-        temas = sorted(temas, key=safe_get_timestamp, reverse=True)
-
-        # Obtener categorías
-        categories = get_categories()
-
-        return render_template('forum.html', temas=temas, categories=categories)
-    except GoogleAPICallError as e:
-        app.logger.error(f"Firestore query failed: {e}")
-        raise
