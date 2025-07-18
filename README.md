@@ -160,3 +160,18 @@ Configura las credenciales en `.env` o variables de entorno. Sigue las instrucci
 ---
 
 La criatura no duerme. Solo espera al próximo paso.
+
+### Sistema interconectado inicial
+
+Se incorporaron nuevos blueprints que exponen rutas básicas para amistad, chat y estados de usuario. Las rutas principales son:
+
+- `/friends/send_friend_request`
+- `/friends/respond_friend_request`
+- `/friends/get_friends`
+- `/chat/create_chat`
+- `/chat/send_message`
+- `/chat/get_messages/<chat_id>`
+- `/status/update_status`
+- `/status/get_online_users`
+
+Actualiza tus dependencias con `pip install -r requirements.txt` y ejecuta `flask run` para probarlas.
