@@ -12,7 +12,11 @@
     <a href="{{ url_for('client.home') }}">Inicio</a>
     <a href="{{ url_for('client.packs') }}">Packs</a>
     <a href="{{ url_for('client.services_page') }}">Services</a>
+    {% if session.forum_user %}
     <a href="{{ url_for('list_forum') }}">VForum</a>
+    {% else %}
+    <a href="{{ url_for('forum_auth.vforum_auth') }}">Comunidad</a>
+    {% endif %}
     <a href="{{ url_for('client.academy') }}">Academia</a>
     <a href="{{ url_for('client.dashboard') }}">Mis proyectos</a>
   </nav>

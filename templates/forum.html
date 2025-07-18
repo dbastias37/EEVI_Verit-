@@ -29,10 +29,17 @@
             <div class="nav-icon">🏠</div>
             Inicio
         </a>
+        {% if session.forum_user %}
         <a href="#" id="newTopicBtnSidebar" class="nav-item">
             <div class="nav-icon">✏️</div>
             Nuevo Tema
         </a>
+        {% else %}
+        <a href="{{ url_for('forum_auth.vforum_auth') }}" class="nav-item">
+            <div class="nav-icon">🔒</div>
+            Inicia sesión
+        </a>
+        {% endif %}
         <a href="#" class="nav-item">
             <div class="nav-icon">🔥</div>
             Tendencias
@@ -64,10 +71,17 @@
             <div class="hero-content">
                 <h1 class="hero-title">Únete a VFORUM</h1>
                 <p class="hero-subtitle">Conecta con creadores audiovisuales reales. Comparte conocimiento, resuelve problemas y colabora en proyectos únicos.</p>
+                {% if session.forum_user %}
                 <button class="cta-button" id="newTopicBtn">
                     <span>✏️</span>
                     Crear Tema
                 </button>
+                {% else %}
+                <a href="{{ url_for('forum_auth.vforum_auth') }}" class="cta-button">
+                    <span>🔒</span>
+                    Inicia sesión para crear temas
+                </a>
+                {% endif %}
             </div>
         </section>
 
@@ -253,6 +267,13 @@
             </div>
         </div>
     </aside>
+    {% if session.forum_user %}
+    <div class="user-status" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); padding: 1rem; border-radius: 12px;">
+        <img src="{{ session.forum_user.profile_pic }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+        <span>{{ session.forum_user.username }}</span>
+        <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
 

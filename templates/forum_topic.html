@@ -23,7 +23,11 @@
     <aside class="sidebar-left">
         <div class="sidebar-title">Navegación</div>
         <a href="{{ url_for('list_forum') }}" class="nav-item"><div class="nav-icon">🏠</div>Inicio</a>
+        {% if session.forum_user %}
         <a href="#" id="newTopicBtnSidebar" class="nav-item"><div class="nav-icon">✏️</div>Nuevo Tema</a>
+        {% else %}
+        <a href="{{ url_for('forum_auth.vforum_auth') }}" class="nav-item"><div class="nav-icon">🔒</div>Inicia sesión</a>
+        {% endif %}
         <a href="#" class="nav-item"><div class="nav-icon">🔥</div>Tendencias</a>
         <a href="#" class="nav-item"><div class="nav-icon">⭐</div>Favoritos</a>
         <a href="#" class="nav-item"><div class="nav-icon">👥</div>Miembros</a>
@@ -61,10 +65,11 @@
         </div>
 
         <div class="reply-form">
+            {% if session.forum_user %}
             <form action="{{ url_for('forum_reply', topic_id=topic.id) }}" method="post">
                 <div class="form-group">
                     <label class="form-label" for="author">Tu nombre</label>
-                    <input type="text" id="author" name="author" class="form-input" required>
+                    <input type="text" id="author" name="author" class="form-input" required value="{{ session.forum_user.username }}">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="content">Respuesta</label>
@@ -74,6 +79,9 @@
                     <button type="submit" class="cta-button">Responder</button>
                 </div>
             </form>
+            {% else %}
+            <a href="{{ url_for('forum_auth.vforum_auth') }}" class="cta-button">Inicia sesión para responder</a>
+            {% endif %}
         </div>
     </main>
 
@@ -105,6 +113,13 @@
             </div>
         </div>
     </aside>
+    {% if session.forum_user %}
+    <div class="user-status" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); padding: 1rem; border-radius: 12px;">
+        <img src="{{ session.forum_user.profile_pic }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+        <span>{{ session.forum_user.username }}</span>
+        <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
+    </div>
+    {% endif %}
 </div>
 {% else %}
 <div class="alert alert-warning">
