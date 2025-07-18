@@ -1,25 +1,71 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&family=Montserrat:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
 @import url("https://fonts.googleapis.com/css2?family=Fira+Code&display=swap");
 
 :root {
-  --accent-color: #00D4B8;
+  --primary-color: #1a5f7a;
+  --secondary-color: #2c88aa;
+  --accent-color: #f8b195;
+  --accent-alt: #355c7d;
+  --background-light: #f5f7f9;
+  --background-white: #ffffff;
+  --text-primary: #2d3748;
+  --text-secondary: #4a5568;
+  --border-color: #e2e8f0;
+  --border-radius: 8px;
+  --transition-speed: 0.3s;
+  --box-shadow: 0 1px 3px rgba(0,0,0,0.12);
   --gradient-silver: linear-gradient(45deg, #ccc, #eee);
   --border-silver: #2A3441;
   --bg-dark: #0A0F1C;
   --text-light: #E9E9E9;
+  /* Legacy variable aliases */
+  --primary: var(--primary-color);
+  --secondary: var(--secondary-color);
+  --accent: var(--accent-color);
+  --bg-1: var(--background-light);
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-dark);
-  color: var(--text-light);
+  background-color: var(--background-light);
+  color: var(--text-primary);
   margin: 0;
   padding-top: 120px;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Utility classes */
+.btn {
+  background: var(--primary-color);
+  color: var(--background-white);
+  border-radius: var(--border-radius);
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  transition: background var(--transition-speed);
+  text-decoration: none;
+  display: inline-block;
+}
+.btn:hover {
+  background: #154a60;
+}
+
+.card {
+  background: var(--background-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 1rem;
+}
+
+.input {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  height: 42px;
+  padding: 0 0.75rem;
 }
 
 .header {
@@ -37,7 +83,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .logo {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 900;
   font-size: 3.5rem;
   max-width: 100%;
@@ -353,7 +399,7 @@ a:hover, button:hover {
   position: relative;
 }
 .hero-container h1 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 900;
   font-size: clamp(4rem, 8vw, 6rem);
   margin: 0;
@@ -367,7 +413,7 @@ a:hover, button:hover {
 }
 
 .section-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 900;
   font-size: clamp(2.5rem,5vw,5rem);
   text-align: center;
@@ -640,7 +686,7 @@ body.forum-new {
 }
 
 .vforum-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 4rem;
   font-weight: 900;
   text-align: center;
@@ -743,7 +789,7 @@ body.forum-new {
   color: #000;
 }
 .topic-title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
 }
@@ -854,7 +900,7 @@ body.forum-new {
   border-radius: 8px;
   padding: 0.75rem 1rem;
   color: #fff;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 1rem;
   transition: border-color 0.3s ease;
 }
