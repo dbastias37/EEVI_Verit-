@@ -12,6 +12,7 @@ from routes.client import client_bp
 from routes.auth import auth_bp
 from routes.projects import projects_bp
 from routes.messages import messages_bp
+from routes.forum_auth import forum_auth_bp
 
 # NUEVOS - Solo si los creaste
 try:
@@ -62,6 +63,7 @@ app.register_blueprint(client_bp)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(projects_bp, url_prefix='/projects')
 app.register_blueprint(messages_bp, url_prefix='/messages')
+app.register_blueprint(forum_auth_bp, url_prefix='/forum')
 
 # Registrar nuevos blueprints solo si existen
 if FRIENDS_AVAILABLE:

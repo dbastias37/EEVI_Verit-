@@ -293,7 +293,7 @@ async function handleRegister(event) {
     const formData = new FormData(event.target);
     
     try {
-        const response = await fetch('/vforum/register', {
+        const response = await fetch('/forum/register', {
             method: 'POST',
             body: formData
         });
@@ -316,7 +316,7 @@ async function handleLogin(event) {
     const formData = new FormData(event.target);
     
     try {
-        const response = await fetch('/vforum/login', {
+        const response = await fetch('/forum/login', {
             method: 'POST',
             body: formData
         });

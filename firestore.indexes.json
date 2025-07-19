@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "mensajes_chat",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "chat_id", "order": "ASCENDING"},
+        {"fieldPath": "fecha", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "solicitudes_proyecto",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "proyecto_id", "order": "ASCENDING"},
+        {"fieldPath": "estado", "order": "ASCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
