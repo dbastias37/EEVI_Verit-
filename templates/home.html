@@ -1,212 +1,92 @@
 {% extends 'base.html' %}
-{% block title %}VERITÉ - Contenido Audiovisual Real{% endblock %}
+{% block title %}VERITÉ - Home{% endblock %}
 
 {% block extra_head %}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home_enhanced.css') }}">
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero" id="inicio">
-   <div class="hero-content">
-       <div class="hero-badge">🎵 Contenido Real Certificado</div>
-      <h1 class="hero-title">
-          <span id="wordPrimary" class="rotator fade primary">SONIDO</span> REAL<br>
-          PARA PROYECTOS <span id="wordSecondary" class="rotator fade secondary">AUTÉNTICOS</span>
-      </h1>
-        <p class="hero-subtitle">La única plataforma que garantiza grabaciones 100% reales</p>
-        <p class="hero-description">
-            Cada sonido, imagen y grabación que ofrecemos ha sido capturado en el mundo real, sin IA, sin bibliotecas genéricas.
-            Solo contenido auténtico para proyectos que buscan impactar con lo real.
-        </p>
-       <div class="hero-cta">
-           <a href="{{ url_for('client.packs') }}" class="btn btn-primary">
-               🎧 Explorar Packs
-           </a>
-           <a href="{{ url_for('list_forum') }}" class="btn btn-secondary">
-               💬 Comunidad
-           </a>
-       </div>
-   </div>
-   <div class="bg-pattern"></div>
+<section class="hero-enhanced" id="inicio">
+    <div class="ripple"></div>
+    <h1>Contenido Real Certificado</h1>
+    <p>La única plataforma que garantiza grabaciones reales para tus proyectos.</p>
+    <div class="btn-group">
+        <a class="btn" href="{{ url_for('client.packs') }}">Explorar Packs</a>
+        <a class="btn" href="javascript:void(0)" onclick="handleCommunityClick()">Comunidad</a>
+    </div>
 </section>
 
-<!-- Previews Section -->
-<section class="section reveal">
-   <div class="section-container">
-       <div class="section-header">
-           <div class="section-badge">🎧 Previews</div>
-           <h2 class="section-title">Escucha un adelanto</h2>
-       </div>
-       {% for p in previews %}
-       <h3>{{ p.name }}</h3>
-       <div id="wave-{{ loop.index }}"></div>
-       <button onclick="players['{{ loop.index }}'].playPause()">Play/Pause</button>
-       {% endfor %}
-   </div>
+<section class="features-enhanced" id="features">
+    <div class="grid">
+        <div class="card" data-aos="fade-up">
+            <div class="icon">🎤</div>
+            <h3>Grabación Real</h3>
+            <p>Material auténtico capturado en terreno, sin IA.</p>
+        </div>
+        <div class="card" data-aos="fade-up" data-aos-delay="100">
+            <div class="icon">⚡</div>
+            <h3>Entrega Inmediata</h3>
+            <p>Descarga instantánea al realizar tu compra.</p>
+        </div>
+        <div class="card" data-aos="fade-up" data-aos-delay="200">
+            <div class="icon">🤝</div>
+            <h3>Comunidad Activa</h3>
+            <p>Comparte y colabora con creadores reales.</p>
+        </div>
+        <div class="card" data-aos="fade-up" data-aos-delay="300">
+            <div class="icon">🎯</div>
+            <h3>Licencia Total</h3>
+            <p>Usa nuestro contenido sin restricciones.</p>
+        </div>
+        <div class="card" data-aos="fade-up" data-aos-delay="400">
+            <div class="icon">🌱</div>
+            <h3>Proyectos Reales</h3>
+            <p>Inspírate con casos de éxito verificables.</p>
+        </div>
+        <div class="card" data-aos="fade-up" data-aos-delay="500">
+            <div class="icon">💡</div>
+            <h3>Soporte Experto</h3>
+            <p>Asesoría personalizada para tu producción.</p>
+        </div>
+    </div>
 </section>
 
-<!-- Stats Section -->
-<section class="section reveal">
-   <div class="section-container">
-       <div class="stats-container">
-           <div class="stat-item">
-               <span class="stat-number">{{ stats.total_sounds }}+</span>
-               <span class="stat-label">Sonidos Grabados</span>
-           </div>
-           <div class="stat-item">
-               <span class="stat-number">{{ stats.projects_completed }}+</span>
-               <span class="stat-label">Proyectos Reales</span>
-           </div>
-           <div class="stat-item">
-               <span class="stat-number">{{ stats.satisfaction }}%</span>
-               <span class="stat-label">Satisfacción</span>
-           </div>
-           <div class="stat-item">
-               <span class="stat-number">{{ stats.avg_delivery }}</span>
-               <span class="stat-label">Entrega Max</span>
-           </div>
-       </div>
-   </div>
+<section class="stats-enhanced" id="stats">
+    <h2 data-aos="fade-up">Nuestra Trayectoria</h2>
+    <div class="stats-grid">
+        <div data-aos="flip-left">
+            <div class="number">{{ stats.total_sounds }}+</div>
+            <p>Sonidos Grabados</p>
+        </div>
+        <div data-aos="flip-left" data-aos-delay="100">
+            <div class="number">{{ stats.projects_completed }}+</div>
+            <p>Proyectos Reales</p>
+        </div>
+        <div data-aos="flip-left" data-aos-delay="200">
+            <div class="number">{{ stats.satisfaction }}%</div>
+            <p>Satisfacción</p>
+        </div>
+        <div data-aos="flip-left" data-aos-delay="300">
+            <div class="number">{{ stats.avg_delivery }}</div>
+            <p>Entrega Max</p>
+        </div>
+    </div>
 </section>
 
-<!-- Features Section -->
-<section class="section section-dark reveal">
-   <div class="section-container">
-       <div class="section-header">
-           <div class="section-badge">✨ Soluciones</div>
-           <h2 class="section-title">
-               Soluciones digitales<br>
-               personalizadas para<br>
-               <em style="color: var(--primary);">tu</em> crecimiento audiovisual
-           </h2>
-           <p class="section-subtitle">
-               Porque cada proyecto merece sonido auténtico que conecte con las emociones reales de tu audiencia
-           </p>
-       </div>
-       
-       <div class="features-grid">
-           <div class="feature-card">
-               <span class="feature-icon">🎤</span>
-               <h3 class="feature-title">Grabación Real</h3>
-               <p class="feature-description">
-                   Cada archivo proviene de sesiones reales en terreno. Sin IA, sin bibliotecas genéricas. 
-                   Solo audio capturado con técnica profesional.
-               </p>
-           </div>
-           <div class="feature-card">
-               <span class="feature-icon">⚡</span>
-               <h3 class="feature-title">Entrega Inmediata</h3>
-               <p class="feature-description">
-                   Sistema automatizado que respeta tu tiempo. Acceso instantáneo tras la compra, 
-                   sin esperas ni complicaciones.
-               </p>
-           </div>
-           <div class="feature-card">
-               <span class="feature-icon">🤝</span>
-               <h3 class="feature-title">Comunidad Activa</h3>
-               <p class="feature-description">
-                   Conecta con creadores reales en VForum. Comparte desafíos, encuentra soluciones 
-                   y colabora en proyectos auténticos.
-               </p>
-           </div>
-           <div class="feature-card">
-               <span class="feature-icon">🎯</span>
-               <h3 class="feature-title">Licencia Total</h3>
-               <p class="feature-description">
-                   Usa nuestro contenido sin restricciones. Licencia clara y transparente 
-                   para proyectos comerciales y personales.
-               </p>
-           </div>
-       </div>
-   </div>
-</section>
-
-<!-- Products Section -->
-<section class="section reveal" id="productos">
-   <div class="section-container">
-       <div class="section-header">
-           <div class="section-badge">🎵 Productos</div>
-           <h2 class="section-title">Packs de Audio Real</h2>
-           <p class="section-subtitle">Contenido auténtico para cada tipo de proyecto audiovisual</p>
-       </div>
-
-       <div class="products-grid">
-           {% for pack in packs %}
-           <div class="product-card">
-               <div class="product-image">
-                   {% if 'naturaleza' in pack.name.lower() %}🌲
-                   {% elif 'ciudad' in pack.name.lower() %}🏙️
-                   {% elif 'lluvia' in pack.name.lower() %}🌧️
-                   {% else %}🎵{% endif %}
-               </div>
-               <div class="product-content">
-                   <h3 class="product-title">{{ pack.name }}</h3>
-                   <p class="product-description">{{ pack.description }}</p>
-                   <div class="product-price">{{ pack.price }}</div>
-                   <a href="{{ url_for('client.pack_detail', id=pack.id) }}" class="product-cta">Comprar Ahora</a>
-               </div>
-           </div>
-           {% endfor %}
-       </div>
-   </div>
-</section>
-
-<!-- Latest Topic from VForum -->
-{% if latest %}
-<section class="section section-dark reveal">
-   <div class="section-container">
-       <div class="section-header">
-           <div class="section-badge">💬 VForum</div>
-           <h2 class="section-title">Último Tema de la Comunidad</h2>
-       </div>
-       
-       <div class="latest-topic-card">
-           <h3><a href="{{ url_for('forum_topic_view', topic_id=latest.id) }}">{{ latest.title or latest.titulo }}</a></h3>
-           <p class="topic-category">{{ latest.category or latest.categoria }}</p>
-           {% set desc = latest.description or latest.contenido %}
-           <p>{{ desc[:300] }}{% if desc and desc|length > 300 %}...{% endif %}</p>
-           <a href="{{ url_for('forum_topic_view', topic_id=latest.id) }}" class="btn btn-secondary">Leer más →</a>
-       </div>
-   </div>
-</section>
-{% endif %}
-
-<!-- CTA Section -->
-{# NUEVO bloque comunidad #}
-<section id="join" class="join-section">
-    <span class="badge-fire">🔥 Únete Ahora a VFORUM</span>
-
-    <h2 class="join-title">
-        <span>ÚNETE A NUESTRA COMUNIDAD DEDICADA PARA</span>
-        <span id="dynamic-word" class="alt-font">CREADORES DE CONTENIDO</span>
-    </h2>
-
-    <p class="join-copy">
-        Comparte recursos, recibe feedback y colabora con creativos que
-        buscan audio, imagen y soluciones reales.
-    </p>
-
-    <div class="join-cta">
-        <a href="{{ url_for('list_forum') }}" class="btn btn-primary">Entrar al Foro</a>
+<section class="cta-enhanced" id="cta">
+    <h2 class="cta-title" data-aos="zoom-in">Únete a nuestra comunidad</h2>
+    <p data-aos="zoom-in" data-aos-delay="100">Comparte recursos y colabora en proyectos auténticos.</p>
+    <div class="cta-actions">
+        <a class="btn" href="{{ url_for('client.packs') }}">Explorar</a>
+        <a class="btn" href="javascript:void(0)" onclick="handleCommunityClick()">Entrar al Foro</a>
     </div>
 </section>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script src="{{ url_for('static', filename='js/home_brutalista.js') }}"></script>
-<script src="{{ url_for('static', filename='js/rotate_words.js') }}" defer></script>
-<script>
-  window.players = {};
-  {% for p in previews %}
-  players['{{ loop.index }}'] = WaveSurfer.create({
-    container: '#wave-{{ loop.index }}',
-    waveColor: '#999',
-    progressColor: '#333',
-    height: 80
-  });
-  players['{{ loop.index }}'].load('{{ p.url }}');
-  {% endfor %}
-</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script src="{{ url_for('static', filename='js/home_enhanced.js') }}"></script>
 {% endblock %}

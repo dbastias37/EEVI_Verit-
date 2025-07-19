@@ -1,0 +1,108 @@
+/* Enhanced home styles */
+.hero-enhanced {
+    position: relative;
+    background: linear-gradient(135deg, #042940, #005C53);
+    color: #fff;
+    padding: 6rem 1rem;
+    text-align: center;
+    overflow: hidden;
+}
+.hero-enhanced h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 900;
+    margin-bottom: 1rem;
+}
+.hero-enhanced p {
+    max-width: 40rem;
+    margin: 0 auto 2rem;
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+.hero-enhanced .btn-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.features-enhanced {
+    background: #f8f9fa;
+    padding: 4rem 1rem;
+    color: #042940;
+}
+.features-enhanced .grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-top: 2rem;
+}
+.features-enhanced .card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+.features-enhanced .icon {
+    font-size: 2rem;
+    margin-bottom: .5rem;
+}
+
+.stats-enhanced {
+    background: #005C53;
+    color: #fff;
+    padding: 4rem 1rem;
+    text-align: center;
+}
+.stats-enhanced .stats-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin-top: 2rem;
+}
+.stats-enhanced .number {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.cta-enhanced {
+    padding: 6rem 1rem;
+    text-align: center;
+    background: linear-gradient(135deg, #042940, #005C53);
+    color: #fff;
+}
+.cta-enhanced .cta-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+.cta-enhanced .cta-actions {
+    margin-top: 2rem;
+}
+.cta-enhanced .btn {
+    display: inline-block;
+    margin: 0 .5rem;
+    padding: .75rem 1.5rem;
+    background: #9FC131;
+    color: #042940;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Ripple effect */
+.hero-enhanced .ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20rem;
+    height: 20rem;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: ripple 6s infinite;
+}
+@keyframes ripple {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
