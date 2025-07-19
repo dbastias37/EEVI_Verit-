@@ -136,3 +136,11 @@ def vforum_logout():
     session.pop('user', None)
 
     return redirect(url_for('client.home'))
+
+
+# Alias legacy para mantener compatibilidad con templates antiguos
+@forum_auth_bp.route('/list', endpoint='list_forum')
+def list_forum():
+    """Redirige al inicio del foro."""
+    from flask import redirect, url_for
+    return redirect(url_for('forum_auth.vforum_auth'))
