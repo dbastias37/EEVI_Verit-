@@ -9,7 +9,7 @@ friends_bp = Blueprint('friends', __name__)
 def send_friend_request():
     """Enviar solicitud de amistad"""
     try:
-        if 'user_id' not in session:
+        if not session.get('forum_user'):
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
             
         data = request.get_json()
@@ -18,7 +18,15 @@ def send_friend_request():
         if not receptor_id:
             return jsonify({'success': False, 'error': 'Receptor requerido'}), 400
             
-        # Por ahora solo confirmar
+        user = session['forum_user']
+        solicitud = {
+            'emisor_id': user['id'],
+            'emisor_nombre': user['username'],
+            'receptor_id': receptor_id,
+            'estado': 'pendiente',
+            'created_at': datetime.utcnow()
+        }
+        fs_client.collection('solicitudes_amistad').add(solicitud)
         return jsonify({'success': True, 'message': 'Solicitud enviada correctamente'})
         
     except Exception as e:
@@ -29,10 +37,40 @@ def send_friend_request():
 def respond_friend_request():
     """Aceptar/rechazar solicitud de amistad"""
     try:
-        if 'user_id' not in session:
+        if not session.get('forum_user'):
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
-        
-        # Por ahora solo confirmar
+
+        data = request.get_json()
+        solicitud_id = data.get('solicitud_id')
+        accion = data.get('accion')
+        if not solicitud_id or not accion:
+            return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
+
+        solicitud_ref = fs_client.collection('solicitudes_amistad').document(solicitud_id)
+        doc = solicitud_ref.get()
+        if not doc.exists:
+            return jsonify({'success': False, 'error': 'Solicitud no encontrada'}), 404
+        solicitud = doc.to_dict()
+        if solicitud['receptor_id'] != session['forum_user']['id']:
+            return jsonify({'success': False, 'error': 'No autorizado'}), 403
+
+        estado = 'aceptado' if accion == 'aceptar' else 'rechazado'
+        solicitud_ref.update({'estado': estado})
+
+        fs_client.collection('notificaciones').add({
+            'user_id': solicitud['emisor_id'],
+            'mensaje': f"{session['forum_user']['username']} { 'aceptó' if accion == 'aceptar' else 'rechazó' } tu solicitud de amistad",
+            'leido': False,
+            'created_at': datetime.utcnow()
+        })
+
+        if accion == 'aceptar':
+            fs_client.collection('chats').add({
+                'user_ids': [solicitud['emisor_id'], solicitud['receptor_id']],
+                'name': 'Chat privado',
+                'created_at': datetime.utcnow()
+            })
+
         return jsonify({'success': True, 'message': 'Solicitud procesada'})
         
     except Exception as e:

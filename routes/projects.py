@@ -116,6 +116,14 @@ def join_project(project_id):
             'created_at': firestore.SERVER_TIMESTAMP
         }
         fs_client.collection('mensajes_proyecto').add(mensaje_data)
+        fs_client.collection('solicitudes_proyecto').add({
+            'proyecto_id': project_id,
+            'proyecto_titulo': proyecto_data['titulo'],
+            'solicitante_id': user['id'],
+            'solicitante_nombre': user['username'],
+            'estado': 'pendiente',
+            'created_at': firestore.SERVER_TIMESTAMP
+        })
         return jsonify({'success': True})
     except Exception as e:
         print(f"Error joining project: {e}")
@@ -201,18 +209,66 @@ def get_project_requests():
 def respond_project_request():
     """Responder a solicitud de proyecto"""
     try:
-        if 'user_id' not in session:
+        if not session.get('forum_user'):
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
 
         data = request.get_json()
         solicitud_id = data.get('solicitud_id')
         accion = data.get('accion')  # 'aceptar' o 'rechazar'
 
-        if not solicitud_id or not accion:
+        if not solicitud_id or accion not in ['aceptar', 'rechazar']:
             return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
 
-        # TODO: Implementar lógica real
-        return jsonify({'success': True, 'message': f'Solicitud {accion}ada correctamente'})
+        solicitud_ref = fs_client.collection('solicitudes_proyecto').document(solicitud_id)
+        doc = solicitud_ref.get()
+        if not doc.exists:
+            return jsonify({'success': False, 'error': 'Solicitud no encontrada'}), 404
+        solicitud = doc.to_dict()
+
+        proyecto_ref = fs_client.collection('proyectos').document(solicitud['proyecto_id'])
+        proyecto_doc = proyecto_ref.get()
+        if not proyecto_doc.exists:
+            return jsonify({'success': False, 'error': 'Proyecto no encontrado'}), 404
+        proyecto = proyecto_doc.to_dict()
+        if proyecto['autor_id'] != session['forum_user']['id']:
+            return jsonify({'success': False, 'error': 'No autorizado'}), 403
+
+        if accion == 'aceptar':
+            proyecto_ref.collection('miembros').add({
+                'user_id': solicitud['solicitante_id'],
+                'nombre': solicitud.get('solicitante_nombre'),
+                'rol': 'Colaborador',
+                'joined_at': firestore.SERVER_TIMESTAMP
+            })
+            solicitud_ref.update({'estado': 'aceptado'})
+            fs_client.collection('notificaciones').add({
+                'user_id': solicitud['solicitante_id'],
+                'mensaje': f"Fuiste aceptado en el proyecto '{proyecto['titulo']}'",
+                'leido': False,
+                'created_at': firestore.SERVER_TIMESTAMP
+            })
+            chat = fs_client.collection('chats').add({
+                'user_ids': [solicitud['solicitante_id'], proyecto['autor_id']],
+                'name': proyecto['titulo'],
+                'proyecto_id': solicitud['proyecto_id'],
+                'created_at': firestore.SERVER_TIMESTAMP
+            })
+            fs_client.collection('mensajes_chat').add({
+                'chat_id': chat[1].id,
+                'user_id': session['forum_user']['id'],
+                'username': session['forum_user']['username'],
+                'texto': f"{solicitud['solicitante_nombre']} se unió al proyecto.",
+                'fecha': firestore.SERVER_TIMESTAMP
+            })
+        else:
+            solicitud_ref.update({'estado': 'rechazado'})
+            fs_client.collection('notificaciones').add({
+                'user_id': solicitud['solicitante_id'],
+                'mensaje': f"Tu solicitud al proyecto '{proyecto['titulo']}' fue rechazada",
+                'leido': False,
+                'created_at': firestore.SERVER_TIMESTAMP
+            })
+        return jsonify({'success': True})
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

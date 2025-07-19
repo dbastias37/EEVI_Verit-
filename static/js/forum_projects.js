@@ -418,7 +418,7 @@ class ProjectsManager {
 
     async joinProject(projectId) {
         if (!sessionForumUserId) {
-            window.location.href = '/vforum/auth';
+            window.location.href = '/forum';
             return;
         }
 

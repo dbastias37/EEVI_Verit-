@@ -5,7 +5,7 @@ from google.cloud import firestore
 from datetime import datetime, timedelta
 import re
 
-forum_auth_bp = Blueprint('forum_auth', __name__)
+forum_auth_bp = Blueprint('forum_auth', __name__, template_folder='templates')
 
 # Frases rotativas para usuarios existentes
 LOGIN_PHRASES = [
@@ -18,7 +18,7 @@ LOGIN_PHRASES = [
     "Ingresar a mi cuenta"
 ]
 
-@forum_auth_bp.route('/vforum/auth')
+@forum_auth_bp.route('/')
 def vforum_auth():
     """Vista unificada de registro/login"""
     if session.get('forum_user'):
@@ -36,7 +36,7 @@ def vforum_auth():
                          professions=professions,
                          login_phrases=LOGIN_PHRASES)
 
-@forum_auth_bp.route('/vforum/register', methods=['POST'])
+@forum_auth_bp.route('/register', methods=['POST'])
 def vforum_register():
     """Registro de nuevo usuario en Firebase"""
     from app import usuarios_ref
@@ -77,7 +77,7 @@ def vforum_register():
 
     return jsonify({'success': True, 'redirect': url_for('list_forum')})
 
-@forum_auth_bp.route('/vforum/login', methods=['POST'])
+@forum_auth_bp.route('/login', methods=['POST'])
 def vforum_login():
     """Login de usuario existente"""
     from app import usuarios_ref
@@ -124,7 +124,7 @@ def vforum_login():
 
     return jsonify({'success': True, 'redirect': url_for('list_forum')})
 
-@forum_auth_bp.route('/vforum/logout')
+@forum_auth_bp.route('/logout')
 def vforum_logout():
     """Cerrar sesión"""
     if 'forum_user' in session:

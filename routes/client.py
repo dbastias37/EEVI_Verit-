@@ -54,8 +54,10 @@ def packs():
     return render_template('packs.html', packs=packs)
 
 
-@client_bp.route('/', methods=['GET'])
+@client_bp.route('/', methods=['GET', 'HEAD'])
 def home():
+    if request.method == 'HEAD':
+        return '', 200
     from google.cloud import firestore
     from utils.drive_previews import fetch_previews
     from utils.forum_utils import mapeo_datos
