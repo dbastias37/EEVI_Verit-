@@ -182,7 +182,7 @@
 
         <!-- Formulario de Registro -->
         <div id="registerForm" class="form-container">
-            <form onsubmit="handleRegister(event)">
+            <form id="register-form">
                 <div class="form-group">
                     <input type="text" name="username" class="form-input" 
                            placeholder="Nombre de usuario" required>
@@ -287,28 +287,6 @@ function toggleForms() {
     }
 }
 
-// Manejo de registro
-async function handleRegister(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    
-    try {
-        const response = await fetch('/forum/register', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            window.location.href = data.redirect;
-        } else {
-            alert(data.error || 'Error al registrar');
-        }
-    } catch (error) {
-        alert('Error de conexión');
-    }
-}
 
 // Manejo de login
 async function handleLogin(event) {
@@ -333,4 +311,9 @@ async function handleLogin(event) {
     }
 }
 </script>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/vforum_register.js') }}"></script>
 {% endblock %}

@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils.user_auth import create_user, get_user, check_password as check_local_password
 from google.cloud import firestore
+from services.fs_client import fs_client
 from datetime import datetime, timedelta
 import re
 
@@ -36,46 +37,39 @@ def vforum_auth():
                          professions=professions,
                          login_phrases=LOGIN_PHRASES)
 
-@forum_auth_bp.route('/register', methods=['POST'])
-def vforum_register():
-    """Registro de nuevo usuario en Firebase"""
-    from app import usuarios_ref
+@forum_auth_bp.route('/register', methods=['POST'], endpoint='register_user')
+def register_user():
+    """Registro básico para VFORUM."""
+    data = request.get_json() or {}
+    username = data.get('username', '').strip()
+    email = data.get('email', '').lower().strip()
+    password = data.get('password', '')
 
-    email = request.form.get('email')
-    password = request.form.get('password')
-    username = request.form.get('username')
+    if not all([username, email, password]):
+        return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
 
-    if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email):
-        return jsonify({'error': 'Email inválido'}), 400
+    if not fs_client:
+        return jsonify({'success': False, 'error': 'Servicio no disponible'}), 503
 
-    existing = usuarios_ref.where('email', '==', email).get()
-    if list(existing) or get_user(email):
-        return jsonify({'error': 'Email ya registrado'}), 400
+    existing = fs_client.collection('users').where('email', '==', email).limit(1).stream()
+    if list(existing):
+        return jsonify({'success': False, 'error': 'Email ya registrado'}), 400
 
-    user_data = {
-        'email': email,
+    user_doc = fs_client.collection('users').add({
         'username': username,
+        'email': email,
         'password_hash': generate_password_hash(password),
-        'profile_pic': '/static/img/avatar.png',
-        'created_at': firestore.SERVER_TIMESTAMP,
-        'last_seen': firestore.SERVER_TIMESTAMP,
-        'is_online': True,
-        'role': 'user'
-    }
+        'created_at': firestore.SERVER_TIMESTAMP
+    })
 
-    doc_ref = usuarios_ref.add(user_data) if usuarios_ref else (None, type('x',(object,),{'id':None}))
-    create_user(email, password, username=username)
-
-    local_user = get_user(email)
     session['forum_user'] = {
-        'id': doc_ref[1].id if doc_ref else local_user['id'],
-        'email': email,
+        'id': user_doc[1].id,
         'username': username,
-        'role': 'user'
+        'email': email,
+        'authenticated': True
     }
-    session['user'] = email
 
-    return jsonify({'success': True, 'redirect': url_for('list_forum')})
+    return jsonify({'success': True})
 
 @forum_auth_bp.route('/login', methods=['POST'])
 def vforum_login():
