@@ -310,17 +310,25 @@ class ProjectsManager {
     }
 
     async submitProject(event) {
-        const formData = new FormData(event.target);
-        formData.set('tags', JSON.stringify(this.tags));
+        const payload = {
+            titulo:       event.target.titulo.value,
+            categoria:    event.target.categoria.value,
+            presupuesto:  event.target.presupuesto.value,
+            descripcion:  event.target.descripcion.value,
+            duracion:     event.target.duracion_estimada.value,
+            roles:        event.target.roles_necesarios.value.split(',').map(r => r.trim()).filter(Boolean),
+            tags:         this.tags || []
+        };
 
         try {
-            const response = await fetch('/api/projects/create', {
+            const response = await fetch('/projects/create', {
                 method: 'POST',
-                body: formData
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.closeProjectModal();
                 this.loadProjects();
