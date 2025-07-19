@@ -221,15 +221,132 @@ body {
 }
 
 /* —— JOIN SECTION —— */
-.join-section   { text-align:center; padding: 6rem 1rem; }
-.join-title     { font-size:clamp(1.5rem,4vw,2.8rem); font-weight:800; color:#fff; }
-.join-copy      { max-width:42rem; margin:1rem auto 3rem; color:#cbd5e0; }
+/* Fixed container for dynamic text to prevent layout shifts */
+.join-section {
+    text-align: center;
+    padding: 6rem 1rem;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
 
+.join-title {
+    font-size: clamp(1.5rem, 4vw, 2.8rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    /* Critical: Fixed container to prevent layout shifts */
+    min-height: 140px; /* Adjust based on your largest text */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.join-copy {
+    max-width: 42rem;
+    margin: 1rem auto 3rem;
+    color: #cbd5e0;
+    line-height: 1.6;
+}
+
+/* Dynamic word container with fixed dimensions */
 .alt-font       { font-family:"Bebas Neue", "Inter", sans-serif; }
-#dynamic-word   { font-size:clamp(3rem,8vw,5.6rem); display:block; }
+#dynamic-word {
+    font-family: "Bebas Neue", "Inter", sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem); /* Reduced max size for mobile */
+    display: block;
+    /* Critical fixes for mobile stability */
+    width: 100%;
+    max-width: 90vw; /* Prevent overflow */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    /* Fixed minimum height to prevent vertical shifts */
+    min-height: 1.2em;
+    line-height: 1.2;
+    /* Center the text */
+    text-align: center;
+    /* Prevent text from affecting container size */
+    position: relative;
+}
+
+/* Enhanced responsive breakpoints */
+@media (max-width: 768px) {
+    .join-section {
+        padding: 4rem 0.5rem;
+    }
+
+    .join-title {
+        font-size: clamp(1.2rem, 5vw, 2rem);
+        min-height: 120px; /* Smaller on mobile */
+        padding: 0 1rem; /* Add side padding */
+    }
+
+    #dynamic-word {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+        max-width: 85vw; /* More restrictive on mobile */
+        /* Force single line and truncate if needed */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .join-copy {
+        font-size: 0.9rem;
+        max-width: 90%;
+        margin: 1rem auto 2rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .join-section {
+        padding: 3rem 0.5rem;
+    }
+
+    .join-title {
+        min-height: 100px;
+        font-size: clamp(1rem, 6vw, 1.5rem);
+    }
+
+    #dynamic-word {
+        font-size: clamp(1.8rem, 10vw, 3rem);
+        max-width: 80vw;
+        /* Ensure it never breaks layout */
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* Animation stability - prevent layout shifts during transitions */
 @keyframes fadeIO {
-    0%   { opacity:0; filter:blur(2px);}
-    10%  { opacity:1; filter:none; }
-    90%  { opacity:1; }
-    100% { opacity:0; filter:blur(2px);}
+    0% {
+        opacity: 0;
+        filter: blur(2px);
+        /* Don't change dimensions during animation */
+        transform: scale(1);
+    }
+    10% {
+        opacity: 1;
+        filter: none;
+        transform: scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        filter: blur(2px);
+        transform: scale(1);
+    }
+}
+
+/* Ensure animation doesn't affect layout */
+#dynamic-word.fade {
+    animation: fadeIO 4s ease-in-out;
+    /* Maintain dimensions during animation */
+    width: 100%;
+    box-sizing: border-box;
 }
