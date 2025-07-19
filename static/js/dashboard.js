@@ -1,4 +1,28 @@
+async function loadMyProjects() {
+  try {
+    const res = await fetch('/projects/my_projects');
+    const json = await res.json();
+    if (!json.success) return;
+
+    const cont = document.querySelector('#proyectos-activos');
+    if (!cont) return;
+
+    if (json.projects.length === 0) {
+      cont.innerHTML = '<p class="text-gray-400">Aún no tienes proyectos activos.</p>';
+      return;
+    }
+
+    cont.innerHTML = json.projects.map(p => `
+      <a href="/forum/proyecto/${p.id}" class="block bg-gray-800 hover:bg-gray-700 p-4 rounded-xl mb-3">
+        <h4 class="font-semibold text-white">${p.titulo}</h4>
+        <span class="text-sm text-teal-400">${p.categoria}</span>
+      </a>
+    `).join('');
+  } catch(e){ console.error(e); }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  loadMyProjects();
   const modal = document.getElementById('script-modal');
   const scriptText = document.getElementById('script-text');
 

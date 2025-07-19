@@ -4,18 +4,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_modern.css') }}">
 {% endblock %}
-{% block header %}
-<header class="header">
-    <a href="{{ url_for('client.home') }}" class="logo">VERITÉ</a>
-    <nav class="header-nav">
-        <a href="{{ url_for('client.home') }}" class="nav-link">Inicio</a>
-        <a href="{{ url_for('client.packs') }}" class="nav-link">Packs</a>
-        <a href="{{ url_for('client.services_page') }}" class="nav-link">Services</a>
-        <a href="{{ url_for('list_forum') }}" class="nav-link">VForum</a>
-        <a href="{{ url_for('client.academy') }}" class="nav-link">Academia</a>
-    </nav>
-</header>
-{% endblock %}
+{% block header %}{% include '_navbar.html' %}{% endblock %}
 
 {% block content %}
 {% if topic %}

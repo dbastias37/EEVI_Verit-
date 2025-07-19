@@ -64,55 +64,7 @@
       </div>
 
       <!-- Proyectos Activos -->
-      <div class="projects-section">
-        <div class="section-header">
-          <h3 class="section-title">Proyectos Activos</h3>
-          <a href="{{ url_for('list_forum') }}" class="dash-btn dash-btn-secondary">
-            Ver más en VFORUM
-          </a>
-        </div>
-        
-        <div class="projects">
-          {% for p in active_projects %}
-          <div class="project-card">
-            <div class="project-header">
-              <div>
-                <h4 class="project-title">{{ p.title }}</h4>
-                <span class="project-category">{{ p.category or 'Sin categoría' }}</span>
-              </div>
-              <span class="project-status status-active">Activo</span>
-            </div>
-            
-            <div class="project-progress">
-              <span>Progreso: {{ (p.progress * 100)|int }}%</span>
-              <div class="progress">
-                <div class="progress-bar" style="width: {{ p.progress * 100 }}%"></div>
-              </div>
-            </div>
-            
-            {% if p.embed_url %}
-            <div class="video-preview">
-              <iframe src="{{ p.embed_url }}" allowfullscreen></iframe>
-            </div>
-            {% endif %}
-            
-            {% if not p.paid %}
-            <button class="pay-btn dash-btn dash-btn-primary">Pagar 50% restante</button>
-            {% endif %}
-            
-            <!-- Comentarios -->
-            <div class="comments" data-project="{{ p.id }}">
-              <div class="comments-list"></div>
-              <form class="comment-form">
-                <input type="text" name="text" placeholder="Agregar comentario..." 
-                       class="comment-input" required>
-                <button type="submit" class="dash-btn dash-btn-primary">Enviar</button>
-              </form>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
+      <div id="proyectos-activos" class="p-4"></div>
 
       <!-- Biblioteca de Guiones -->
       <div class="scripts-section">
