@@ -13,15 +13,17 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home_brutalista.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/solicitudes.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/user_status.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
   {% block head_admin %}{% endblock %}
   {% block extra_head %}{% endblock %}
 </head>
 <body>
-  {% block header %}{% include '_navbar.html' %}{% endblock %}
+  {% block header %}{% include '_glass_nav.html' %}{% endblock %}
 
   <main>
     {% block content %}{% endblock %}
   </main>
+  {% include 'footer.html' %}
   <script src="/static/js/main.js"></script>
 {% block scripts %}
   <script src="https://unpkg.com/wavesurfer.js"></script>
@@ -32,6 +34,8 @@
   <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
   <script src="{{ url_for('static', filename='js/solicitudes_manager.js') }}"></script>
   <script src="{{ url_for('static', filename='js/user_status.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/nav_behaviour.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/nav_guard.js') }}"></script>
 
   <script>
     window.currentUser = {

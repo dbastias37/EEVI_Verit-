@@ -65,6 +65,7 @@ def create_project():
         'duracion': duracion,
         'profesiones_requeridas': profesiones_requeridas,
         'miembros_aceptados': [],
+        'miembros_ids': [],
         'autor_id': user['id'],
         'autor_nombre': user['username'],
         'chat_grupal_id': None,
@@ -286,6 +287,9 @@ def respond_project_request():
                 'rol': 'Colaborador',
                 'joined_at': firestore.SERVER_TIMESTAMP
             })
+            proyecto_ref.update({
+               'miembros_ids': firestore.ArrayUnion([solicitud['solicitante_id']])
+            })
             solicitud_ref.update({'estado': 'aceptado'})
             fs_client.collection('notificaciones').add({
                 'user_id': solicitud['solicitante_id'],
@@ -392,19 +396,16 @@ def get_my_projects():
         return jsonify({'success': False, 'error': 'No autenticado'}), 401
 
     user_id = session['forum_user']['id']
-    activos = []
 
-    q1 = fs_client.collection('proyectos') \
-        .where('autor_id', '==', user_id) \
-        .where('activo', '==', True).stream()
+    propios = fs_client.collection('proyectos')\
+        .where('autor_id','==',user_id).where('activo','==',True).stream()
+    miembro = fs_client.collection('proyectos')\
+        .where('miembros_ids','array_contains',user_id).where('activo','==',True).stream()
 
-    q2 = fs_client.collection('proyectos') \
-        .where('miembros_aceptados', 'array_contains_any', [user_id]) \
-        .where('activo', '==', True).stream()
-
-    for doc in list(q1) + list(q2):
+    proyectos = []
+    for doc in list(propios) + list(miembro):
         data = doc.to_dict()
         data['id'] = doc.id
-        activos.append(data)
+        proyectos.append(data)
 
-    return jsonify({'success': True, 'projects': activos})
+    return jsonify({'success': True, 'projects': proyectos})
