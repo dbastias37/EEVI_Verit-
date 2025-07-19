@@ -93,6 +93,11 @@ body {
   text-decoration: none;
   text-transform: uppercase;
   transition: color 0.3s ease, text-shadow 0.3s ease;
+  background: transparent !important;
+  padding: 0.5rem 0 !important;
+  margin-top: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
 }
 
 .header-unified nav a:hover {
