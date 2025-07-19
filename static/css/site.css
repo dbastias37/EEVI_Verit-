@@ -19,8 +19,13 @@
   --transition-smooth: 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Global mobile layout stability */
 * {
   box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden; /* Prevent horizontal scroll globally */
 }
 
 body {
@@ -30,7 +35,15 @@ body {
   background: #0A0F1C;
   color: var(--text-primary);
   line-height: 1.6;
+  overflow-x: hidden;
+  /* Prevent text from causing horizontal scroll */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  hyphens: auto;
 }
+
 
 .header-unified {
   position: fixed;
@@ -199,4 +212,48 @@ body {
   .nav-panel-unified.open ~ .main-content-unified {
     transform: translateY(280px);
   }
+}
+
+/* Container constraint system */
+.container, .section-container, .main-content {
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* Text overflow prevention for all dynamic content */
+.rotator, .fade, .dynamic-text {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+}
+
+/* Mobile-first responsive typography */
+@media (max-width: 768px) {
+    /* Constrain all text containers */
+    h1, h2, h3, h4, h5, h6 {
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    /* Prevent any element from exceeding viewport */
+    * {
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+}
+
+/* Emergency overflow prevention */
+@media (max-width: 480px) {
+    /* Force constraint on potentially problematic elements */
+    .hero-title, .section-title, .join-title {
+        max-width: 95vw !important;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        overflow: hidden;
+    }
 }
