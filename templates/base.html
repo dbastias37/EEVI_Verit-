@@ -16,11 +16,11 @@
   <header class="header-unified">
     <a class="logo-unified" href="{{ url_for('client.home') }}">VERITÉ</a>
     <nav>
-      <a href="#inicio">INICIO</a>
-      <a href="#packs">PACKS</a>
-      <a href="#servicios">SERVICIOS</a>
-      <a href="#comunidad">COMUNIDAD</a>
-      <a href="#buscar-proyecto">BUSCAR PROYECTO</a>
+      <a href="{{ url_for('client.home') }}">INICIO</a>
+      <a href="{{ url_for('client.packs') }}">PACKS</a>
+      <a href="{{ url_for('client.services_page') }}">SERVICIOS</a>
+      <a href="{{ url_for('forum_auth.vforum_auth') }}">COMUNIDAD</a>
+      <a href="{{ url_for('list_forum') }}#proyectos">BUSCAR PROYECTO</a>
     </nav>
   </header>
 
