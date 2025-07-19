@@ -34,8 +34,54 @@ def get_projects():
         print(f"Error getting projects: {e}")
         return jsonify({'error': str(e)}), 500
 
-@projects_bp.route('/api/projects/create', methods=['POST'])
+
+@projects_bp.route('/create', methods=['POST'], endpoint='create_project')
 def create_project():
+    """Crea un nuevo proyecto en VFORUM."""
+    if not session.get('forum_user'):
+        return jsonify({'success': False, 'error': 'No autenticado'}), 401
+
+    data = request.get_json() or {}
+    titulo = data.get('titulo', '').strip()
+    categoria = data.get('categoria', '').strip()
+    presupuesto = data.get('presupuesto', '').strip()
+    descripcion = data.get('descripcion', '').strip()
+    duracion = data.get('duracion', '').strip()
+    roles = data.get('roles', [])
+    tags = data.get('tags', [])
+
+    if not all([titulo, categoria, presupuesto, descripcion, duracion]) or not roles:
+        return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
+
+    profesiones_requeridas = {r: {'cupos': 1, 'ocupados': 0, 'activo': True} for r in roles}
+
+    user = session['forum_user']
+
+    proyecto_data = {
+        'titulo': titulo,
+        'categoria': categoria,
+        'presupuesto': presupuesto,
+        'descripcion': descripcion,
+        'duracion': duracion,
+        'profesiones_requeridas': profesiones_requeridas,
+        'miembros_aceptados': [],
+        'autor_id': user['id'],
+        'autor_nombre': user['username'],
+        'chat_grupal_id': None,
+        'tags': tags,
+        'activo': True,
+        'created_at': firestore.SERVER_TIMESTAMP
+    }
+
+    try:
+        doc_ref = fs_client.collection('proyectos').add(proyecto_data)
+        return jsonify({'success': True, 'project_id': doc_ref[1].id})
+    except Exception as e:
+        print(f"Error creando proyecto: {e}")
+        return jsonify({'success': False, 'error': 'Error interno'}), 500
+
+@projects_bp.route('/api/projects/create', methods=['POST'])
+def create_project_api():
     """Crear un nuevo proyecto"""
     if not session.get('forum_user'):
         return jsonify({'error': 'Debes iniciar sesión'}), 401
