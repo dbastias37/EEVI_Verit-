@@ -212,6 +212,42 @@ def forum_reply(topic_id):
         logging.error(f"Error creating reply: {e}")
         return redirect(url_for('forum_topic_view', topic_id=topic_id))
 
+
+@app.route('/forum/topics')
+def forum_topics_api():
+    """Retorna temas filtrados por categoría"""
+    category = request.args.get('category', '')
+    try:
+        from services.fs_client import fs_client
+        from google.cloud import firestore
+
+        if not fs_client:
+            return jsonify({'success': True, 'topics': []})
+
+        query = fs_client.collection('foro')
+        if category:
+            query = query.where('categoria', '==', category)
+
+        docs = query.order_by('created_at', direction=firestore.Query.DESCENDING).limit(20).stream()
+
+        topics = []
+        for doc in docs:
+            d = doc.to_dict()
+            d['id'] = doc.id
+            topics.append({
+                'id': d.get('id'),
+                'title': d.get('titulo') or d.get('title'),
+                'author': d.get('autor') or d.get('author', 'Anónimo'),
+                'category': d.get('categoria') or d.get('category', ''),
+                'preview': (d.get('contenido') or d.get('description') or '')[:100],
+                'created_at': d.get('created_at')
+            })
+        return jsonify({'success': True, 'topics': topics})
+
+    except Exception as e:
+        logging.error(f"Error loading topics: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # ===== MANEJO DE ERRORES =====
 @app.errorhandler(404)
 def not_found(error):
