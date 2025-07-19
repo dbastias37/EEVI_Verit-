@@ -1,0 +1,19 @@
+<nav id="glass-nav" class="fixed top-0 inset-x-0 z-50 \
+          bg-black/50 backdrop-blur-lg transition-transform duration-300">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3">
+    <a href="/" class="text-2xl font-extrabold text-white">VERITÉ</a>
+    <ul class="flex gap-6 text-gray-200">
+      <li><a href="/">Inicio</a></li>
+      <li><a href="/dashboard">Mis proyectos</a></li>
+      <li><a href="/forum">VForum</a></li>
+      <li><a href="/forum#search">Buscar proyectos</a></li>
+      <li><a href="/packs">Packs</a></li>
+      <li><a href="/services">Servicios</a></li>
+      {% if session.get('is_admin') %}
+      <li><a href="/admin">Admin</a></li>
+      {% endif %}
+    </ul>
+    <!-- Theme toggle -->
+    <button id="theme-toggle" class="text-xl text-yellow-400">🌙</button>
+  </div>
+</nav>

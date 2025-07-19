@@ -1,0 +1,15 @@
+:root {
+  --bg: #0f172a;
+  --fg: #f8fafc;
+  --card: #1e293b;
+  --accent: #10b981;
+}
+:root[data-theme=light] {
+  --bg: #f8fafc;
+  --fg: #0f172a;
+  --card: #e2e8f0;
+  --accent: #0e7490;
+}
+body { background: var(--bg); color: var(--fg); }
+.card { background: var(--card); }
+a { color: var(--accent); }

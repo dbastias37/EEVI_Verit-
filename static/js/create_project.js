@@ -24,13 +24,27 @@ const roles = Array.from(document.querySelectorAll('.role-card input'))
                    .filter(Boolean);
 payload.roles = roles;
 
-// --- Switch de Moneda ---
-const currencySwitch = document.querySelector('#currency-switch'); // checkbox
+// --- Switch de Moneda y opciones de presupuesto ---
+const USD_OPTIONS = [
+  "$0 – $500 USD",
+  "$500 – $2 000 USD",
+  "$2 000 – $10 000 USD",
+  "+ $10 000 USD"
+];
+const CLP_OPTIONS = [
+  "$0 – $500 000 CLP",
+  "$500 000 – $2 000 000 CLP",
+  "$2 000 000 – $10 000 000 CLP",
+  "+ $10 000 000 CLP"
+];
+
+const currencySwitch = document.querySelector('#currency-switch');
 const budgetSelect   = document.querySelector('#presupuesto');
 
-currencySwitch.onchange = () => {
-  const isUSD = currencySwitch.checked;
-  budgetSelect.innerHTML = isUSD
-     ? `<option>$0 - $500 USD</option><option>$500 - $2000 USD</option>`
-     : `<option>$0 - $500.000 CLP</option><option>$500.000 - $2.000.000 CLP</option>`;
-};
+function renderBudgetOptions(isUSD) {
+  budgetSelect.innerHTML = (isUSD ? USD_OPTIONS : CLP_OPTIONS)
+    .map(o => `<option>${o}</option>`).join('');
+}
+
+renderBudgetOptions(false); // CLP por defecto
+currencySwitch.onchange = () => renderBudgetOptions(currencySwitch.checked);
