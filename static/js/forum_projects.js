@@ -203,6 +203,7 @@ class ProjectsManager {
                         <button class="join-project-btn" onclick="event.stopPropagation(); projectsManager.joinProject('${project.id}')">
                             Unirse
                         </button>
+                        <button class="btn-chat" data-chat-target="${project.autor_id}" onclick="event.stopPropagation(); openChatWith('${project.autor_id}')">💬</button>
                     ` : ''}
                 </div>
             </div>

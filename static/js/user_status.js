@@ -236,8 +236,7 @@ async function sendFriendRequest(userId) {
 }
 
 function sendMessage(userId) {
-    console.log('Opening chat with user:', userId);
-    showToast('Función de chat en desarrollo', 'info');
+    openChatWith(userId);
     document.querySelector('.user-context-menu')?.remove();
 }
 

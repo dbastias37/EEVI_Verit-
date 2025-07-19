@@ -15,6 +15,14 @@
         {"fieldPath": "proyecto_id", "order": "ASCENDING"},
         {"fieldPath": "estado", "order": "ASCENDING"}
       ]
+    },
+    {
+      "collectionGroup": "solicitudes_amistad",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "receptor_id", "order": "ASCENDING"},
+        {"fieldPath": "estado", "order": "ASCENDING"}
+      ]
     }
   ],
   "fieldOverrides": []
