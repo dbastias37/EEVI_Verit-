@@ -20,47 +20,50 @@ document.addEventListener('DOMContentLoaded', () => {
 <div class="forum-layout">
     <!-- Sidebar Izquierda -->
     <aside class="sidebar-left">
-        <div class="sidebar-title">Navegación</div>
-        <a href="{{ url_for('list_forum') }}" class="nav-item active">
-            <div class="nav-icon">🏠</div>
-            Inicio
-        </a>
-        {% if session.forum_user %}
-        <a href="#" id="newTopicBtnSidebar" class="nav-item">
-            <div class="nav-icon">✏️</div>
-            Nuevo Tema
-        </a>
-        {% else %}
-        <a href="{{ url_for('forum_auth.vforum_auth') }}" class="nav-item">
-            <div class="nav-icon">🔒</div>
-            Inicia sesión
-        </a>
-        {% endif %}
-        <a href="#" id="projectsBtn" class="nav-item">
-            <div class="nav-icon">🚀</div>
-            Buscar Proyectos
-        </a>
-        <a href="#" class="nav-item">
-            <div class="nav-icon">🔥</div>
-            Tendencias
-        </a>
-        <a href="#" class="nav-item">
-            <div class="nav-icon">⭐</div>
-            Favoritos
-        </a>
-        <a href="#" class="nav-item">
-            <div class="nav-icon">👥</div>
-            Miembros
-        </a>
+        <div class="nav-section">
+            <h3 class="sidebar-title">NAVEGACIÓN</h3>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('list_forum') }}" class="nav-item active" data-action="home">
+                    <span class="nav-icon">🏠</span> Inicio
+                </a>
+                {% if session.forum_user %}
+                <a href="#" id="newTopicBtnSidebar" class="nav-item">
+                    <span class="nav-icon">✏️</span> Nuevo Tema
+                </a>
+                {% else %}
+                <a href="{{ url_for('forum_auth.vforum_auth') }}" class="nav-item">
+                    <span class="nav-icon">🔒</span> Inicia sesión
+                </a>
+                {% endif %}
+                <a href="#" id="projectsBtn" class="nav-item" data-action="projects">
+                    <span class="nav-icon">📁</span> Proyectos
+                </a>
+            </nav>
+        </div>
 
-        <div class="sidebar-title" style="margin-top: var(--space-xl);">Tags Populares</div>
-        <div class="tags-grid">
-            <div class="tag-item">#grabación</div>
-            <div class="tag-item">#foley</div>
-            <div class="tag-item">#mezcla</div>
-            <div class="tag-item">#plugins</div>
-            <div class="tag-item">#workflow</div>
-            <div class="tag-item">#daw</div>
+        <div class="categories-section">
+            <h3 class="sidebar-title">CATEGORÍAS</h3>
+            <nav class="categories-nav">
+                <button class="category-item active" data-category="">📋 Todos los temas</button>
+                <button class="category-item" data-category="cortometraje">🎬 Cortometrajes</button>
+                <button class="category-item" data-category="documental">📺 Documentales</button>
+                <button class="category-item" data-category="serie">🎭 Series</button>
+                <button class="category-item" data-category="videoclip">🎵 Videoclips</button>
+                <button class="category-item" data-category="comercial">💼 Comerciales</button>
+                <button class="category-item" data-category="animation">🎨 Animación</button>
+            </nav>
+        </div>
+
+        <div class="tags-section">
+            <h3 class="sidebar-title">TAGS POPULARES</h3>
+            <div class="tags-grid">
+                <span class="tag-item">#edicion</span>
+                <span class="tag-item">#audio</span>
+                <span class="tag-item">#colorgrading</span>
+                <span class="tag-item">#motion</span>
+                <span class="tag-item">#3d</span>
+                <span class="tag-item">#freelance</span>
+            </div>
         </div>
     </aside>
 
@@ -116,88 +119,42 @@ document.addEventListener('DOMContentLoaded', () => {
             </form>
         </div>
 
-        <!-- Categorías -->
-        <section class="categories-section">
+        <div class="topics-container">
             <div class="section-header">
-                <h2 class="section-title">Categorías del Foro</h2>
-                <div class="view-toggle">
-                    <button class="toggle-btn active">Grid</button>
-                    <button class="toggle-btn">Lista</button>
-                </div>
+                <h2 class="section-title">Temas Recientes</h2>
+                <button class="cta-button" id="newTopicBtn">+ Nuevo Tema</button>
             </div>
-
-            <div class="categories-grid">
-                {% set icon_map = {
-                    'Grabación en vivo': '🎤',
-                    'Diseño sonoro': '🎵',
-                    'Foley y efectos': '🔊',
-                    'Edición de vídeo': '🎬',
-                    'Mezcla y masterización': '🎛️',
-                    'Workflows DAW y plugins': '⚙️'
-                } %}
-                {% set gradient_map = {
-                    'Grabación en vivo': '#EF4444, #F97316',
-                    'Diseño sonoro': '#8B5CF6, #A855F7',
-                    'Foley y efectos': '#10B981, #059669',
-                    'Edición de vídeo': '#3B82F6, #1D4ED8',
-                    'Mezcla y masterización': '#F59E0B, #D97706',
-                    'Workflows DAW y plugins': '#6366F1, #4F46E5'
-                } %}
-                {% for cat in categories %}
-                <div class="category-card" data-category="{{ cat }}">
-                    <div class="category-header">
-                        {% set grad = gradient_map.get(cat, '#6366F1, #4F46E5') %}
-                        <div class="category-icon" style="background: linear-gradient(135deg, {{ grad }});">
-                            {{ icon_map.get(cat, '🎧') }}
-                        </div>
-                        <div class="category-info">
-                            <div class="category-name">{{ cat }}</div>
-                            <div class="category-description">&nbsp;</div>
+            <div class="topics-list">
+                {% for topic in temas %}
+                <div class="topic-card" data-topic-id="{{ topic.id }}">
+                    <div class="topic-header">
+                        <div class="topic-avatar">{{ (topic.author or topic.autor)[0].upper() if (topic.author or topic.autor) else 'A' }}</div>
+                        <div class="topic-content">
+                            <h3 class="topic-title">{{ topic.title or topic.titulo }}</h3>
+                            <div class="topic-meta">
+                                <span>Por {{ topic.author or topic.autor or 'Anónimo' }}</span>
+                                <span>•</span>
+                                <span>{{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }}</span>
+                                {% if topic.category %}
+                                <span class="topic-tag">{{ topic.category }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="topic-preview">{{ (topic.description or topic.contenido) | truncate_words(20) }}</p>
                         </div>
                     </div>
-                    <div class="category-stats">
-                        <div class="stat-item">
-                            <span>💬</span>
-                            <span>{{ loop.index * 5 + 20 }} temas</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>👥</span>
-                            <span>{{ loop.index * 12 + 50 }} posts</span>
-                        </div>
+                    <div class="topic-stats">
+                        <span class="stat-item">💬 {{ topic.replies or 0 }}</span>
+                        <span class="stat-item">👍 {{ topic.likes or 0 }}</span>
+                        <span class="stat-item">👁️ {{ topic.views or 0 }}</span>
                     </div>
+                </div>
+                {% else %}
+                <div class="no-topics">
+                    <p>No hay temas en esta categoría</p>
                 </div>
                 {% endfor %}
             </div>
-
-            <!-- Temas Recientes -->
-            <div style="margin-top: var(--space-2xl);">
-                <h3 class="section-title">Últimos temas</h3>
-                <div class="topics-list" id="topicsList">
-                    {% for topic in temas %}
-                    <a href="{{ url_for('forum_topic_view', topic_id=topic.id) }}" class="topic-card" data-category="{{ topic.category }}">
-                        <div class="topic-header">
-                            <div class="topic-avatar">{{ (topic.author or topic.autor)[0].upper() if (topic.author or topic.autor) else 'A' }}</div>
-                            <div class="topic-content">
-                                <div class="topic-title">{{ topic.title or topic.titulo }}</div>
-                                <div class="topic-meta">
-                                    {% if topic.category %}
-                                    <span class="topic-tag">{{ topic.category }}</span>
-                                    <span>•</span>
-                                    {% endif %}
-                                    <span>{{ topic.author or topic.autor or 'Anónimo' }}</span>
-                                    <span>•</span>
-                                    <span>{{ (topic.created_at or topic.fecha or topic.timestamp) | timestamp_local }}</span>
-                                </div>
-                                <div class="topic-preview">{{ (topic.description or topic.contenido) | truncate_words(20) }}</div>
-                            </div>
-                        </div>
-                    </a>
-                    {% else %}
-                    <div style="text-align:center; padding:2rem; color:var(--text-muted);">No hay temas aún. ¡Sé el primero en crear uno!</div>
-                    {% endfor %}
-                </div>
-            </div>
-        </section>
+        </div>
     </main>
 
     <!-- Sidebar Derecha -->
@@ -425,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="{{ url_for('static', filename='js/solicitudes_manager.js') }}"></script>
 <script src="{{ url_for('static', filename='js/forum_transitions.js') }}"></script>
 <script src="{{ url_for('static', filename='js/real_data_manager.js') }}"></script>
+<script src="{{ url_for('static', filename='js/forum_categories.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user_status.css') }}">
 {% if session.forum_user %}
 <div data-user-id="{{ session.forum_user.id }}" style="display: none;"></div>
