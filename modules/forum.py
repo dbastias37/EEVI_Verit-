@@ -1,14 +1,14 @@
 import sqlite3
 import re
-from datetime import datetime
 from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Tuple
 from flask import current_app
 
 DB_PATH = 'db/forum.db'
 
-# Inicializa la base de datos del foro creando la tabla de respuestas
+
 def init_db():
+    """Inicializar base de datos del foro"""
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute(
@@ -26,21 +26,24 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 def get_db():
-    """Return a connection to the main SQLite database."""
+    """Obtener conexión a la base de datos principal"""
     conn = sqlite3.connect("verite.db", timeout=10, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
-# Genera un slug URL seguro basado en el título
+
 def slugify(text: str) -> str:
+    """Generar slug URL seguro"""
     slug = re.sub(r'[^a-zA-Z0-9]+', '-', text).strip('-').lower()
     return slug
 
-# Helper para convertir cadenas de fecha en objetos datetime
+
 def _parse_datetime(value):
+    """Helper para convertir strings de fecha en objetos datetime"""
     if isinstance(value, str):
-        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f"):  # formatos comunes de SQLite
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f"):
             try:
                 return datetime.strptime(value, fmt)
             except ValueError:
@@ -51,14 +54,12 @@ def _parse_datetime(value):
             return datetime.now(timezone.utc)
     return value
 
-# Categorías fijas para el foro
-# Agregar esta función al archivo modules/forum.py si no existe
 
 def get_categories() -> List[str]:
-    """Devuelve la lista de categorías predefinidas."""
+    """Devolver lista de categorías predefinidas"""
     return [
         "Grabación en vivo",
-        "Diseño sonoro", 
+        "Diseño sonoro",
         "Foley y efectos",
         "Edición de vídeo",
         "Edición de audio",
@@ -71,28 +72,57 @@ def get_categories() -> List[str]:
         "Consejos de producción",
     ]
 
-# Frases de Terence McKenna para inspirar la comunidad
+
+# Frases inspiracionales para la comunidad
 INSPIRATIONAL_QUOTES = [
     "La inteligencia humana es un destello del misterio que se comunica mediante el lenguaje",
+    "El sonido real conecta emociones auténticas",
+    "Cada grabación cuenta una historia única",
+    "La creatividad nace de la experiencia genuina",
+    "El audio verdadero trasciende la tecnología"
 ]
 
-def get_posts(topic_id: int) -> List[Dict]:
-    conn = _connect()
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-    cur.execute('SELECT * FROM posts WHERE topic_id=? ORDER BY created_at ASC', (topic_id,))
-    rows = cur.fetchall()
-    conn.close()
-    result = []
-    for row in rows:
-        d = dict(row)
-        d['created_at'] = _parse_datetime(d.get('created_at'))
-        result.append(d)
-    return result
 
-# Aliases utilizadas por la aplicación
+def get_posts(topic_id: int) -> List[Dict]:
+    """Obtener posts de un tema específico"""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute('SELECT * FROM posts WHERE topic_id=? ORDER BY created_at ASC', (topic_id,))
+        rows = cur.fetchall()
+        result = []
+        for row in rows:
+            d = dict(row)
+            d['created_at'] = _parse_datetime(d.get('created_at'))
+            result.append(d)
+        return result
+    except sqlite3.OperationalError:
+        return []
+    finally:
+        conn.close()
+
+
+def get_topics() -> List[Dict]:
+    """Obtener todos los temas del foro"""
+    conn = get_db()
+    cur = conn.cursor()
+    try:
+        cur.execute('SELECT * FROM topics ORDER BY created_at DESC')
+        rows = cur.fetchall()
+        result = []
+        for row in rows:
+            d = dict(row)
+            d['created_at'] = _parse_datetime(d.get('created_at'))
+            result.append(d)
+        return result
+    except sqlite3.OperationalError:
+        return []
+    finally:
+        conn.close()
+
+
 def get_all_topics() -> Tuple[List[Dict], bool]:
-    """Devuelve todos los temas y si se trata de un modo demo."""
+    """Devolver todos los temas y si es modo demo"""
     topics = get_topics()
     if not topics:
         topics = [{
@@ -111,31 +141,35 @@ def get_all_topics() -> Tuple[List[Dict], bool]:
         demo_mode = True
     else:
         demo_mode = False
-        # Adjuntar votos y respuestas reales
         for t in topics:
             t['likes'] = t.get('votes', 0)
             t['responses'] = get_posts(t['id'])
     return topics, demo_mode
 
+
 def get_topic_by_id(topic_id: int):
+    """Obtener tema por ID"""
     conn = sqlite3.connect(DB_PATH)
-    cur  = conn.cursor()
-    cur.execute("SELECT id, slug, title, description, category, created_at FROM topics WHERE id = ?", (topic_id,))
-    row = cur.fetchone()
-    conn.close()
-    if not row:
-        return None
-    return {
-        'id': row[0],
-        'slug': row[1],
-        'title': row[2],
-        'description': row[3],
-        'category': row[4],
-        'created_at': row[5],
-    }
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT id, slug, title, description, category, created_at FROM topics WHERE id = ?", (topic_id,))
+        row = cur.fetchone()
+        if not row:
+            return None
+        return {
+            'id': row[0],
+            'slug': row[1],
+            'title': row[2],
+            'description': row[3],
+            'category': row[4],
+            'created_at': row[5],
+        }
+    finally:
+        conn.close()
 
 
 def get_responses_for_topic(topic_id):
+    """Obtener respuestas para un tema"""
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     try:
@@ -144,15 +178,16 @@ def get_responses_for_topic(topic_id):
             (topic_id,),
         )
         rows = cur.fetchall()
+        return rows
     except sqlite3.OperationalError:
-        rows = []
-    conn.close()
-    return rows
+        return []
+    finally:
+        conn.close()
 
 
 def create_response(topic_id: int, author: str, content: str) -> int:
-    """Inserta una nueva respuesta en la base de datos."""
-    conn = _connect()
+    """Insertar nueva respuesta"""
+    conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     try:
         cur.execute(
@@ -168,85 +203,52 @@ def create_response(topic_id: int, author: str, content: str) -> int:
         conn.close()
 
 
-def vote_response(response_id: int, delta: int) -> None:
-    """Registra un voto para una respuesta."""
-    conn = _connect()
-    cur = conn.cursor()
-    try:
-        cur.execute(
-            'INSERT INTO votes (response_id, delta, created_at) VALUES (?,?,?)',
-            (response_id, delta, datetime.now(timezone.utc))
-        )
-        conn.commit()
-    except Exception as e:
-        current_app.logger.warning(f"Could not vote response: {e}")
-    finally:
-        conn.close()
-
-
-def get_response_topic(response_id: int):
-    """Obtiene el id del tema asociado a una respuesta."""
-    conn = _connect()
-    cur = conn.cursor()
-    try:
-        cur.execute('SELECT topic_id FROM responses WHERE id=?', (response_id,))
-        row = cur.fetchone()
-        return row[0] if row else None
-    except Exception as e:
-        current_app.logger.warning(f"Could not get response topic: {e}")
-        return None
-    finally:
-        conn.close()
-
 def create_topic(form, files) -> int:
-    """Crea un nuevo tema en la tabla topics a partir de un formulario."""
+    """Crear nuevo tema"""
     title = form['title']
     category = form['category']
     description = form.get('description')
     file = files.get('file')
     image = file.filename if file and file.filename else None
-
     slug = slugify(title)
 
-    conn = _connect()
+    conn = get_db()
     cur = conn.cursor()
-    cur.execute(
-        'INSERT INTO topics (title, slug, category, description, image, created_at) VALUES (?,?,?,?,?,?)',
-        (title, slug, category, description, image, datetime.now(timezone.utc))
-    )
-    conn.commit()
-    topic_id = cur.lastrowid
-    conn.close()
-    return topic_id
+    try:
+        cur.execute(
+            'INSERT INTO topics (title, slug, category, description, image, created_at) VALUES (?,?,?,?,?,?)',
+            (title, slug, category, description, image, datetime.now(timezone.utc))
+        )
+        conn.commit()
+        topic_id = cur.lastrowid
+        return topic_id
+    finally:
+        conn.close()
 
-def create_post(topic_id: int, author: str, content: str) -> int:
-    conn = _connect()
-    cur = conn.cursor()
-    cur.execute(
-        'INSERT INTO posts (topic_id, author, content, created_at) VALUES (?,?,?,?)',
-        (topic_id, author, content, datetime.now(timezone.utc))
-    )
-    conn.commit()
-    post_id = cur.lastrowid
-    conn.close()
-    return post_id
 
 def vote_topic(topic_id: int, direction: str) -> None:
-    conn = _connect()
+    """Votar por un tema"""
+    conn = get_db()
     cur = conn.cursor()
-    if direction == 'up':
-        cur.execute('UPDATE topics SET votes = votes + 1 WHERE id=?', (topic_id,))
-    elif direction == 'down':
-        cur.execute('UPDATE topics SET votes = votes - 1 WHERE id=?', (topic_id,))
-    conn.commit()
-    conn.close()
+    try:
+        if direction == 'up':
+            cur.execute('UPDATE topics SET votes = votes + 1 WHERE id=?', (topic_id,))
+        elif direction == 'down':
+            cur.execute('UPDATE topics SET votes = votes - 1 WHERE id=?', (topic_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
 
 def vote_post(post_id: int, direction: str) -> None:
-    conn = _connect()
+    """Votar por un post"""
+    conn = get_db()
     cur = conn.cursor()
-    if direction == 'up':
-        cur.execute('UPDATE posts SET votes = votes + 1 WHERE id=?', (post_id,))
-    elif direction == 'down':
-        cur.execute('UPDATE posts SET votes = votes - 1 WHERE id=?', (post_id,))
-    conn.commit()
-    conn.close()
+    try:
+        if direction == 'up':
+            cur.execute('UPDATE posts SET votes = votes + 1 WHERE id=?', (post_id,))
+        elif direction == 'down':
+            cur.execute('UPDATE posts SET votes = votes - 1 WHERE id=?', (post_id,))
+        conn.commit()
+    finally:
+        conn.close()
