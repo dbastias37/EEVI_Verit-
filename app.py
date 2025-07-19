@@ -3,6 +3,9 @@ from datetime import datetime
 import os
 import logging
 
+from utils.template_filters import register_filters
+from utils.quotes import get_random_quote
+
 # Solo imports que SABEMOS que existen
 from routes.admin import admin_bp
 from routes.client import client_bp
@@ -44,6 +47,14 @@ try:
     print(f"✅ BD inicializada: {app.config['DB_PATH']}")
 except Exception as e:
     print(f"⚠️ Error BD: {e}")
+
+# Register template filters and Jinja globals
+register_filters(app)
+
+@app.context_processor
+def inject_utils():
+    """Expose helper functions to templates."""
+    return {"get_random_quote": get_random_quote}
 
 # Registrar blueprints que SABEMOS que existen
 app.register_blueprint(admin_bp, url_prefix='/admin')
