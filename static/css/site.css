@@ -26,6 +26,7 @@
 
 html {
   overflow-x: hidden; /* Prevent horizontal scroll globally */
+  scroll-behavior: smooth;
 }
 
 body {
@@ -49,16 +50,29 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
+  width: 100%;
   height: var(--header-height);
-  background: var(--bg-header);
-  border-bottom: 1px solid var(--border-color);
+  background: transparent;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--space-xl);
-  backdrop-filter: blur(10px);
+  justify-content: center;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
   z-index: 1000;
+}
+
+.header-unified.scrolled {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.header-unified nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4rem;
+  padding: 1rem 3rem;
+  width: 100%;
 }
 
 .logo-unified {
@@ -74,143 +88,44 @@ body {
   transform: scale(1.05);
 }
 
-.quote-rotator-unified {
-  flex: 1;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  transition: opacity 1.8s ease;
+.header-unified nav a {
   font-family: 'Inter', sans-serif;
   font-weight: 300;
-  max-width: 400px;
-  margin: 0 var(--space-lg);
-}
-
-.quote-rotator-unified.hide {
-  opacity: 0;
-}
-
-.nav-toggle-unified {
-  background: transparent;
-  border: 2px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.5px;
-}
-
-.nav-toggle-unified:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  transform: translateY(-1px);
-}
-
-.nav-toggle-unified.open {
-  background: var(--primary-color);
-  color: #000;
-  border-color: var(--primary-color);
-}
-
-.toggle-text {
-  display: block;
-}
-
-.nav-panel-unified {
-  position: fixed;
-  top: var(--header-height);
-  left: 0;
-  width: 100%;
-  max-height: 0;
-  overflow: hidden;
-  background: var(--bg-nav);
-  backdrop-filter: blur(20px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-md);
-  padding: 0;
-  transition: max-height var(--transition-smooth), padding var(--transition-smooth);
-  z-index: 999;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.nav-panel-unified.open {
-  max-height: 400px;
-  padding: var(--space-lg) 0;
-}
-
-.nav-link-unified {
-  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
   text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: var(--space-md) var(--space-xl);
-  border-radius: var(--radius-md);
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  min-width: 160px;
-  text-align: center;
+  transition: color 0.2s ease;
 }
 
-.nav-link-unified:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--border-color);
-  transform: translateY(-1px);
+.header-unified nav a:hover {
+  color: #B3B3B3;
+}
+
+.header-unified nav a:active {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: #FFFFFF;
 }
 
 .main-content-unified {
   min-height: calc(100vh - var(--header-height));
-  transition: transform var(--transition-smooth);
 }
 
-.nav-panel-unified.open ~ .main-content-unified {
-  transform: translateY(320px);
-}
 
 @media (max-width: 768px) {
-  .header-unified {
-    padding: 0 var(--space-lg);
-  }
-  
-  .quote-rotator-unified {
-    display: none;
-  }
-  
-  .logo-unified {
-    font-size: 18px;
-  }
-  
-  .nav-toggle-unified {
-    padding: var(--space-sm) var(--space-md);
-    font-size: 0.8rem;
-  }
-  
-  .nav-link-unified {
-    font-size: 1rem;
-    min-width: 140px;
-    padding: var(--space-sm) var(--space-lg);
+  .header-unified nav {
+    gap: 1rem;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .header-unified {
-    padding: 0 var(--space-md);
-  }
-  
-  .nav-panel-unified.open {
-    max-height: 350px;
-  }
-  
-  .nav-panel-unified.open ~ .main-content-unified {
-    transform: translateY(280px);
+  .header-unified nav {
+    gap: 1rem;
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
   }
 }
 
