@@ -15,27 +15,14 @@
 <body>
   <header class="header-unified">
     <a class="logo-unified" href="{{ url_for('client.home') }}">VERITÉ</a>
-    <div id="quoteRotator" class="quote-rotator-unified">{{ get_random_quote() }}</div>
-    <button id="navToggle" class="nav-toggle-unified" aria-label="Menú">
-      <span class="toggle-text">MENÚ</span>
-    </button>
+    <nav>
+      <a href="#inicio">INICIO</a>
+      <a href="#packs">PACKS</a>
+      <a href="#servicios">SERVICIOS</a>
+      <a href="#comunidad">COMUNIDAD</a>
+      <a href="#buscar-proyecto">BUSCAR PROYECTO</a>
+    </nav>
   </header>
-
-  <nav id="navPanel" class="nav-panel-unified">
-    <a href="{{ url_for('client.home') }}" class="nav-link-unified">Inicio</a>
-    <a href="{{ url_for('client.packs') }}" class="nav-link-unified">Packs</a>
-    <a href="{{ url_for('client.services_page') }}" class="nav-link-unified">Servicios</a>
-    {% if session.forum_user %}
-    <a href="{{ url_for('list_forum') }}" class="nav-link-unified">VForum</a>
-    {% else %}
-    <a href="{{ url_for('forum_auth.vforum_auth') }}" class="nav-link-unified">Comunidad</a>
-    {% endif %}
-    <a href="{{ url_for('client.academy') }}" class="nav-link-unified">Academia</a>
-    <a href="{{ url_for('client.dashboard') }}" class="nav-link-unified">Mis Proyectos</a>
-    {% if session.get('is_admin') %}
-    <a href="{{ url_for('admin.admin') }}" class="nav-link-unified">Admin</a>
-    {% endif %}
-  </nav>
 
   <main class="main-content-unified">
     {% block content %}{% endblock %}
