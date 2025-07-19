@@ -5,6 +5,25 @@ from datetime import datetime
 
 chat_bp = Blueprint('chat', __name__)
 
+
+def get_or_create_individual_chat(u1: str, u2: str) -> str:
+    """Devuelve el chat individual existente o lo crea"""
+    pair_key = "_".join(sorted([u1, u2]))
+    existing = fs_client.collection('chats').where('pair_key', '==', pair_key).where('activo', '==', True).stream()
+    for ch in existing:
+        return ch.id
+
+    chat = fs_client.collection('chats').add({
+        'tipo': 'individual',
+        'participantes': [u1, u2],
+        'pair_key': pair_key,
+        'ultimo_mensaje': None,
+        'proyecto_id': None,
+        'activo': True,
+        'created_at': firestore.SERVER_TIMESTAMP
+    })
+    return chat[1].id
+
 @chat_bp.route('/create_chat', methods=['POST'])
 def create_chat():
     """Crear chat individual o grupal."""
@@ -12,15 +31,25 @@ def create_chat():
         if not session.get('forum_user'):
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
         data = request.get_json() or {}
-        user_ids = data.get('user_ids')
+        participantes = data.get('participantes') or data.get('user_ids')
         name = data.get('name', '')
-        if not user_ids or len(user_ids) < 2:
+        proyecto_id = data.get('proyecto_id')
+
+        if not participantes or len(participantes) < 2:
             return jsonify({'success': False, 'error': 'Participantes insuficientes'}), 400
+
+        if len(participantes) == 2:
+            chat_id = get_or_create_individual_chat(participantes[0], participantes[1])
+            return jsonify({'success': True, 'chat_id': chat_id})
+
         chat = fs_client.collection('chats').add({
-            'user_ids': user_ids,
+            'tipo': 'grupal',
+            'participantes': participantes,
             'name': name,
-            'created_at': firestore.SERVER_TIMESTAMP,
-            'ultimo_mensaje': None
+            'proyecto_id': proyecto_id,
+            'ultimo_mensaje': None,
+            'activo': True,
+            'created_at': firestore.SERVER_TIMESTAMP
         })
         return jsonify({'success': True, 'chat_id': chat[1].id})
     except Exception as e:
@@ -34,20 +63,23 @@ def send_message():
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
         data = request.get_json() or {}
         chat_id = data.get('chat_id')
-        texto = data.get('texto')
-        if not chat_id or not texto:
+        mensaje = data.get('mensaje') or data.get('texto')
+        if not chat_id or not mensaje:
             return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
         user = session['forum_user']
         fs_client.collection('mensajes_chat').add({
             'chat_id': chat_id,
-            'user_id': user['id'],
-            'username': user['username'],
-            'texto': texto,
-            'fecha': firestore.SERVER_TIMESTAMP
+            'autor_id': user['id'],
+            'autor_nombre': user['username'],
+            'mensaje': mensaje,
+            'fecha': firestore.SERVER_TIMESTAMP,
+            'leido_por': [user['id']],
+            'tipo': 'texto'
         })
         fs_client.collection('chats').document(chat_id).update({
             'ultimo_mensaje': {
-                'texto': texto,
+                'autor_id': user['id'],
+                'mensaje': mensaje,
                 'fecha': firestore.SERVER_TIMESTAMP
             }
         })
@@ -64,6 +96,7 @@ def get_messages(chat_id):
         mensajes = fs_client.collection('mensajes_chat')\
             .where('chat_id', '==', chat_id)\
             .order_by('fecha')\
+            .limit(100)\
             .stream()
         result = []
         for m in mensajes:
@@ -81,7 +114,7 @@ def get_user_chats():
             return jsonify({'success': False, 'error': 'No autenticado'}), 401
         user_id = session['forum_user']['id']
         chats = fs_client.collection('chats')\
-            .where('user_ids', 'array_contains', user_id)\
+            .where('participantes', 'array_contains', user_id)\
             .order_by('ultimo_mensaje.fecha', direction=firestore.Query.DESCENDING)\
             .stream()
         result = []

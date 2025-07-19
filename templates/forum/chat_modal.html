@@ -1,0 +1,12 @@
+<div id="chat-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+  <div class="chat-window bg-gray-800 w-full max-w-md h-[80vh] rounded-xl flex flex-col">
+     <div class="chat-header p-4 font-bold text-white flex justify-between items-center">
+        <span id="chat-title"></span>
+        <button id="chat-close" class="text-xl">&times;</button>
+     </div>
+     <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900"></div>
+     <textarea id="chat-input" rows="2" placeholder="Escribe y Ctrl+Enter para enviar"
+          class="resize-none w-full p-3 bg-gray-700 text-white outline-none"></textarea>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
