@@ -378,3 +378,33 @@ def get_all_projects():
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@projects_bp.route('/my_projects', methods=['GET'], endpoint='get_my_projects')
+def get_my_projects():
+    """
+    Devuelve los proyectos donde:
+      - autor_id == usuario actual
+      - o usuario actual está en miembros_aceptados
+      Solo los activos.
+    """
+    if not session.get('forum_user'):
+        return jsonify({'success': False, 'error': 'No autenticado'}), 401
+
+    user_id = session['forum_user']['id']
+    activos = []
+
+    q1 = fs_client.collection('proyectos') \
+        .where('autor_id', '==', user_id) \
+        .where('activo', '==', True).stream()
+
+    q2 = fs_client.collection('proyectos') \
+        .where('miembros_aceptados', 'array_contains_any', [user_id]) \
+        .where('activo', '==', True).stream()
+
+    for doc in list(q1) + list(q2):
+        data = doc.to_dict()
+        data['id'] = doc.id
+        activos.append(data)
+
+    return jsonify({'success': True, 'projects': activos})

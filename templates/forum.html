@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_modern.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_projects.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/solicitudes.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('forum-page');
@@ -14,18 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 {% endblock %}
 
-{% block header %}
-<header class="header">
-    <a href="{{ url_for('client.home') }}" class="logo">VERITÉ</a>
-    <nav class="header-nav">
-        <a href="{{ url_for('client.home') }}" class="nav-link">Inicio</a>
-        <a href="{{ url_for('client.packs') }}" class="nav-link">Packs</a>
-        <a href="{{ url_for('client.services_page') }}" class="nav-link">Services</a>
-        <a href="{{ url_for('list_forum') }}" class="nav-link">VForum</a>
-        <a href="{{ url_for('client.academy') }}" class="nav-link">Academia</a>
-    </nav>
-</header>
-{% endblock %}
+{% block header %}{% include '_navbar.html' %}{% endblock %}
 
 {% block content %}
 <div class="forum-layout">
@@ -362,15 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Presupuesto</label>
-                        <select name="presupuesto" class="form-select">
-                            <option value="A definir">A definir</option>
-                            <option value="Sin presupuesto">Sin presupuesto</option>
-                            <option value="Menos de $500 USD">Menos de $500 USD</option>
-                            <option value="$500 - $2000 USD">$500 - $2000 USD</option>
-                            <option value="$2000 - $5000 USD">$2000 - $5000 USD</option>
-                            <option value="Más de $5000 USD">Más de $5000 USD</option>
-                        </select>
+                        <label class="flex items-center gap-2">
+                          Presupuesto en USD
+                          <input type="checkbox" id="currency-switch" class="toggle">
+                        </label>
+                        <select id="presupuesto" class="form-select w-full"></select>
                     </div>
                 </div>
                 
@@ -388,9 +374,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Roles necesarios</label>
-                        <input type="text" name="roles_necesarios" class="form-input" 
-                               placeholder="Ej: Editor, Sonidista, Compositor">
+                        <label class="form-label">Profesiones requeridas</label>
+                        <div id="roles-container" class="flex flex-col"></div>
+                        <button type="button" id="add-role" class="text-emerald-400">+ Añadir profesión</button>
                     </div>
                 </div>
                 
@@ -435,6 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
 {{ super() }}
 <script src="{{ url_for('static', filename='js/forum_modern.js') }}"></script>
 <script src="{{ url_for('static', filename='js/forum_projects.js') }}"></script>
+<script src="{{ url_for('static', filename='js/create_project.js') }}"></script>
 <script src="{{ url_for('static', filename='js/user_status.js') }}"></script>
 <script src="{{ url_for('static', filename='js/solicitudes_manager.js') }}"></script>
 <script src="{{ url_for('static', filename='js/forum_transitions.js') }}"></script>
