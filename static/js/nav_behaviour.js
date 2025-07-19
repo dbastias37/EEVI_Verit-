@@ -29,5 +29,9 @@
     root.dataset.theme = t;
     localStorage.setItem('theme', t);
     btn.textContent = t === 'dark' ? '🌙' : '☀️';
+    document.querySelectorAll('.breathing-neon').forEach(el=>{
+        if(t==='dark'){ el.classList.add('animate-neon'); }
+        else          { el.classList.remove('animate-neon'); }
+    });
   }
 })();
