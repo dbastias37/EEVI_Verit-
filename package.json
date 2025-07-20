@@ -15,7 +15,10 @@
     "autoprefixer": "^10.4.16"
   },
   "scripts": {
-    "postinstall": "npx tailwindcss init -p || true",
-    "chat-server": "node server/chatServer.js"
+    "dev": "vite",
+    "build": "vite build",
+    "chat-server": "node server/chatServer.js",
+    "start": "node server/chatServer.js",
+    "postinstall": "npx tailwindcss init -p || true"
   }
 }
