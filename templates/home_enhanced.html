@@ -7,8 +7,6 @@
 
 {% block head %}
     {{ super() }}
-    <!-- AOS CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
     <!-- Home Enhanced CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home_enhanced.css') }}">
     <!-- Fonts -->
@@ -69,14 +67,14 @@
     <section class="features-enhanced">
         <div class="features-container">
             <div class="section-header">
-                <h2 class="section-title" data-aos="fade-down">Todo lo que necesitas</h2>
-                <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                <h2 class="section-title fade-down">Todo lo que necesitas</h2>
+                <p class="section-subtitle fade-up delay-100">
                     Una plataforma completa para profesionales y audiovisuales con herramientas, recursos y comunidad.
                 </p>
             </div>
             
             <div class="features-grid">
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-card fade-up delay-100">
                     <div class="feature-icon">🎨</div>
                     <h3 class="feature-title">Recursos Premium</h3>
                     <p class="feature-description">
@@ -84,7 +82,7 @@
                     </p>
                 </div>
                 
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-card fade-up delay-200">
                     <div class="feature-icon">👥</div>
                     <h3 class="feature-title">Comunidad Activa</h3>
                     <p class="feature-description">
@@ -92,7 +90,7 @@
                     </p>
                 </div>
                 
-                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-card fade-up delay-300">
                     <div class="feature-icon">🛠️</div>
                     <h3 class="feature-title">Servicios Profesionales</h3>
                     <p class="feature-description">
@@ -100,7 +98,7 @@
                     </p>
                 </div>
                 
-                <div class="feature-card" data-aos="fade-right" data-aos-delay="100">
+                <div class="feature-card fade-right delay-100">
                     <div class="feature-icon">📈</div>
                     <h3 class="feature-title">Crecimiento Constante</h3>
                     <p class="feature-description">
@@ -108,7 +106,7 @@
                     </p>
                 </div>
                 
-                <div class="feature-card" data-aos="fade-left" data-aos-delay="200">
+                <div class="feature-card fade-left delay-200">
                     <div class="feature-icon">🎯</div>
                     <h3 class="feature-title">Proyectos Colaborativos</h3>
                     <p class="feature-description">
@@ -116,7 +114,7 @@
                     </p>
                 </div>
                 
-                <div class="feature-card" data-aos="zoom-in" data-aos-delay="300">
+                <div class="feature-card zoom-in delay-300">
                     <div class="feature-icon">⚡</div>
                     <h3 class="feature-title">Entrega Rápida</h3>
                     <p class="feature-description">
@@ -130,19 +128,19 @@
     <!-- Stats Section -->
     <section class="stats-enhanced">
         <div class="stats-container">
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="100">
+            <div class="stat-item flip-left delay-100">
                 <span class="stat-number" data-count="1200">0</span>
                 <span class="stat-label">Recursos Premium</span>
             </div>
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="200">
+            <div class="stat-item flip-left delay-200">
                 <span class="stat-number" data-count="850">0</span>
                 <span class="stat-label">Miembros Activos</span>
             </div>
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="300">
+            <div class="stat-item flip-left delay-300">
                 <span class="stat-number" data-count="320">0</span>
                 <span class="stat-label">Proyectos Completados</span>
             </div>
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="400">
+            <div class="stat-item flip-left delay-400">
                 <span class="stat-number" data-count="95">0</span>
                 <span class="stat-label">% Satisfacción</span>
             </div>
@@ -152,11 +150,11 @@
     <!-- CTA Section -->
     <section class="cta-enhanced">
         <div class="cta-container">
-            <h2 class="cta-title" data-aos="zoom-in">¿Listo para crear algo extraordinario?</h2>
-            <p class="cta-description" data-aos="fade-up" data-aos-delay="200">
+            <h2 class="cta-title zoom-in">¿Listo para crear algo extraordinario?</h2>
+            <p class="cta-description fade-up delay-200">
                 Únete a nuestra comunidad de creadores y accede a todo lo que necesitas para llevar tus proyectos audiovisuales al siguiente nivel.
             </p>
-            <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
+            <div class="hero-cta fade-up delay-400">
                 <a href="#" class="btn-enhanced btn-primary" onclick="handleCommunityClick()">
                     🚀 Comenzar Ahora
                 </a>
@@ -185,8 +183,6 @@ function handleCommunityClick() {
 
 {% block scripts %}
   {{ super() }}
-  <!-- AOS JS -->
-  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <!-- Script propio -->
   <script src="{{ url_for('static', filename='js/home_enhanced.js') }}"></script>
 {% endblock %}
