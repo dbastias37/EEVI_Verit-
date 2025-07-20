@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime
-from flask_login import current_user
+from flask_login import LoginManager, current_user, UserMixin
 import os
 import logging
 
@@ -33,6 +33,20 @@ except ImportError:
 # Configuración
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
+
+# --- Autenticación mínima para evitar fallos de import ---
+login_manager = LoginManager(app)
+
+
+class Anonymous(UserMixin):
+    """Representa a un usuario no autenticado."""
+    id = "anonymous"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    # Siempre devolvemos un usuario anónimo
+    return Anonymous()
 
 # ===== CONFIGURACIÓN CRÍTICA DB_PATH =====
 if os.environ.get('RENDER'):
