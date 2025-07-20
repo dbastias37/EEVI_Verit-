@@ -44,5 +44,9 @@
         user_name: "{{ session.get('user_name', '') }}"
     };
   </script>
+  {# --- Chat modal --- #}
+  {% include 'forum/chat_modal.html' %}
+
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 </body>
 </html>
