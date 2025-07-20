@@ -1,0 +1,4 @@
+.unp-tab.active {
+  background-color: var(--primary);
+  color: #000;
+}
