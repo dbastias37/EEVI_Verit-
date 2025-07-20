@@ -19,11 +19,7 @@
     "@vitejs/plugin-react": "^4.2.0"
   },
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "chat-server": "node server/chatServer.js",
-    "start": "node server/chatServer.js",
-    "postinstall": "npx tailwindcss init -p || true"
+    "start": "node server/chatServer.js"
   }
 }
