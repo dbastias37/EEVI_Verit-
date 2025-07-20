@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime
 from flask_login import LoginManager, current_user, UserMixin
-from routes.chat import chat_bp
 import os
 import logging
 
 # Imports existentes
+from routes.chat import chat_bp
 from routes.admin import admin_bp
 from routes.client import client_bp
 from routes.auth import auth_bp
@@ -71,6 +71,7 @@ app.register_blueprint(client_bp)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(projects_bp, url_prefix='/projects')
 app.register_blueprint(messages_bp, url_prefix='/messages')
+app.register_blueprint(chat_bp, url_prefix='/chat') 
 
 if FRIENDS_AVAILABLE:
     app.register_blueprint(friends_bp, url_prefix='/friends')
