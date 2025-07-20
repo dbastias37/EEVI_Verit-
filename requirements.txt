@@ -8,3 +8,10 @@ Werkzeug>=3.0
 
 Flask-Migrate==4.0.5
 Alembic>=1.13
+
+# Google Cloud core dependencies
+google-api-core>=2.18
+google-auth>=2.29
+
+# Firestore client
+google-cloud-firestore>=2.14
