@@ -35,9 +35,15 @@
                     Conecta con profesionales audiovisuales, accede a recursos premium y lleva tus proyectos al siguiente nivel con nuestra plataforma integral.
                 </p>
                 <div class="hero-cta fade-in">
-                    <a href="{{ url_for('packs.index') if url_for else '/packs' }}" class="btn-enhanced btn-primary">
-                        🚀 Explorar Packs
-                    </a>
+                    {% if url_for %}
+                        <a href="{{ url_for('packs.index') }}" class="btn-enhanced btn-primary">
+                            🚀 Explorar Packs
+                        </a>
+                    {% else %}
+                        <a href="/packs" class="btn-enhanced btn-primary">
+                            🚀 Explorar Packs
+                        </a>
+                    {% endif %}
                     <a href="#" class="btn-enhanced btn-secondary" onclick="handleCommunityClick()">
                         💬 Unirse a la Comunidad
                     </a>
@@ -86,4 +92,120 @@
                 
                 <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="feature-icon">👥</div>
-                    <h3 class="feature
+                    <h3 class="feature-title">Comunidad Activa</h3>
+                    <p class="feature-description">
+                        Conecta con otros creadores, comparte proyectos, recibe feedback y colabora en iniciativas audiovisuales.
+                    </p>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">🛠️</div>
+                    <h3 class="feature-title">Servicios Profesionales</h3>
+                    <p class="feature-description">
+                        Solicita servicios especializados de edición, colorización, motion graphics y postproducción.
+                    </p>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-right" data-aos-delay="100">
+                    <div class="feature-icon">📈</div>
+                    <h3 class="feature-title">Crecimiento Constante</h3>
+                    <p class="feature-description">
+                        Mejora tus habilidades con tutoriales, cursos y recursos educativos actualizados regularmente.
+                    </p>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-left" data-aos-delay="200">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Proyectos Colaborativos</h3>
+                    <p class="feature-description">
+                        Encuentra colaboradores para tus proyectos o únete a iniciativas de otros creadores.
+                    </p>
+                </div>
+                
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Entrega Rápida</h3>
+                    <p class="feature-description">
+                        Descarga inmediata de recursos y tiempos de respuesta optimizados en todos nuestros servicios.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-enhanced">
+        <div class="stats-container">
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="100">
+                <span class="stat-number" data-count="1200">0</span>
+                <span class="stat-label">Recursos Premium</span>
+            </div>
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="200">
+                <span class="stat-number" data-count="850">0</span>
+                <span class="stat-label">Miembros Activos</span>
+            </div>
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="300">
+                <span class="stat-number" data-count="320">0</span>
+                <span class="stat-label">Proyectos Completados</span>
+            </div>
+            <div class="stat-item" data-aos="flip-left" data-aos-delay="400">
+                <span class="stat-number" data-count="95">0</span>
+                <span class="stat-label">% Satisfacción</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-enhanced">
+        <div class="cta-container">
+            <h2 class="cta-title" data-aos="zoom-in">¿Listo para crear algo extraordinario?</h2>
+            <p class="cta-description" data-aos="fade-up" data-aos-delay="200">
+                Únete a nuestra comunidad de creadores y accede a todo lo que necesitas para llevar tus proyectos audiovisuales al siguiente nivel.
+            </p>
+            <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
+                <a href="#" class="btn-enhanced btn-primary" onclick="handleCommunityClick()">
+                    🚀 Comenzar Ahora
+                </a>
+                {% if url_for %}
+                    <a href="{{ url_for('packs.index') }}" class="btn-enhanced btn-secondary">
+                        📦 Ver Packs
+                    </a>
+                {% else %}
+                    <a href="/packs" class="btn-enhanced btn-secondary">
+                        📦 Ver Packs
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <!-- AOS JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <!-- Home Enhanced JavaScript -->
+    <script src="{{ url_for('static', filename='js/home_enhanced.js') }}"></script>
+    
+    <!-- JavaScript personalizado para manejar autenticación -->
+    <script>
+    function handleCommunityClick() {
+        {% if current_user and current_user.is_authenticated %}
+            // Usuario autenticado - ir al foro
+            {% if url_for %}
+                window.location.href = "{{ url_for('forum.index') }}";
+            {% else %}
+                window.location.href = "/forum";
+            {% endif %}
+        {% else %}
+            // Usuario no autenticado - ir a registro/login
+            {% if url_for %}
+                window.location.href = "{{ url_for('auth.register') }}";
+            {% else %}
+                window.location.href = "/forum#register";
+            {% endif %}
+        {% endif %}
+    }
+    </script>
+{% endblock %}
