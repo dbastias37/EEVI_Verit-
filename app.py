@@ -272,7 +272,8 @@ def close_db(error):
 # ===== RUTA PRINCIPAL =====
 @app.route('/')
 def index():
-    return render_template('home_enhanced.html')
+    """Renderiza la página principal utilizando el nuevo diseño."""
+    return render_template('home.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
