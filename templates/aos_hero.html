@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}AOS Hero{% endblock %}
+{% block extra_head %}
+<style>
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4rem 2rem;
+  gap: 2rem;
+}
+.hero-content {
+  max-width: 600px;
+}
+.hero-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+.hero-content p {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary, #B8C5D1);
+}
+.cta-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: #00D4B8;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.hero-media img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+@media (max-width: 768px) {
+  .hero-section { flex-direction: column-reverse; text-align: center; }
+}
+</style>
+{% endblock %}
+{% block content %}
+<section class="hero-section">
+  <div class="hero-content">
+    <h1 data-aos="fade-up" data-aos-duration="1000">Donde la creatividad COBRA VIDA</h1>
+    <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="1000">Explora la plataforma para profesionales audiovisuales.</p>
+    <a href="#" class="cta-button" data-aos="fade-up" data-aos-delay="400" data-aos-duration="1000">Comienza ahora</a>
+  </div>
+  <div class="hero-media">
+    <img src="{{ url_for('static', filename='img/pack1.jpg') }}" alt="Hero image" data-aos="fade-in" data-aos-delay="600" data-aos-duration="1500">
+  </div>
+</section>
+{% endblock %}

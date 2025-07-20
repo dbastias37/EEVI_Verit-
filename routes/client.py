@@ -100,7 +100,9 @@ def services_page():
 @client_bp.route('/academy')
 def academy():
     return render_template('academy.html')
-
+@client_bp.route("/aos-hero")
+def aos_hero_demo():
+    return render_template("aos_hero.html")
 
 @client_bp.route('/dashboard')
 def dashboard():
