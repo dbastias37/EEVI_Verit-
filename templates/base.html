@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>{% block title %}Verité{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
   <!-- Core site styles -->
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -25,7 +26,7 @@
       <a href="{{ url_for('list_forum') }}" data-action="open-projects-panel">BUSCAR PROYECTO</a>
     </nav>
   </header>
-
+<script src="{{ url_for('static', filename='js/home_enhanced.js') }}"></script>
   <main class="main-content-unified">
     {% block content %}{% endblock %}
   </main>
@@ -44,5 +45,6 @@
         user_name: "{{ session.get('user_name', '') }}"
     };
   </script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 </body>
 </html>
