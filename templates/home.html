@@ -829,64 +829,6 @@
             }
         }
 
-        // Crear estructura DNA
-        function createDNAHelix() {
-            const strand1 = document.getElementById('strand1');
-            const strand2 = document.getElementById('strand2');
-            const pointCount = 20;
-            const height = 400;
-            const radius = 80;
-
-            // Limpiar strands existentes
-            strand1.innerHTML = '';
-            strand2.innerHTML = '';
-
-            for (let i = 0; i < pointCount; i++) {
-                const angle = (i / pointCount) * Math.PI * 4; // 2 vueltas completas
-                const y = (i / pointCount) * height;
-                
-                // Strand 1
-                const point1 = document.createElement('div');
-                point1.className = 'dna-point';
-                const x1 = Math.cos(angle) * radius + radius;
-                const z1 = Math.sin(angle) * radius;
-                
-                point1.style.left = x1 + 'px';
-                point1.style.top = y + 'px';
-                point1.style.transform = `translateZ(${z1}px)`;
-                strand1.appendChild(point1);
-
-                // Strand 2 (opuesto)
-                const point2 = document.createElement('div');
-                point2.className = 'dna-point';
-                point2.style.background = 'var(--accent)';
-                point2.style.boxShadow = '0 0 10px var(--accent)';
-                const x2 = Math.cos(angle + Math.PI) * radius + radius;
-                const z2 = Math.sin(angle + Math.PI) * radius;
-                
-                point2.style.left = x2 + 'px';
-                point2.style.top = y + 'px';
-                point2.style.transform = `translateZ(${z2}px)`;
-                strand2.appendChild(point2);
-
-                // Conexiones entre strands cada ciertos puntos
-                if (i % 3 === 0 && i < pointCount - 1) {
-                    const connection = document.createElement('div');
-                    connection.className = 'dna-connection';
-                    const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(z2 - z1, 2));
-                    const centerX = (x1 + x2) / 2;
-                    const centerY = y;
-                    const angle = Math.atan2(z2 - z1, x2 - x1) * 180 / Math.PI;
-                    
-                    connection.style.width = distance + 'px';
-                    connection.style.left = centerX - distance/2 + 'px';
-                    connection.style.top = centerY + 'px';
-                    connection.style.transform = `rotateZ(${angle}deg)`;
-                    
-                    strand1.appendChild(connection);
-                }
-            }
-        }
 
         // Rotación de palabras dinámicas
         const words = [
@@ -970,7 +912,6 @@
         // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
             createParticles();
-            createDNAHelix();
             
             // Observar elementos para animaciones
             document.querySelectorAll('.fade-in').forEach(el => {
