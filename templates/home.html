@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
     <style>
         :root {
             --primary: #00D4B8;
@@ -622,6 +621,36 @@
         .fade-in:nth-child(3) { animation-delay: 0.3s; }
         .fade-in:nth-child(4) { animation-delay: 0.4s; }
 
+        .fade-up,
+        .fade-down,
+        .fade-left,
+        .fade-right,
+        .zoom-in,
+        .flip-left {
+            opacity: 0;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-up { transform: translateY(40px); }
+        .fade-down { transform: translateY(-40px); }
+        .fade-left { transform: translateX(-40px); }
+        .fade-right { transform: translateX(40px); }
+        .zoom-in { transform: scale(0.8); }
+        .flip-left {
+            transform: rotateY(-90deg);
+            transform-style: preserve-3d;
+        }
+
+        .in-view {
+            opacity: 1;
+            transform: none;
+        }
+
+        .delay-100 { transition-delay: 0.1s; }
+        .delay-200 { transition-delay: 0.2s; }
+        .delay-300 { transition-delay: 0.3s; }
+        .delay-400 { transition-delay: 0.4s; }
+
         /* Scroll indicator */
         .scroll-indicator {
             position: absolute;
@@ -766,19 +795,19 @@
     <!-- Stats Section -->
     <section class="stats-enhanced">
         <div class="stats-container">
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="100">
+            <div class="stat-item flip-left delay-100">
                 <span class="stat-number" data-count="1200">0</span>
                 <span class="stat-label">Recursos Premium</span>
             </div>
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="200">
+            <div class="stat-item flip-left delay-200">
                 <span class="stat-number" data-count="850">0</span>
                 <span class="stat-label">Miembros Activos</span>
             </div>
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="300">
+            <div class="stat-item flip-left delay-300">
                 <span class="stat-number" data-count="320">0</span>
                 <span class="stat-label">Proyectos Completados</span>
             </div>
-            <div class="stat-item" data-aos="flip-left" data-aos-delay="400">
+            <div class="stat-item flip-left delay-400">
                 <span class="stat-number" data-count="95">0</span>
                 <span class="stat-label">% Satisfacción</span>
             </div>
@@ -788,11 +817,11 @@
     <!-- CTA Section -->
     <section class="cta-enhanced">
         <div class="cta-container">
-            <h2 class="cta-title" data-aos="zoom-in">¿Listo para crear algo extraordinario?</h2>
-            <p class="cta-description" data-aos="fade-up" data-aos-delay="200">
+            <h2 class="cta-title zoom-in">¿Listo para crear algo extraordinario?</h2>
+            <p class="cta-description fade-up delay-200">
                 Únete a nuestra comunidad de creadores y accede a todo lo que necesitas para llevar tus proyectos audiovisuales al siguiente nivel.
             </p>
-            <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
+            <div class="hero-cta fade-up delay-400">
                 <a href="#" class="btn-enhanced btn-primary" onclick="handleCommunityClick()">
                     🚀 Comenzar Ahora
                 </a>
@@ -817,7 +846,6 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <script>
         // Funcionalidad para manejar el botón de comunidad
         function handleCommunityClick() {
@@ -882,13 +910,11 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                    
-                    // Animar contadores cuando entren en vista
+                    entry.target.classList.add('in-view');
                     if (entry.target.closest('.stats-enhanced')) {
                         animateCounters();
                     }
+                    observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
@@ -914,7 +940,7 @@
             createParticles();
             
             // Observar elementos para animaciones
-            document.querySelectorAll('.fade-in').forEach(el => {
+            document.querySelectorAll('.fade-in, .fade-up, .fade-down, .fade-left, .fade-right, .zoom-in, .flip-left').forEach(el => {
                 observer.observe(el);
             });
             
@@ -959,24 +985,6 @@
             }
         }
 
-        // Debug y fallback mejorado
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                if (typeof AOS !== 'undefined') {
-                    console.log('✅ AOS is loaded and ready');
-                    AOS.refresh();
-                } else {
-                    console.log('🔄 AOS not available, activating CSS fallback animations');
-                    // Activar animaciones fallback
-                    const elementsWithAOS = document.querySelectorAll('[data-aos]');
-                    elementsWithAOS.forEach((el, index) => {
-                        setTimeout(() => {
-                            el.classList.add('aos-fallback');
-                        }, index * 100);
-                    });
-                }
-            }, 1000);
-        });
     </script>
 </body>
 </html>
