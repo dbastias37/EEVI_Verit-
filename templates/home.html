@@ -36,7 +36,7 @@
                 </p>
                 <div class="hero-cta fade-in">
                     {% if url_for %}
-                        <a href="{{ url_for('packs.index') }}" class="btn-enhanced btn-primary">
+                        <a href="{{ url_for('client.packs') }}" class="btn-enhanced btn-primary">
                             🚀 Explorar Packs
                         </a>
                     {% else %}
@@ -167,7 +167,7 @@
                     🚀 Comenzar Ahora
                 </a>
                 {% if url_for %}
-                    <a href="{{ url_for('packs.index') }}" class="btn-enhanced btn-secondary">
+                    <a href="{{ url_for('client.packs') }}" class="btn-enhanced btn-secondary">
                         📦 Ver Packs
                     </a>
                 {% else %}
