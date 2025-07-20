@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, MessageCircle, User, Clock, Minimize2, Maximize2 } from 'lucide-react';
+import { io } from 'socket.io-client';
 import COLORS from './COLORS';
+
+const socket = io(import.meta.env.VITE_CHAT_URL || 'http://localhost:4000');
 
 function ChatModal({ isOpen, onClose }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
   const messagesEndRef = useRef(null);
   const [minimized, setMinimized] = useState(false);
+  const username = 'User';
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -14,10 +18,25 @@ function ChatModal({ isOpen, onClose }) {
     }
   }, [messages, isOpen]);
 
+  useEffect(() => {
+    socket.on('chat message', (msg) => {
+      setMessages(prev => [...prev, msg]);
+    });
+    return () => socket.off('chat message');
+  }, []);
+
   function sendMessage() {
     const trimmed = text.trim();
     if (!trimmed) return;
-    setMessages(m => [...m, { user: 'You', text: trimmed, time: new Date() }]);
+    const newMessage = {
+      id: Date.now(),
+      text: trimmed,
+      sender: username,
+      timestamp: new Date(),
+      isSystem: false
+    };
+    setMessages(prev => [...prev, newMessage]);
+    socket.emit('chat message', newMessage);
     setText('');
   }
 
@@ -79,7 +98,7 @@ function ChatModal({ isOpen, onClose }) {
           <div style={{ flex: 1, overflowY: 'auto', padding: '0.5rem' }}>
             {messages.map((m, i) => (
               <div key={i} style={{ marginBottom: '0.25rem' }}>
-                <span style={{ fontWeight: 'bold' }}>{m.user}:</span> {m.text}
+                <span style={{ fontWeight: 'bold' }}>{m.sender || m.user}:</span> {m.text}
               </div>
             ))}
             <div ref={messagesEndRef} />

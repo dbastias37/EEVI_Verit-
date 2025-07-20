@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "dependencies": {
     "lucide-react": "^0.300.0",
-    "socket.io-client": "^4.7.5"
+    "socket.io-client": "^4.7.5",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "cors": "^2.8.5"
   },
   "scripts": {
-    "postinstall": "npx tailwindcss init -p || true"
+    "postinstall": "npx tailwindcss init -p || true",
+    "chat-server": "node server/chatServer.js"
   }
 }
