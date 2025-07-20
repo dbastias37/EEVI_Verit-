@@ -45,22 +45,6 @@
         user_name: "{{ session.get('user_name', '') }}"
     };
   </script>
-  {% include 'forum/_user_panel.html' %}
-  <script src="{{ url_for('static', filename='js/user_panel.js') }}"></script>
-
-  <!-- Botón flotante -->
-  <button id="unp-fab"
-          class="fixed bottom-6 left-6 flex items-center gap-2 px-4 py-2
-                 bg-primary text-neutral-900 ring-2 ring-primary rounded-full
-                 shadow-lg z-40 hover:bg-gray-100 transition">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-         viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01
-               M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.83L3 20l.92-3.684A7.964
-               7.964 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-    </svg>
-    <span class="text-sm font-semibold">Mi Panel</span>
-  </button>
+  {# Chat UI removed #}
 </body>
 </html>
