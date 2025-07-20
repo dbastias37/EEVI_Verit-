@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 from services.fs_client import fs_client
 from google.cloud import firestore
 from datetime import datetime
@@ -87,25 +87,24 @@ def send_message():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@chat_bp.route('/get_messages/<chat_id>', methods=['GET'])
+@chat_bp.get('/get_messages/<chat_id>')
 def get_messages(chat_id):
-    """Obtener mensajes de un chat."""
+    """Devuelve los mensajes del chat ordenados por fecha.
+    Si ocurre cualquier error se registra y se responde success:false, messages=[]
+    para evitar un 500 que rompa el front-end.
+    """
     try:
-        if not session.get('forum_user'):
-            return jsonify({'success': False, 'error': 'No autenticado'}), 401
-        mensajes = fs_client.collection('mensajes_chat')\
-            .where('chat_id', '==', chat_id)\
-            .order_by('fecha')\
-            .limit(100)\
-            .stream()
-        result = []
-        for m in mensajes:
-            data = m.to_dict()
-            data['id'] = m.id
-            result.append(data)
-        return jsonify({'success': True, 'messages': result})
+        docs = (
+            fs_client.collection('mensajes_chat')
+                     .where('chat_id', '==', chat_id)
+                     .order_by('fecha')
+                     .stream()
+        )
+        messages = [d.to_dict() for d in docs]
+        return jsonify(success=True, messages=messages), 200
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        current_app.logger.exception(f'Error get_messages {chat_id}: %s', e)
+        return jsonify(success=False, error=str(e), messages=[]), 200
 
 @chat_bp.route('/get_user_chats', methods=['GET'])
 def get_user_chats():
