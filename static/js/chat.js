@@ -1,143 +1,107 @@
 class ChatManager {
-    constructor(chatId, userId) {
-        this.chatId = chatId;
-        this.userId = userId;
-        this._pollInterval = null;
-        this.init();
-    }
+  constructor() {
+    this.widget      = document.getElementById('chat-widget');
+    this.title       = document.getElementById('chat-title');
+    this.closeBtn    = document.getElementById('chat-close-btn');
+    this.msgBox      = document.getElementById('chat-messages');
+    this.input       = document.getElementById('chat-input');
+    this.sendBtn     = document.getElementById('send-btn');
+    this.emojiBtn    = document.getElementById('emoji-btn');
+    this.emojiPicker = document.getElementById('emoji-picker');
 
-    async init() {
-        await this.loadMessages();
-        this._pollInterval = setInterval(() => this.loadMessages(), 4000);
-        const input = document.getElementById('chat-input');
-        input.addEventListener('keydown', e => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                this.sendMessage(input.value);
-                input.value = '';
-            }
-        });
-    }
+    /* listeners */
+    this.closeBtn.addEventListener('click', () => this.close());
+    this.sendBtn.addEventListener('click', () => this.send());
+    this.input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.send();
+      }
+    });
+    this.emojiBtn.addEventListener('click', () =>
+      this.emojiPicker.classList.toggle('hidden'));
+    this.emojiPicker.addEventListener('click', e => {
+      if (e.target.textContent.trim()) {
+        this.input.value += e.target.textContent.trim();
+        this.emojiPicker.classList.add('hidden');
+        this.input.focus();
+      }
+    });
+  }
 
-    async loadMessages() {
-        try {
-            const res = await fetch(`/chat/get_messages/${this.chatId}`);
-            const data = await res.json();
-            if (!data.success) {
-                console.error('Chat polling stopped:', data.error);
-                clearInterval(this._pollInterval);
-                return;
-            }
-            if (data.success) {
-                this.renderMessages(data.messages);
-            }
-        } catch (e) {
-            console.error('loadMessages', e);
-        }
-    }
+  open(chatId, targetName) {
+    this.widget.classList.remove('hidden');
+    this.title.textContent = targetName ?? 'Chat';
+    this.chatId = chatId;
+    this.loadMessages();
+    this.pollId = setInterval(() => this.loadMessages(), 4000);
+  }
 
-    renderMessages(msgs) {
-        const container = document.getElementById('chat-messages');
-        if (!container) return;
-        container.innerHTML = msgs.map(m => {
-            const mine = m.autor_id === this.userId;
-            return `
-            <div class="chat-bubble ${mine ? 'mine' : 'other'}">
-                <div class="text">${m.mensaje}</div>
-                <div class="time">${this.formatFecha(m.fecha)}</div>
-            </div>`;
-        }).join('');
-        this.autoScrollBottom();
-    }
+  close() {
+    this.widget.classList.add('hidden');
+    if (this.pollId) clearInterval(this.pollId);
+  }
 
-    async sendMessage(text) {
-        text = (text || '').trim();
-        if (!text) return;
-        try {
-            const res = await fetch('/chat/send_message', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: this.chatId, mensaje: text })
-            });
-            const data = await res.json();
-            if (data.success) {
-                await this.loadMessages();
-            }
-        } catch (e) {
-            console.error('sendMessage', e);
-        }
-    }
-
-    autoScrollBottom() {
-        const container = document.getElementById('chat-messages');
-        container.scrollTop = container.scrollHeight;
-    }
-
-    formatFecha(fecha) {
-        try {
-            let d;
-            if (typeof fecha === 'string') d = new Date(fecha);
-            else if (fecha && fecha.seconds) d = new Date(fecha.seconds * 1000);
-            else d = new Date();
-            const diff = Date.now() - d.getTime();
-            if (diff < 60000) return 'Hace un momento';
-            if (diff < 3600000) return `Hace ${Math.floor(diff/60000)} min`;
-            return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-        } catch (e) {
-            return '';
-        }
-    }
-
-    destroy() {
-        clearInterval(this._pollInterval);
-    }
-}
-
-let currentChat = null;
-
-async function openChatWith(userId) {
-    if (!window.currentUser || !window.currentUser.user_id) return;
+  async loadMessages() {
     try {
-        const res = await fetch('/chat/create_chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ participantes: [window.currentUser.user_id, userId] })
-        });
-        const data = await res.json();
-        if (data.success) {
-            showChatModal(data.chat_id);
-        }
-    } catch (e) {
-        console.error('openChatWith', e);
+      const res = await fetch(`/chat/get_messages/${this.chatId}`);
+      const data = await res.json();
+      if (!data.success) { console.error(data.error); return this.close(); }
+      this.msgBox.innerHTML = data.messages.map(m =>
+        `<div><span class="font-semibold">${m.autor_nombre}:</span> ${m.mensaje}</div>`
+      ).join('');
+      this.msgBox.scrollTop = this.msgBox.scrollHeight;
+    } catch (err) {
+      console.error('loadMessages', err);
     }
-}
+  }
 
-function showChatModal(chatId) {
-    const modal = document.getElementById('chat-modal');
-    modal.classList.remove('hidden');
-    if (currentChat) currentChat.destroy();
-    currentChat = new ChatManager(chatId, window.currentUser.user_id);
-}
-
-function closeChatModal() {
-    const modal = document.getElementById('chat-modal');
-    modal.classList.add('hidden');
-    if (currentChat) currentChat.destroy();
-    currentChat = null;
-    document.getElementById('chat-messages').innerHTML = '';
-}
-
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('btn-chat')) {
-        const target = e.target.dataset.chatTarget;
-        if (target) {
-            e.preventDefault();
-            openChatWith(target);
-        }
+  async send() {
+    const texto = this.input.value.trim();
+    if (!texto) return;
+    try {
+      await fetch('/chat/send_message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: this.chatId, mensaje: texto })
+      });
+      await this.loadMessages();
+      this.input.value = '';
+    } catch (err) {
+      console.error('send', err);
     }
+  }
+}
+
+const chatManager = new ChatManager();
+window.chatManager = chatManager;
+
+async function openChatWith(userId, name) {
+  if (!window.currentUser || !window.currentUser.user_id) return;
+  try {
+    const res = await fetch('/chat/create_chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ participantes: [window.currentUser.user_id, userId] })
+    });
+    const data = await res.json();
+    if (data.success) {
+      chatManager.open(data.chat_id, name);
+    }
+  } catch (e) {
+    console.error('openChatWith', e);
+  }
+}
+
+/* Mantiene compatibilidad con btn-chat existentes */
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.btn-chat');
+  if (!btn) return;
+  const target = btn.dataset.chatTarget;
+  const name   = btn.dataset.chatName || null;
+  if (target) {
+    e.preventDefault();
+    openChatWith(target, name);
+  }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const btnClose = document.getElementById('chat-close');
-    if (btnClose) btnClose.addEventListener('click', closeChatModal);
-});

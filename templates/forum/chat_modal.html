@@ -1,12 +1,34 @@
-<div id="chat-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-  <div class="chat-window bg-gray-800 w-full max-w-md h-[80vh] rounded-xl flex flex-col">
-     <div class="chat-header p-4 font-bold text-white flex justify-between items-center">
-        <span id="chat-title"></span>
-        <button id="chat-close" class="text-xl">&times;</button>
-     </div>
-     <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-900"></div>
-     <textarea id="chat-input" rows="2" placeholder="Escribe y Ctrl+Enter para enviar"
-          class="resize-none w-full p-3 bg-gray-700 text-white outline-none"></textarea>
+<!-- Chat widget flotante -->
+<div id="chat-widget"
+     class="fixed bottom-4 right-4 z-50 w-80 max-h-96 bg-neutral-800 text-white rounded-xl shadow-xl
+            flex flex-col hidden">
+
+  <!-- CABECERA -->
+  <div class="flex items-center justify-between bg-neutral-900 px-3 py-2 rounded-t-xl">
+    <span id="chat-title" class="text-sm font-semibold truncate">Chat</span>
+    <button id="chat-close-btn" class="text-sm hover:text-red-400">✖</button>
+  </div>
+
+  <!-- MENSAJES -->
+  <div id="chat-messages"
+       class="flex-1 overflow-y-auto p-3 space-y-2 text-sm"></div>
+
+  <!-- PIE -->
+  <div class="relative border-t border-neutral-700 p-2 flex items-end gap-1">
+    <button id="emoji-btn"   class="text-xl leading-none hover:scale-110">😊</button>
+    <textarea id="chat-input" rows="1"
+              placeholder="Escribe y Ctrl+Enter para enviar"
+              class="flex-1 bg-transparent resize-none focus:outline-none text-sm
+                     placeholder-neutral-400"></textarea>
+    <button id="send-btn"
+            class="text-lg px-2 py-1 hover:text-green-400">➤</button>
+
+    <!-- Picker simple -->
+    <div id="emoji-picker"
+         class="absolute bottom-12 right-2 bg-neutral-800 border border-neutral-600 rounded-lg
+                p-2 grid grid-cols-5 gap-1 text-xl hidden">
+      <!-- 25 emojis básicos -->
+      😊 😂 😍 🤔 🙄 😢 😎 🤩 😡 👍 👎 🙌 🤝 🙏 💡 🚀 🐱 🎉 🍀 ⚽ 🎮 🎧 🎬 📸 ⏰
+    </div>
   </div>
 </div>
-<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
