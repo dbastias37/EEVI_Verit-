@@ -30,5 +30,5 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="/static/js/forum.js"></script>
+  <script src="{{ url_for('static', filename='js/forum.js') }}"></script>
 {% endblock %}

@@ -6,7 +6,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css">
+  <!-- Core site styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home_brutalista.css') }}">
   {% block head_admin %}{% endblock %}
@@ -29,7 +30,7 @@
   </main>
   
   {% include 'footer.html' %}
-  <script src="/static/js/main.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   {% block scripts %}
   <script src="https://unpkg.com/wavesurfer.js"></script>
   <script src="{{ url_for('static', filename='js/mobile_stability.js') }}"></script>
