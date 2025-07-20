@@ -271,11 +271,7 @@ def close_db(error):
 # ===== RUTA PRINCIPAL =====
 @app.route('/')
 def index():
-    try:
-        return redirect(url_for('client.home'))
-    except Exception as e:
-        logging.error(f"Error in index route: {e}")
-        return f"Error: {e}", 500
+    return render_template('home_enhanced.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
