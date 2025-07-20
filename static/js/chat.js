@@ -2,13 +2,13 @@ class ChatManager {
     constructor(chatId, userId) {
         this.chatId = chatId;
         this.userId = userId;
-        this.interval = null;
+        this._pollInterval = null;
         this.init();
     }
 
     async init() {
         await this.loadMessages();
-        this.interval = setInterval(() => this.loadMessages(), 4000);
+        this._pollInterval = setInterval(() => this.loadMessages(), 4000);
         const input = document.getElementById('chat-input');
         input.addEventListener('keydown', e => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -23,6 +23,11 @@ class ChatManager {
         try {
             const res = await fetch(`/chat/get_messages/${this.chatId}`);
             const data = await res.json();
+            if (!data.success) {
+                console.error('Chat polling stopped:', data.error);
+                clearInterval(this._pollInterval);
+                return;
+            }
             if (data.success) {
                 this.renderMessages(data.messages);
             }
@@ -84,7 +89,7 @@ class ChatManager {
     }
 
     destroy() {
-        clearInterval(this.interval);
+        clearInterval(this._pollInterval);
     }
 }
 
