@@ -1,0 +1,89 @@
+<!-- HOME ENHANCED TEMPLATE - VERITÉ -->
+<!-- Archivo: templates/home_enhanced.html -->
+
+{% extends "base.html" %}
+
+{% block title %}VERITÉ - Plataforma Audiovisual{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <!-- AOS CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+    <!-- Home Enhanced CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home_enhanced.css') }}">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="home-enhanced">
+    <!-- Hero Section Enhanced -->
+    <section class="hero-enhanced">
+        <div class="hero-bg"></div>
+        <div class="hero-particles" id="particles"></div>
+        
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge fade-in">🎬 Plataforma Audiovisual</div>
+                <h1 class="hero-title fade-in">
+                    Donde la creatividad
+                    <span class="title-highlight" id="dynamic-word">COBRA VIDA</span>
+                </h1>
+                <p class="hero-description fade-in">
+                    Conecta con profesionales audiovisuales, accede a recursos premium y lleva tus proyectos al siguiente nivel con nuestra plataforma integral.
+                </p>
+                <div class="hero-cta fade-in">
+                    <a href="{{ url_for('packs.index') if url_for else '/packs' }}" class="btn-enhanced btn-primary">
+                        🚀 Explorar Packs
+                    </a>
+                    <a href="#" class="btn-enhanced btn-secondary" onclick="handleCommunityClick()">
+                        💬 Unirse a la Comunidad
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-visual fade-in">
+                <div class="loader-container">
+                    <div class="loader-inner">
+                        <div class="loader-logo">
+                            <div class="logo-text">V</div>
+                        </div>
+                        <div class="ripple-box"></div>
+                        <div class="ripple-box"></div>
+                        <div class="ripple-box"></div>
+                        <div class="ripple-box"></div>
+                        <div class="ripple-box"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            ↓ Descubre más
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-enhanced">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title" data-aos="fade-down">Todo lo que necesitas</h2>
+                <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                    Una plataforma completa para profesionales audiovisuales con herramientas, recursos y comunidad.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">Recursos Premium</h3>
+                    <p class="feature-description">
+                        Accede a packs de alta calidad con assets, presets, templates y herramientas profesionales para tus proyectos.
+                    </p>
+                </div>
+                
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">👥</div>
+                    <h3 class="feature
