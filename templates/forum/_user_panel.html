@@ -1,0 +1,26 @@
+<div id="user-nav-panel"
+     class="fixed bottom-6 right-6 w-72 bg-neutral-800 text-gray-100
+            ring-2 ring-primary rounded-xl shadow-xl z-40 hidden flex-col">
+
+  <!-- Cabecera -->
+  <div class="flex items-center justify-between px-4 py-2 bg-neutral-900 rounded-t-xl">
+    <span class="font-semibold text-sm">Panel de Usuario</span>
+    <button id="unp-close" class="hover:text-red-400">✖</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex gap-1 px-3 pt-2">
+    {% for tab in ['Solicitudes','Amigos','Mi Panel'] %}
+      <button class="unp-tab px-2 py-1 text-xs rounded
+                     hover:bg-primary/30 {% if loop.first %}active{% endif %}">
+        {{ tab }}
+      </button>
+    {% endfor %}
+  </div>
+
+  <!-- Contenidos -->
+  <div id="unp-content"
+       class="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+    <!-- placeholder; JS cargará solicitudes, amigos o tu mini-dashboard -->
+  </div>
+</div>
