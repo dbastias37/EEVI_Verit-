@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
+import Home from './pages/Home.jsx';
 import { ChatModal, UserNavPanel } from './components/eeviChat';
 
-function App() {
+export default function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <div className="App">
-      <h1>EEVI App</h1>
+    <>
+      <Home />
+
+      {/* flotantes, sin tocar */}
       <UserNavPanel onOpenChat={() => setIsChatOpen(true)} />
       <ChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-    </div>
+    </>
   );
 }
-
-export default App;
