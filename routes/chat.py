@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session, current_app
 from services.fs_client import fs_client
 from google.cloud import firestore
+from google.api_core.exceptions import FailedPrecondition
 from datetime import datetime
 
 chat_bp = Blueprint('chat', __name__)
@@ -102,9 +103,24 @@ def get_messages(chat_id):
         )
         messages = [d.to_dict() for d in docs]
         return jsonify(success=True, messages=messages), 200
+
+    except FailedPrecondition as e:
+        # Índice faltante: notifica al front-end para que detenga el polling
+        idx_url = (
+            'https://console.firebase.google.com/project/eevi-db-registroweb'
+            '/firestore/indexes'
+        )
+        current_app.logger.error('Falta índice mensajes_chat chat_id+fecha')
+        return jsonify(
+            success=False,
+            need_index=True,
+            index_url=idx_url,
+            error='Firestore index missing'
+        ), 200
+
     except Exception as e:
-        current_app.logger.exception(f'Error get_messages {chat_id}: %s', e)
-        return jsonify(success=False, error=str(e), messages=[]), 200
+        current_app.logger.exception('Error get_messages %s', chat_id)
+        return jsonify(success=False, error=str(e)), 200
 
 @chat_bp.route('/get_user_chats', methods=['GET'])
 def get_user_chats():
