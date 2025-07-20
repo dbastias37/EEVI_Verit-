@@ -2,22 +2,10 @@ import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors({ origin: '*' }));
 
-// ruta estática para el widget compilado
-const distPath = path.join(__dirname, '..', 'dist');
-app.use(express.static(distPath));
-
-// Home del foro
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'templates', 'home_enhanced.html'));
-});
 
 const server = http.createServer(app);
 const io = new Server(server, {
