@@ -44,11 +44,5 @@
         user_name: "{{ session.get('user_name', '') }}"
     };
   </script>
-  {# --- Chat modal --- #}
-  <div id="chat-root"></div>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script type="text/babel" src="{{ url_for('static', filename='js/chat_modal.jsx') }}"></script>
 </body>
 </html>

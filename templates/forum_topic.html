@@ -106,11 +106,7 @@
     <div class="user-status" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); padding: 1rem; border-radius: 12px;">
         <img src="{{ session.forum_user.profile_pic }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
         <span>{{ session.forum_user.username }}</span>
-        <button class="btn-chat btn btn-link p-0 mx-2"
-                data-chat-target="support"
-                title="Chat">
-            💬
-        </button>
+        {# Botón de chat removido #}
         <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
     </div>
     {% endif %}
