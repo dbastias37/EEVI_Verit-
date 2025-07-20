@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime
 from flask_login import LoginManager, current_user, UserMixin
+from routes.chat import chat_bp
 import os
 import logging
 
