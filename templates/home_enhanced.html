@@ -185,4 +185,7 @@ function handleCommunityClick() {
   {{ super() }}
   <!-- Script propio -->
   <script src="{{ url_for('static', filename='js/home_enhanced.js') }}"></script>
+  <!-- EEVI chat mount -->
+  <div id="eevi-chat-root"></div>
+  <script src="/chat-widget.js" defer></script>
 {% endblock %}
