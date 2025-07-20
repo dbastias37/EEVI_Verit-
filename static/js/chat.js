@@ -29,8 +29,16 @@ class ChatManager {
     });
   }
 
+  _show() {
+    this.widget.classList.remove('invisible', 'opacity-0', 'translate-y-4');
+  }
+  _hide() {
+    this.widget.classList.add('opacity-0', 'translate-y-4');
+    setTimeout(() => this.widget.classList.add('invisible'), 300);
+  }
+
   open(chatId, targetName) {
-    this.widget.classList.remove('hidden');
+    this._show();
     this.title.textContent = targetName ?? 'Chat';
     this.chatId = chatId;
     this.loadMessages();
@@ -38,7 +46,7 @@ class ChatManager {
   }
 
   close() {
-    this.widget.classList.add('hidden');
+    this._hide();
     if (this.pollId) clearInterval(this.pollId);
   }
 
@@ -47,9 +55,19 @@ class ChatManager {
       const res = await fetch(`/chat/get_messages/${this.chatId}`);
       const data = await res.json();
       if (!data.success) { console.error(data.error); return this.close(); }
-      this.msgBox.innerHTML = data.messages.map(m =>
-        `<div><span class="font-semibold">${m.autor_nombre}:</span> ${m.mensaje}</div>`
-      ).join('');
+      const uid = window.currentUser.user_id;
+      this.msgBox.innerHTML = data.messages.map(m => {
+        const own = m.autor_id === uid;
+        const base = 'inline-block max-w-[70%] px-3 py-1 rounded-lg break-words';
+        const bubble = own
+          ? `self-end bg-primary text-white rounded-br-none ${base}`
+          : `self-start bg-neutral-700 rounded-bl-none ${base}`;
+        return `<div class="flex ${own ? 'justify-end' : 'justify-start'}">
+                  <span class="${bubble}">
+                    <span class="font-semibold">${m.autor_nombre}:</span> ${m.mensaje}
+                  </span>
+                </div>`;
+      }).join('');
       this.msgBox.scrollTop = this.msgBox.scrollHeight;
     } catch (err) {
       console.error('loadMessages', err);
