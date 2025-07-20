@@ -19,8 +19,16 @@
   </div>
 
   <!-- Contenidos -->
-  <div id="unp-content"
-       class="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
-    <!-- placeholder; JS cargará solicitudes, amigos o tu mini-dashboard -->
+  <div id="unp-content" class="flex-1 overflow-y-auto p-3 space-y-2 text-sm">
+    <div id="rq-solicitudes" class="space-y-2 text-sm">
+      <!-- placeholder; JS cargará solicitudes -->
+    </div>
+    <div id="rq-amigos" class="hidden space-y-2 text-sm">
+      <!-- placeholder; JS cargará amigos -->
+    </div>
+    <div id="rq-mi" class="hidden space-y-2 text-sm">
+      <button id="rq-open-chat" class="px-2 py-1 bg-primary text-neutral-900 rounded w-full text-left">💬 Abrir Chat</button>
+      {% include 'forum/chat_widget.html' %}
+    </div>
   </div>
 </div>

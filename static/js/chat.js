@@ -50,6 +50,14 @@ class ChatManager {
     if (this.pollId) clearInterval(this.pollId);
   }
 
+  toggle() {
+    if (this.widget.classList.contains('invisible')) {
+      this._show();
+    } else {
+      this.close();
+    }
+  }
+
   async loadMessages() {
     try {
       const res = await fetch(`/chat/get_messages/${this.chatId}`);

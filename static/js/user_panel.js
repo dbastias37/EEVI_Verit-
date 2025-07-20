@@ -4,14 +4,19 @@
   const fab     = document.getElementById('unp-fab');
   const close   = document.getElementById('unp-close');
   const tabs    = [...document.querySelectorAll('.unp-tab')];
-  const content = document.getElementById('unp-content');
+  const rqSolic  = document.getElementById('rq-solicitudes');
+  const rqAmigos = document.getElementById('rq-amigos');
+  const rqMi     = document.getElementById('rq-mi');
+  const sections = [rqSolic, rqAmigos, rqMi];
 
   const showPanel   = () => panel.classList.remove('hidden');
   const hidePanel   = () => panel.classList.add('hidden');
   const togglePanel = () => panel.classList.toggle('hidden');
 
-  fab  .addEventListener('click', togglePanel);
+  fab.addEventListener('click', togglePanel);
   close.addEventListener('click', hidePanel);
+  document.getElementById('rq-open-chat')
+          .addEventListener('click', () => window.chatManager.toggle());
 
   /* Tabs */
   tabs.forEach(btn => btn.addEventListener('click', () => {
@@ -21,14 +26,15 @@
   }));
 
   function renderTab(name) {
+    sections.forEach(s => s.classList.add('hidden'));
     if (name === 'Solicitudes') {
-      content.innerHTML = '<p class="text-xs text-gray-400">No hay solicitudes.</p>';
+      rqSolic.classList.remove('hidden');
+      rqSolic.innerHTML = '<p class="text-xs text-gray-400">No hay solicitudes.</p>';
     } else if (name === 'Amigos') {
-      content.innerHTML = '<p class="text-xs text-gray-400">Ningún amigo conectado.</p>';
-    } else { /* Mi Panel */
-      content.innerHTML = `
-        <p class="font-semibold text-primary">Hola, {{ session.get('user_name') or 'Invitado' }}!</p>
-        <p class="text-xs mt-1">Este es tu panel personal.</p>`;
+      rqAmigos.classList.remove('hidden');
+      rqAmigos.innerHTML = '<p class="text-xs text-gray-400">Ningún amigo conectado.</p>';
+    } else {
+      rqMi.classList.remove('hidden');
     }
   }
 
