@@ -1,4 +1,4 @@
-# === app.py (versión consolidada: copia y reemplaza la tuya) ===
+
 from flask import Flask, render_template, Blueprint, redirect, url_for
 from routes.chat import chat_bp   # <- conserva tu blueprint de chat
 
