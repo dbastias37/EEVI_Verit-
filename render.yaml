@@ -1,23 +1,45 @@
+# === render.yaml ===
 services:
+  # ─────────────────────────────────────────────────────────────
+  #  API + SPA  (Python runtime → gunicorn + Vite build output)
+  # ─────────────────────────────────────────────────────────────
   - name: eevi-api
     type: web
-    runtime: python
+    runtime: python           # fuerza contenedor Python ⇒ pip disponible
+    plan: free                # cámbialo si necesitas más recursos
+
+    # 1️⃣  Instala dependencias Python (incluye gunicorn)
+    # 2️⃣  Instala dependencias Node y compila frontend con Vite
+    # 3️⃣  Copia todo el bundle de dist/ a static/ para que Flask lo sirva
     buildCommand: |
-      pip install -r requirements.txt
+      pip install --no-cache-dir -r requirements.txt
       npm ci
-      npm run build           # genera dist/chat-widget.js
+      npm run build                     # genera dist/
       mkdir -p static
-      cp dist/chat-widget.js static/
-    startCommand: gunicorn app:app
+      cp -r dist/* static/
+
+    # Inicia gunicorn con 3 workers gevent (ajusta si hace falta)
+    startCommand: gunicorn -k gevent -w 3 app:app
+
     envVars:
+      # JSON de credenciales Firestore (todo en **una** línea sin saltos)
       - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
-        value: "<PEGA AQUÍ JSON SIN SALTOS DE LÍNEA>"
+        value: "PASTE_YOUR_COMPACT_JSON_HERE"
+      # URL pública del servicio Node que corre socket.io
       - key: VITE_CHAT_URL
         value: "https://eevi-chat.onrender.com"
 
+  # ─────────────────────────────────────────────────────────────
+  #  Servicio tiempo‑real de chat  (Node runtime → socket.io)
+  # ─────────────────────────────────────────────────────────────
   - name: eevi-chat
     type: web
     runtime: node
-    buildCommand: npm ci
+    plan: free
+
+    buildCommand: |
+      npm ci
+
     startCommand: node server/chatServer.js
-    envVars: []
+
+    envVars: []   # agrega aquí envs que necesite tu chat‑server
