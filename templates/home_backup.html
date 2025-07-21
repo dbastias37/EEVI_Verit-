@@ -20,7 +20,7 @@
             Solo contenido auténtico para proyectos que buscan impactar con lo real.
         </p>
        <div class="hero-cta">
-           <a href="{{ url_for('client.packs') }}" class="btn btn-primary">
+           <a href="{{ url_for('spa_routes', sub='packs') }}" class="btn btn-primary">
                🎧 Explorar Packs
            </a>
            <a href="{{ url_for('list_forum') }}" class="btn btn-secondary">
@@ -144,7 +144,7 @@
                    <h3 class="product-title">{{ pack.name }}</h3>
                    <p class="product-description">{{ pack.description }}</p>
                    <div class="product-price">{{ pack.price }}</div>
-                   <a href="{{ url_for('client.pack_detail', id=pack.id) }}" class="product-cta">Comprar Ahora</a>
+                   <a href="{{ url_for('spa_routes', sub='packs/' ~ pack.id) }}" class="product-cta">Comprar Ahora</a>
                </div>
            </div>
            {% endfor %}

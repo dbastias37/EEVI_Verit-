@@ -7,7 +7,7 @@
       <li><a href="/dashboard">Mis proyectos</a></li>
       <li><a href="/forum">VForum</a></li>
       <li><a href="/forum#search">Buscar proyectos</a></li>
-      <li><a href="{{ url_for('client.packs') }}">Packs</a></li>
+      <li><a href="{{ url_for('spa_routes', sub='packs') }}">Packs</a></li>
       <li><a href="/services">Servicios</a></li>
       {% if session.get('is_admin') %}
       <li><a href="/admin">Admin</a></li>

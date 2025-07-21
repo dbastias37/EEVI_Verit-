@@ -1,12 +1,23 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, Blueprint, redirect, url_for, request
 from routes.chat import chat_bp
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
+
+# Legacy blueprint to support old `client.*` links
+legacy = Blueprint("client", __name__)
+
+@legacy.route("/")
+def home_redirect():
+    return redirect(url_for("home"))
+
+app.register_blueprint(legacy, url_prefix="")
 app.register_blueprint(chat_bp, url_prefix="/chat")
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "HEAD"])
 def home():
+    if request.method == "HEAD":
+        return "", 200
     return render_template("home_enhanced.html")
 
 
