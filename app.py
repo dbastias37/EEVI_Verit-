@@ -35,6 +35,13 @@ def forum_alias():
 app.register_blueprint(forum_auth, url_prefix="")
 # -----------------------------------------------------------------------------
 
+# --- Alias para BUSCAR PROYECTO --------------------------------------------
+@app.route("/projects", endpoint="list_forum")
+def list_forum():
+    # Reutiliza la misma SPA
+    return render_template("home_enhanced.html")
+# ---------------------------------------------------------------------------
+
 
 @app.route("/", methods=["GET", "HEAD"])
 def home():
