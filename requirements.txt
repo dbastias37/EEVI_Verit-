@@ -1,3 +1,6 @@
 Flask
+Flask-SQLAlchemy
+Flask-Migrate
 gunicorn
 google-cloud-firestore
+Werkzeug
