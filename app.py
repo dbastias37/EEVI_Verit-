@@ -23,6 +23,18 @@ app.register_blueprint(client, url_prefix="")
 # ---------------------------------------------------------------------------
 app.register_blueprint(chat_bp, url_prefix="/chat")
 
+# --- Alias para COMUNIDAD ----------------------------------------------------
+from flask import Blueprint, render_template
+
+forum_auth = Blueprint("forum_auth", __name__)
+
+@forum_auth.route("/forum", endpoint="vforum_auth")
+def forum_alias():
+    return render_template("home_enhanced.html")
+
+app.register_blueprint(forum_auth, url_prefix="")
+# -----------------------------------------------------------------------------
+
 
 @app.route("/", methods=["GET", "HEAD"])
 def home():
