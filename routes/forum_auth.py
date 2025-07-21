@@ -6,7 +6,9 @@ from services.fs_client import fs_client
 from datetime import datetime, timedelta
 import re
 
-forum_auth_bp = Blueprint('forum_auth', __name__, template_folder='templates')
+# Blueprint principal del foro. Se registra como 'forum_auth'
+forum_auth = Blueprint('forum_auth', __name__, url_prefix='/forum',
+                       template_folder='templates')
 
 # Frases rotativas para usuarios existentes
 LOGIN_PHRASES = [
@@ -19,7 +21,7 @@ LOGIN_PHRASES = [
     "Ingresar a mi cuenta"
 ]
 
-@forum_auth_bp.route('/')
+@forum_auth.route('/')
 def vforum_auth():
     """Vista unificada de registro/login"""
     if session.get('forum_user'):
@@ -37,7 +39,7 @@ def vforum_auth():
                          professions=professions,
                          login_phrases=LOGIN_PHRASES)
 
-@forum_auth_bp.route('/register', methods=['POST'], endpoint='register_user')
+@forum_auth.route('/register', methods=['POST'], endpoint='register_user')
 def register_user():
     """Registro básico para VFORUM."""
     data = request.get_json() or {}
@@ -71,7 +73,7 @@ def register_user():
 
     return jsonify({'success': True})
 
-@forum_auth_bp.route('/login', methods=['POST'])
+@forum_auth.route('/login', methods=['POST'])
 def vforum_login():
     """Login de usuario existente"""
     from app import usuarios_ref
@@ -118,7 +120,7 @@ def vforum_login():
 
     return jsonify({'success': True, 'redirect': url_for('list_forum')})
 
-@forum_auth_bp.route('/logout')
+@forum_auth.route('/logout')
 def vforum_logout():
     """Cerrar sesión"""
     if 'forum_user' in session:
@@ -133,7 +135,7 @@ def vforum_logout():
 
 
 # Alias legacy para mantener compatibilidad con templates antiguos
-@forum_auth_bp.route('/list', endpoint='list_forum')
+@forum_auth.route('/list', endpoint='list_forum')
 def list_forum():
     """Redirige al inicio del foro."""
     from flask import redirect, url_for

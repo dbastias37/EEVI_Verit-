@@ -2,6 +2,7 @@
 from flask import Flask, render_template, Blueprint, redirect, url_for
 from routes.chat import chat_bp   # <- conserva tu blueprint de chat
 from routes.packs import packs_bp
+from routes.forum_auth import forum_auth
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
@@ -18,16 +19,9 @@ def client_home():
 app.register_blueprint(client, url_prefix="")   # sin prefijo
 
 # ╭─────────────────────────────────────────────────────────────╮
-# │ 2.  ALIAS 'forum_auth' → cubre url_for('forum_auth.vforum_auth') │
+# │ 2.  Blueprint de autenticación del foro                     │
 # ╰─────────────────────────────────────────────────────────────╯
-forum_auth = Blueprint("forum_auth", __name__)
-
-@forum_auth.route("/forum", endpoint="vforum_auth")
-def forum_alias():
-    # Sirve directamente la SPA para /forum
-    return render_template("home_enhanced.html")
-
-app.register_blueprint(forum_auth, url_prefix="")
+app.register_blueprint(forum_auth)
 
 # ╭─────────────────────────────────────────────────────────────╮
 # │ 3.  ALIAS list_forum  → cubre url_for('list_forum')         │
