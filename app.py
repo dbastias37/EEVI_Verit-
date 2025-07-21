@@ -10,6 +10,20 @@ legacy = Blueprint("client", __name__)
 def home_redirect():
     return redirect(url_for("home"))
 
+# --- Compatibilidad para la plantilla base (COMUNIDAD) ----------------------
+from flask import Blueprint, redirect, url_for
+
+forum_auth = Blueprint("forum_auth", __name__)
+
+@forum_auth.route("/forum", endpoint="vforum_auth")
+def forum_redirect():
+    # Redirige a la SPA manteniendo ruta /forum
+    return redirect(url_for("spa_routes", sub="forum"))
+
+# Registrar el alias
+app.register_blueprint(forum_auth, url_prefix="")
+# ---------------------------------------------------------------------------
+
 app.register_blueprint(legacy, url_prefix="")
 app.register_blueprint(chat_bp, url_prefix="/chat")
 
