@@ -3,28 +3,25 @@ from routes.chat import chat_bp
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
-# Legacy blueprint to support old `client.*` links
-legacy = Blueprint("client", __name__)
+# --- Compatibilidad plantilla COMUNIDAD ------------------------------------
+from flask import Blueprint, redirect, url_for, render_template
 
-@legacy.route("/")
-def home_redirect():
-    return redirect(url_for("home"))
+client = Blueprint("client", __name__)
 
-# --- Compatibilidad para la plantilla base (COMUNIDAD) ----------------------
-from flask import Blueprint, redirect, url_for
+# 1. endpoint client.home   →  /client/home   (redirige 1 vez al root)
+@client.route("/client/home", endpoint="home")
+def client_home():
+    return redirect(url_for("home"), code=302)
 
-forum_auth = Blueprint("forum_auth", __name__)
+# 2. endpoint forum_auth.vforum_auth  →  /forum   (único redirect válido)
+@client.route("/forum", endpoint="vforum_auth")
+def client_forum():
+    return render_template("home_enhanced.html")   # sin redirect para evitar bucle
 
-@forum_auth.route("/forum", endpoint="vforum_auth")
-def forum_redirect():
-    # Redirige a la SPA manteniendo ruta /forum
-    return redirect(url_for("spa_routes", sub="forum"))
-
-# Registrar el alias
-app.register_blueprint(forum_auth, url_prefix="")
+# Registrar blueprint
+app.register_blueprint(client, url_prefix="")
 # ---------------------------------------------------------------------------
 
-app.register_blueprint(legacy, url_prefix="")
 app.register_blueprint(chat_bp, url_prefix="/chat")
 
 
