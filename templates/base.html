@@ -46,8 +46,6 @@
     };
   </script>
   <div id="eevi-chat-root"></div>
-  {% if not config['DEBUG'] %}
   <script src="{{ url_for('static', filename='chat-widget.js') }}" defer></script>
-  {% endif %}
 </body>
 </html>
