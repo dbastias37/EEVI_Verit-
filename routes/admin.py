@@ -117,7 +117,7 @@ def admin_signup():
         email = request.form['email']
         password = request.form['password']
         create_user(email, password, True)
-        return redirect(url_for('client.verify', email=email))
+        return redirect(url_for('home'))
     return render_template('admin_signup.html')
 
 

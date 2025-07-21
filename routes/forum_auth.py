@@ -129,7 +129,7 @@ def vforum_logout():
         session.pop('forum_user')
     session.pop('user', None)
 
-    return redirect(url_for('client.home'))
+    return redirect(url_for('home'))
 
 
 # Alias legacy para mantener compatibilidad con templates antiguos
