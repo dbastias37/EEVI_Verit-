@@ -2,9 +2,10 @@ services:
   - type: web
     name: eevi-verite
     runtime: python
-    startCommand: "gunicorn app:app"
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.9
-      - key: SECRET_KEY
-        generateValue: true
+    region: oregon
+    buildCommand: |
+      pip install -r requirements.txt
+      npm ci
+      npm run build
+    startCommand: gunicorn app:app
+    plan: free
