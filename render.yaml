@@ -1,11 +1,23 @@
 services:
-  - type: web
-    name: eevi-verite
+  - name: eevi-api
+    type: web
     runtime: python
-    region: oregon
     buildCommand: |
       pip install -r requirements.txt
       npm ci
-      npm run build
+      npm run build           # genera dist/chat-widget.js
+      mkdir -p static
+      cp dist/chat-widget.js static/
     startCommand: gunicorn app:app
-    plan: free
+    envVars:
+      - key: GOOGLE_APPLICATION_CREDENTIALS_JSON
+        value: "<PEGA AQUÍ JSON SIN SALTOS DE LÍNEA>"
+      - key: VITE_CHAT_URL
+        value: "https://eevi-chat.onrender.com"
+
+  - name: eevi-chat
+    type: web
+    runtime: node
+    buildCommand: npm ci
+    startCommand: node server/chatServer.js
+    envVars: []
