@@ -1,6 +1,7 @@
 
 from flask import Flask, render_template, Blueprint, redirect, url_for
 from routes.chat import chat_bp   # <- conserva tu blueprint de chat
+from routes.packs import packs_bp
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 
@@ -52,3 +53,4 @@ def spa_routes(sub):
 # │ 5.  Blueprint de chat (el tuyo existente)                  │
 # ╰─────────────────────────────────────────────────────────────╯
 app.register_blueprint(chat_bp, url_prefix="/chat")
+app.register_blueprint(packs_bp)
