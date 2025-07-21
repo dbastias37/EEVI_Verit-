@@ -171,10 +171,10 @@
 function handleCommunityClick() {
     {% if current_user and current_user.is_authenticated %}
         // Usuario autenticado - ir al foro
-        window.location.href = "{{ url_for('forum.index') if url_for else '/forum' }}";
+        window.location.href = "{{ url_for('list_forum') if url_for else '/forum' }}";
     {% else %}
         // Usuario no autenticado - ir a registro/login
-        window.location.href = "{{ url_for('auth.register') if url_for else '/forum#register' }}";
+        window.location.href = "{{ url_for('forum_auth.register_user') if url_for else '/forum#register' }}";
     {% endif %}
 }
 </script>
