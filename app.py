@@ -16,7 +16,11 @@ app.config['AUTH_USER_REGISTRATION_ROLE'] = 'Public'
 
 db = SQLAlchemy(app)
 appbuilder = AppBuilder(app, db.session)
+
+# Desactivar la advertencia de TRACK_MODIFICATIONS
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Auto‐crear tablas y usuario admin sin consola
 with app.app_context():
     try:
         db.create_all()
