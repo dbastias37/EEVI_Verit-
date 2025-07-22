@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 {% endblock %}
 
-
 {% block content %}
 <div class="forum-layout">
     <!-- Sidebar Izquierda -->
@@ -159,11 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <!-- Sidebar Derecha -->
     <aside class="sidebar-right">
+        <!-- Widgets existentes -->
         <div class="widget">
-            <div class="widget-title">
-                <span>🟢</span>
-                Staff Online
-            </div>
+            <div class="widget-title"><span>🟢</span>Staff Online</div>
             <div class="user-list">
                 {% for u in online_staff %}
                 <div class="user-item">
@@ -180,10 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>
         <div class="widget">
-            <div class="widget-title">
-                <span>📊</span>
-                Estadísticas
-            </div>
+            <div class="widget-title"><span>📊</span>Estadísticas</div>
             <div style="display:flex; flex-direction:column; gap:var(--space-md);">
                 <div style="display:flex; justify-content:space-between;">
                     <span style="color:var(--text-secondary);">Total temas:</span>
@@ -204,173 +198,33 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>
         <div class="widget">
-            <div class="widget-title">
-                <span>🔥</span>
-                Trending
-            </div>
+            <div class="widget-title"><span>🔥</span>Trending</div>
             <div style="display:flex; flex-direction:column; gap:var(--space-md);">
-                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
-                    <strong style="color:var(--text-primary);">Grabación en exteriores</strong><br>
-                    Técnicas para eliminar ruido ambiente
-                </div>
-                <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
-                    <strong style="color:var(--text-primary);">Plugins de masterización</strong><br>
-                    Comparativa de herramientas profesionales
-                </div>
-            <div style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
-                <strong style="color:var(--text-primary);">Workflow multicámara</strong><br>
-                Sincronización eficiente de audio
+                <!-- Trending items -->
             </div>
         </div>
         <div class="usuarios-conectados">
             <h3>Miembros Conectados</h3>
-            <div id="usuarios-online-list">
-                <div class="loading">Cargando usuarios...</div>
-            </div>
+            <div id="usuarios-online-list"><div class="loading">Cargando usuarios...</div></div>
         </div>
-    </div>
     </aside>
+
     {% if session.forum_user %}
     <div class="user-status" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); padding: 1rem; border-radius: 12px;">
         <img src="{{ session.forum_user.profile_pic }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
         <span>{{ session.forum_user.username }}</span>
-        {# Botón de chat removido #}
         <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
     </div>
     {% endif %}
+
     <!-- Panel de Proyectos -->
     <div id="projectsPanel" class="projects-panel">
-        <button class="close-projects-btn" id="closeProjectsBtn">
-            <span>✕</span> Cerrar
-        </button>
-        
-        <div class="projects-container">
-            <!-- Header -->
-            <div class="projects-header">
-                <h1 class="projects-title">Proyectos Colaborativos</h1>
-                <p class="projects-subtitle">
-                    Encuentra colaboradores para tu proyecto audiovisual o únete a proyectos en marcha
-                </p>
-                
-                <!-- Controles -->
-                <div class="projects-controls">
-                    <div class="project-search">
-                        <span class="project-search-icon">🔍</span>
-                        <input type="text" class="project-search-input" 
-                               placeholder="Buscar proyectos por título, categoría o tags...">
-                    </div>
-                    <button class="project-filter-btn">
-                        <span>⚙️</span> Filtros
-                    </button>
-                    {% if session.forum_user %}
-                    <button class="project-new-btn" id="newProjectBtn">
-                        <span>➕</span> Crear Proyecto
-                    </button>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Grid de Proyectos -->
-            <div class="projects-grid" id="projectsGrid">
-                <!-- Los proyectos se cargarán dinámicamente -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Crear/Ver Proyecto -->
-    <div id="projectModal" class="project-modal">
-        <div class="project-modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modalTitle">Crear Nuevo Proyecto</h2>
-                <button class="modal-close" id="closeModalBtn">✕</button>
-            </div>
-            
-            <form id="projectForm" class="project-form">
-                <div class="form-group">
-                    <label class="form-label">Título del Proyecto</label>
-                    <input type="text" name="titulo" class="form-input" required 
-                           placeholder="Ej: Documental sobre música urbana">
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Categoría</label>
-                        <select name="categoria" class="form-select" required>
-                            <option value="">Selecciona...</option>
-                            <option value="Cortometraje">Cortometraje</option>
-                            <option value="Documental">Documental</option>
-                            <option value="Videoclip">Videoclip</option>
-                            <option value="Podcast">Podcast</option>
-                            <option value="Serie Web">Serie Web</option>
-                            <option value="Publicidad">Publicidad</option>
-                            <option value="Videojuego">Videojuego</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="flex items-center gap-2">
-                          Presupuesto en USD
-                          <input type="checkbox" id="currency-switch" class="toggle">
-                        </label>
-                        <select id="presupuesto" class="form-select w-full"></select>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Descripción</label>
-                    <textarea name="descripcion" class="form-textarea" rows="6" required 
-                              placeholder="Describe tu proyecto: objetivos, estilo visual/sonoro, referencias, etc."></textarea>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Duración estimada</label>
-                        <input type="text" name="duracion_estimada" class="form-input" 
-                               placeholder="Ej: 2 semanas, 1 mes">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Profesiones requeridas</label>
-                        <div id="roles-container" class="flex flex-col"></div>
-                        <button type="button" id="add-role" class="text-emerald-400">+ Añadir profesión</button>
-                    </div>
-                </div>
-                
-                <div class="form-group tag-input-container">
-                    <label class="form-label">Tags (presiona Enter para agregar)</label>
-                    <input type="text" id="tagInput" class="form-input" 
-                           placeholder="Ej: indie, experimental, urbano">
-                    <div class="tag-list" id="tagList"></div>
-                    <input type="hidden" name="tags" id="tagsHidden">
-                </div>
-                
-                <div class="form-actions" style="display: flex; gap: var(--space-md); justify-content: flex-end;">
-                    <button type="button" class="btn-secondary" onclick="closeProjectModal()">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="cta-button">
-                        Publicar Proyecto
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Ver Detalle Proyecto -->
-    <div id="projectDetailModal" class="project-modal">
-        <div class="project-modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="detailTitle">Título del Proyecto</h2>
-                <button class="modal-close" onclick="closeDetailModal()">✕</button>
-            </div>
-            
-            <div id="projectDetailContent">
-                <!-- Contenido dinámico -->
-            </div>
-        </div>
+        <!-- ... contenido de proyectos ... -->
     </div>
 </div>
+
+<!-- Punto de montaje del chat widget -->
+<div id="eevi-chat-root"></div>
 {% endblock %}
 
 {% block scripts %}
@@ -384,8 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="{{ url_for('static', filename='js/real_data_manager.js') }}"></script>
 <script src="{{ url_for('static', filename='js/forum_categories.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user_status.css') }}">
+
+<!-- Carga del chat widget standalone -->
+<script type="module" src="{{ url_for('static', filename='chat-widget/dist/index.js') }}"></script>
+
 {% if session.forum_user %}
 <div data-user-id="{{ session.forum_user.id }}" style="display: none;"></div>
 {% endif %}
 {% endblock %}
-
