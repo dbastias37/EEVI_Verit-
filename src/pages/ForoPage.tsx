@@ -1,16 +1,12 @@
-import { useState } from 'react';
-import EeviChatModal from '../components/chat/eevi-chat-modal';
-import ChatBubble from '../components/chat/ChatBubble';
-import UserBellPanel from '../components/panels/UserBellPanel';
+import React from 'react';
+import ForumChatOverlay from '../components/forumChat/ForumChatOverlay';
 
 const ForoPage = () => {
-  const [chatOpen, setChatOpen] = useState(false);
   return (
-    <>
-      <UserBellPanel />
-      <ChatBubble onClick={() => setChatOpen(true)} visible={!chatOpen} />
-      <EeviChatModal open={chatOpen} onClose={() => setChatOpen(false)} />
-    </>
+    <div>
+      {/* ...tu contenido de foro... */}
+      <ForumChatOverlay user={{ username: 'UsuarioEEVI_2025' }} />
+    </div>
   );
 };
 
