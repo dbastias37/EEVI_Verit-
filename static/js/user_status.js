@@ -236,7 +236,7 @@ async function sendFriendRequest(userId) {
 }
 
 function sendMessage(userId) {
-    // chat removed
+    openChatWith(userId);
     document.querySelector('.user-context-menu')?.remove();
 }
 

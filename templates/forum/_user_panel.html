@@ -26,6 +26,9 @@
     <div id="rq-amigos" class="hidden space-y-2 text-sm">
       <!-- placeholder; JS cargará amigos -->
     </div>
-    {# Se eliminó la integración con el chat #}
+    <div id="rq-mi" class="hidden space-y-2 text-sm">
+      <button id="rq-open-chat" class="px-2 py-1 bg-primary text-neutral-900 rounded w-full text-left">💬 Abrir Chat</button>
+      {% include 'forum/chat_widget.html' %}
+    </div>
   </div>
 </div>
