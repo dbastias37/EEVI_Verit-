@@ -1,4 +1,3 @@
-# Se reemplaza inicialización de DB para evitar get_bind error en Render
 from flask import Flask, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_appbuilder import AppBuilder, Model
