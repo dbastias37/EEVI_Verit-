@@ -1,4 +1,4 @@
 Flask==2.3.3
 Flask-AppBuilder==4.3.5
-Flask-SQLAlchemy==3.1.1
+Flask-SQLAlchemy==2.5.1
 gunicorn==21.2.0
