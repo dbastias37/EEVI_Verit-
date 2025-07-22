@@ -214,6 +214,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <img src="{{ session.forum_user.profile_pic }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
         <span>{{ session.forum_user.username }}</span>
         <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
+        <button id="eevi-chat-toggle"
+                style="margin-left:1rem;padding:0.5rem;border:none;border-radius:50%;background:#4caf50;color:white;cursor:pointer;">
+          💬
+        </button>
     </div>
     {% endif %}
 
@@ -224,13 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 
- <!-- Chat Widget Overlay -->
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='chat-widget/dist/index.css') }}">
-    <div id="eevi-chat-root"></div>
-    <script type="module"
-            src="{{ url_for('static', filename='chat-widget/dist/index.js') }}"></script>
-    <!-- /Chat Widget Overlay -->
+<!-- Chat widget mount point -->
+<div id="eevi-chat-root" style="display:none;"></div>
+<script type="module" src="{{ url_for('static', filename='chat-widget/dist/index.js') }}"></script>
 {% endblock %}
 
 {% block scripts %}
@@ -251,4 +251,14 @@ document.addEventListener('DOMContentLoaded', () => {
 {% if session.forum_user %}
 <div data-user-id="{{ session.forum_user.id }}" style="display: none;"></div>
 {% endif %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const chatRoot = document.getElementById('eevi-chat-root');
+    const toggle   = document.getElementById('eevi-chat-toggle');
+    if (!chatRoot || !toggle) return;
+    toggle.addEventListener('click', () => {
+      chatRoot.style.display = chatRoot.style.display === 'none' ? 'block' : 'none';
+    });
+  });
+</script>
 {% endblock %}
