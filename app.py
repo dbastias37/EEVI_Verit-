@@ -1,5 +1,5 @@
 import os
-from flask import Flask, flash, redirect, send_from_directory
+from flask import Flask, flash, redirect, send_from_directory, render_template
 from flask_sqlalchemy import SQLAlchemy
 
 from sqlalchemy import Column, Integer, String
@@ -27,7 +27,11 @@ class Recurso(db.Model):
     descripcion = Column(String(500))
 
 
-@app.route('/', defaults={'path': ''})
+
+@app.route('/')
+def home():
+    return render_template('home_enhanced.html')
+
 @app.route('/<path:path>')
 def serve_react(path):
     file_path = os.path.join(BUILD_DIR, path)
