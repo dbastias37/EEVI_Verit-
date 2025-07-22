@@ -16,22 +16,23 @@ app.config['AUTH_USER_REGISTRATION_ROLE'] = 'Public'
 
 db = SQLAlchemy(app)
 appbuilder = AppBuilder(app, db.session)
-
-session = appbuilder.get_session
-user_model = appbuilder.sm.user_model
-if not session.query(user_model).filter_by(username='admin').first():
-    admin_role = appbuilder.sm.find_role('Admin')
-    admin = user_model(
-        username='admin',
-        first_name='Admin',
-        last_name='User',
-        email='admin@eevi.cl',
-        active=True,
-        password=appbuilder.sm.hash_password('admin123'),
-    )
-    admin.roles.append(admin_role)
-    session.add(admin)
-    session.commit()
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+with app.app_context():
+    try:
+        db.create_all()
+        from flask_appbuilder.security.sqla.models import User
+        sm = appbuilder.sm
+        if not User.query.filter_by(username='admin').first():
+            sm.add_user(
+                username='admin',
+                first_name='Administrador',
+                last_name='EEVI',
+                email='admin@eevi.cl',
+                role=sm.find_role('Admin'),
+                password='admin123'
+            )
+    except Exception as e:
+        print("DB Creation and initialization failed:", e)
 
 # Modelo
 class Recurso(Model):
