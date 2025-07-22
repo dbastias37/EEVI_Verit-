@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, MessageCircle } from 'lucide-react';
-import COLORS from '../COLORS';
+import { COLORS } from '../COLORS';
 
 interface UserNavPanelProps {
   onOpen: () => void;

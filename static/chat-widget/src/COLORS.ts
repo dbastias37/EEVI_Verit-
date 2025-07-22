@@ -1,4 +1,4 @@
-export default {
+export const COLORS = {
   background: '#1A2332',
   text: '#E9E9E9',
   accent: '#00D4B8',

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import 'react/jsx-runtime';
 import { X, Send, MessageCircle, User, Clock, Minimize2, Maximize2 } from 'lucide-react';
-import COLORS from '../COLORS';
+import { COLORS } from '../COLORS';
 
 interface Message {
   id: number;
