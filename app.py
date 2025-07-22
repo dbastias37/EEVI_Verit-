@@ -1,3 +1,4 @@
+# Se reemplaza inicialización de DB para evitar get_bind error en Render
 from flask import Flask, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_appbuilder import AppBuilder, Model
@@ -22,21 +23,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Auto‐crear tablas y usuario admin sin consola
 with app.app_context():
-    try:
-        db.create_all()
-        from flask_appbuilder.security.sqla.models import User
-        sm = appbuilder.sm
-        if not User.query.filter_by(username='admin').first():
-            sm.add_user(
-                username='admin',
-                first_name='Administrador',
-                last_name='EEVI',
-                email='admin@eevi.cl',
-                role=sm.find_role('Admin'),
-                password='admin123'
-            )
-    except Exception as e:
-        print("DB Creation and initialization failed:", e)
+    db.create_all()
+    from flask_appbuilder.security.sqla.models import User
+    sm = appbuilder.sm
+    if not User.query.filter_by(username='admin').first():
+        sm.add_user(
+            username='admin',
+            first_name='Administrador',
+            last_name='EEVI',
+            email='admin@eevi.cl',
+            role=sm.find_role('Admin'),
+            password='admin123'
+        )
 
 # Modelo
 class Recurso(Model):
