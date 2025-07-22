@@ -2,7 +2,7 @@ services:
   - type: web
     name: eevi-verite
     runtime: python
-    startCommand: "gunicorn app:app"
+    startCommand: "gunicorn --worker-class eventlet -w 1 app:socketio"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9

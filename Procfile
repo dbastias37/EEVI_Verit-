@@ -1,1 +1,1 @@
-web: gunicorn app:app --log-level warning
+web: gunicorn --worker-class eventlet -w 1 app:socketio --log-level warning
