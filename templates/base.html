@@ -14,6 +14,12 @@
 
   {% block head_admin %}{% endblock %}
   {% block extra_head %}{% endblock %}
+  <script>
+    window.currentUser = {
+      id: "{{ session.forum_user.id if session.forum_user else '' }}",
+      username: "{{ session.forum_user.username if session.forum_user else 'Guest' }}"
+    };
+  </script>
 </head>
 <body>
   <header class="header-unified">
@@ -38,13 +44,7 @@
   <script src="{{ url_for('static', filename='js/mobile_stability.js') }}"></script>
   {% endblock %}
   <script src="{{ url_for('static', filename='js/nav_unified.js') }}"></script>
-  <script>
-    window.currentUser = {
-        authenticated: {% if session.get('user_id') %}true{% else %}false{% endif %},
-        user_id: "{{ session.get('user_id', '') }}",
-        user_name: "{{ session.get('user_name', '') }}"
-    };
-  </script>
-  {# Chat UI removed #}
+  <div id="eevi-chat-root"></div>
+  <script type="module" src="{{ url_for('static', filename='chat-widget/dist/index.js') }}"></script>
 </body>
 </html>

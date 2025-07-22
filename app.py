@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime
 from flask_login import LoginManager, current_user, UserMixin
+from flask_socketio import SocketIO, emit
 import os
 import logging
+import time
+import uuid
 
 # Imports existentes
 from routes.chat import chat_bp
@@ -34,9 +37,18 @@ except ImportError:
 # Configuración
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # --- Autenticación mínima para evitar fallos de import ---
 login_manager = LoginManager(app)
+
+
+def generate_unique_id():
+    return str(uuid.uuid4())
+
+
+def current_timestamp():
+    return int(time.time() * 1000)
 
 
 class Anonymous(UserMixin):
@@ -291,7 +303,26 @@ def index():
     """Renderiza la página principal utilizando el nuevo diseño."""
     return render_template('home.html')
 
+
+@socketio.on('connect')
+def handle_connect():
+    # optional: load and emit last 50 messages from DB here
+    pass
+
+
+@socketio.on('chat message')
+def handle_chat_message(data):
+    # data: { sender: str, text: str }
+    message = {
+        'id': generate_unique_id(),
+        'sender': data['sender'],
+        'text': data['text'],
+        'timestamp': current_timestamp(),
+    }
+    # optional: save to DB
+    emit('chat message', message, broadcast=True)
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = not os.environ.get('RENDER')
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    socketio.run(app, host='0.0.0.0', port=port, debug=debug)
