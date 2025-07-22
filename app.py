@@ -1,16 +1,16 @@
 from flask import Flask, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 
-from sqlalchemy import Column, Integer, String, or_
+from sqlalchemy import Column, Integer, String
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'supersecretkey'
 app.config['CSRF_ENABLED'] = True
 
 # Base de datos
 db = SQLAlchemy(app)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Crea las tablas automaticamente
 with app.app_context():
