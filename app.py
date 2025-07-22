@@ -19,21 +19,7 @@ appbuilder = AppBuilder(app, db.session)
 
 # Desactivar la advertencia de TRACK_MODIFICATIONS
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Auto‐crear tablas y usuario admin sin consola
-with app.app_context():
-    db.create_all()
-    from flask_appbuilder.security.sqla.models import User
-    sm = appbuilder.sm
-    if not User.query.filter_by(username='admin').first():
-        sm.add_user(
-            username='admin',
-            first_name='Administrador',
-            last_name='EEVI',
-            email='admin@eevi.cl',
-            role=sm.find_role('Admin'),
-            password='admin123'
-        )
+# DB init skipped for Render deployment
 
 # Modelo
 class Recurso(Model):
