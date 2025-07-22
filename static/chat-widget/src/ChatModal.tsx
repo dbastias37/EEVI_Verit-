@@ -1,27 +1,43 @@
-import React, { useEffect, useRef } from 'react';
-import { X, Send, MessageCircle, User, Clock, Minimize2, Maximize2 } from 'lucide-react';
-import COLORS from '../COLORS';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  KeyboardEvent,
+  FC,
+} from 'react';
+import {
+  X,
+  Send,
+  MessageCircle,
+  User,
+  Clock,
+  Minimize2,
+  Maximize2,
+} from 'lucide-react';
+import { COLORS } from '../COLORS';
 
 interface Message {
-  id: number;
+  id: string;
   text: string;
   sender: string;
-  timestamp: Date;
+  timestamp: number;
   isSystem: boolean;
+}
+
+interface User {
+  username: string;
 }
 
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: {
-    username: string;
-  };
+  user: User;
 }
 
-export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
-  const [messages, setMessages] = React.useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = React.useState('');
-  const [isMinimized, setIsMinimized] = React.useState(false);
+const ChatModal: FC<ChatModalProps> = ({ isOpen, onClose, user }) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState<string>('');
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,16 +62,16 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (): void => {
     if (!inputMessage.trim()) return;
     const newMessage: Message = {
-      id: Date.now(),
+      id: Date.now().toString(),
       text: inputMessage,
       sender: user.username,
-      timestamp: new Date(),
+      timestamp: Date.now(),
       isSystem: false
     };
-    setMessages(prev => [...prev, newMessage]);
+    setMessages((prev: Message[]) => [...prev, newMessage]);
     setInputMessage('');
     setTimeout(() => {
       const responses = [
@@ -70,25 +86,28 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
       setMessages(prev => [
         ...prev,
         {
-          id: Date.now() + 1,
+          id: (Date.now() + 1).toString(),
           text: randomResponse,
           sender: 'Bot_EEVI',
-          timestamp: new Date(),
+          timestamp: Date.now(),
           isSystem: true
         }
       ]);
     }, 1500);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const formatTime = (timestamp: Date) =>
-    timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const formatTime = (timestamp: number): string =>
+    new Date(timestamp).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   if (!isOpen) return null;
 
@@ -124,7 +143,7 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <MessageCircle size={18} style={{ color: COLORS.accent }} />
+          <MessageCircle size={18} color={COLORS.accent} />
           <span style={{ fontWeight: 600 }}>CHAT GLOBAL EEVI</span>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -227,10 +246,12 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
       {/* Minimizado */}
       {isMinimized && (
         <div style={{ padding: '1rem', textAlign: 'center' }}>
-          <MessageCircle size={20} style={{ color: COLORS.accent }} />
+          <MessageCircle size={20} color={COLORS.accent} />
           <div style={{ color: COLORS.text }}>Chat minimizado</div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default ChatModal;
