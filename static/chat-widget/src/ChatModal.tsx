@@ -3,7 +3,6 @@ import React, {
   useEffect,
   useRef,
   KeyboardEvent,
-  FC,
 } from 'react';
 import {
   X,
@@ -14,27 +13,23 @@ import {
   Minimize2,
   Maximize2,
 } from 'lucide-react';
-import { COLORS } from '../COLORS';
+import { COLORS } from './COLORS';
 
 interface Message {
-  id: string;
+  id: number;
   text: string;
   sender: string;
   timestamp: number;
   isSystem: boolean;
 }
 
-interface User {
-  username: string;
-}
-
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: User;
+  user: { username: string };
 }
 
-const ChatModal: FC<ChatModalProps> = ({ isOpen, onClose, user }) => {
+const ChatModal = ({ isOpen, onClose, user }: ChatModalProps): JSX.Element | null => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
@@ -65,7 +60,7 @@ const ChatModal: FC<ChatModalProps> = ({ isOpen, onClose, user }) => {
   const handleSendMessage = (): void => {
     if (!inputMessage.trim()) return;
     const newMessage: Message = {
-      id: Date.now().toString(),
+      id: Date.now(),
       text: inputMessage,
       sender: user.username,
       timestamp: Date.now(),
@@ -83,10 +78,10 @@ const ChatModal: FC<ChatModalProps> = ({ isOpen, onClose, user }) => {
         "Buen punto para discutir 📝"
       ];
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      setMessages(prev => [
+      setMessages((prev: Message[]) => [
         ...prev,
         {
-          id: (Date.now() + 1).toString(),
+          id: Date.now() + 1,
           text: randomResponse,
           sender: 'Bot_EEVI',
           timestamp: Date.now(),
@@ -169,7 +164,7 @@ const ChatModal: FC<ChatModalProps> = ({ isOpen, onClose, user }) => {
               padding: '0.75rem'
             }}
           >
-            {messages.map(msg => (
+            {messages.map((msg: Message) => (
               <div key={msg.id} style={{ marginBottom: '0.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}>
                   <User size={12} color={msg.isSystem ? COLORS.accent : COLORS.text} />
@@ -211,7 +206,7 @@ const ChatModal: FC<ChatModalProps> = ({ isOpen, onClose, user }) => {
                 ref={inputRef}
                 type="text"
                 value={inputMessage}
-                onChange={e => setInputMessage(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Escribe tu mensaje..."
                 style={{
