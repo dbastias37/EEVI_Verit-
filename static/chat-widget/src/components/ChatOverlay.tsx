@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import UserNavPanel from './UserNavPanel';
-import ChatModal from './ChatModal';  // adapta tu eevi-chat-modal.tsx aquí
+import ChatModal from './ChatModal';
 
 export default function ChatOverlay() {
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const user = { username: 'Usuario_EEVI' };
+
   return (
     <>
-      <UserNavPanel onOpen={() => setOpen(true)} />
-      <ChatModal isOpen={open} onClose={() => setOpen(false)} />
+      <UserNavPanel onOpen={() => setIsOpen(true)} />
+      <ChatModal isOpen={isOpen} onClose={() => setIsOpen(false)} user={user} />
     </>
   );
 }

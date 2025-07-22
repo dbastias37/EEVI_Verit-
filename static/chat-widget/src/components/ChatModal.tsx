@@ -1,203 +1,212 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { X, Send, MessageCircle, User, Clock, Minimize2, Maximize2 } from 'lucide-react';
 import COLORS from '../COLORS';
+
+interface Message {
+  id: number;
+  text: string;
+  sender: string;
+  timestamp: Date;
+  isSystem: boolean;
+}
 
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
+  user: {
+    username: string;
+  };
 }
 
-export default function ChatModal({ isOpen, onClose }: ChatModalProps) {
-  const [chatId, setChatId] = useState<string | null>(null);
-  const [title, setTitle] = useState('Chat');
-  const [messages, setMessages] = useState<any[]>([]);
-  const [text, setText] = useState('');
-  const msgEnd = useRef<HTMLDivElement>(null);
-  const pollRef = useRef<NodeJS.Timeout>();
+export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
+  const [messages, setMessages] = React.useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = React.useState('');
+  const [isMinimized, setIsMinimized] = React.useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
-    if (isOpen && chatId) {
-      loadMessages();
-      pollRef.current = setInterval(loadMessages, 4000);
+    if (isOpen && !isMinimized) {
+      scrollToBottom();
+      inputRef.current?.focus();
     }
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
+  }, [isOpen, isMinimized, messages]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
     };
-  }, [isOpen, chatId]);
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
 
-  useEffect(() => {
-    if (msgEnd.current) msgEnd.current.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const handleSendMessage = () => {
+    if (!inputMessage.trim()) return;
+    const newMessage: Message = {
+      id: Date.now(),
+      text: inputMessage,
+      sender: user.username,
+      timestamp: new Date(),
+      isSystem: false
+    };
+    setMessages(prev => [...prev, newMessage]);
+    setInputMessage('');
+    setTimeout(() => {
+      const responses = [
+        "¡Interesante punto de vista! 🤔",
+        "Gracias por participar en la conversación 👍",
+        "¿Alguien más tiene experiencia con esto? 🙋‍♂️",
+        "Excelente aporte al debate 💭",
+        "Me gusta esa perspectiva 🎯",
+        "Buen punto para discutir 📝"
+      ];
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        text: randomResponse,
+        sender: 'Bot_EEVI',
+        timestamp: new Date(),
+        isSystem: true
+      }]);
+    }, 1500);
+  };
 
-  useEffect(() => {
-    function handler(e: any) {
-      setTitle(e.detail.name || 'Chat');
-      setChatId(e.detail.chatId);
-    }
-    window.addEventListener('openChat', handler);
-    return () => window.removeEventListener('openChat', handler);
-  }, []);
-
-  async function loadMessages() {
-    try {
-      const res = await fetch(`/chat/get_messages/${chatId}`);
-      const data = await res.json();
-      if (data.success) setMessages(data.messages);
-    } catch (e) {
-      console.error('loadMessages', e);
-    }
-  }
-
-  async function send() {
-    const mensaje = text.trim();
-    if (!mensaje) return;
-    try {
-      await fetch('/chat/send_message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, mensaje })
-      });
-      setText('');
-      await loadMessages();
-    } catch (e) {
-      console.error('send', e);
-    }
-  }
-
-  function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      send();
+      handleSendMessage();
     }
-  }
+  };
+
+  const formatTime = (timestamp: Date) =>
+    timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
   if (!isOpen) return null;
 
-  const containerStyle: React.CSSProperties = {
-    position: 'fixed',
-    bottom: 80,
-    right: 24,
-    width: 320,
-    maxHeight: '70vh',
-    background: COLORS.secondary,
-    color: COLORS.text,
-    borderRadius: 12,
-    boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
-    display: 'flex',
-    flexDirection: 'column',
-    zIndex: 1000
-  };
-
   return (
-    <div style={containerStyle}>
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          background: COLORS.background,
-          padding: '8px 12px',
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12
-        }}
-      >
-        <h3
-          style={{
-            fontSize: '0.875rem',
-            fontWeight: 600,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {title}
-        </h3>
-        <button
-          aria-label="Cerrar chat"
-          onClick={onClose}
-          style={{ color: COLORS.text }}
-        >
-          ✖
-        </button>
-      </header>
-      <section
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '8px 12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px'
-        }}
-      >
-        {messages.map((m, i) => {
-          const own =
-            (window as any).currentUser &&
-            m.autor_id === (window as any).currentUser.user_id;
-          const base: React.CSSProperties = {
-            display: 'inline-block',
-            maxWidth: '70%',
-            padding: '4px 8px',
-            borderRadius: 8,
-            wordBreak: 'break-word'
-          };
-          const bubbleStyle: React.CSSProperties = own
-            ? {
-                ...base,
-                alignSelf: 'flex-end',
-                background: COLORS.accent,
-                color: '#fff',
-                borderBottomRightRadius: 0
-              }
-            : {
-                ...base,
-                alignSelf: 'flex-start',
-                background: '#3b3b3b',
-                borderBottomLeftRadius: 0
-              };
-          return (
-            <div
-              key={i}
-              style={{ display: 'flex', justifyContent: own ? 'flex-end' : 'flex-start' }}
-            >
-              <span style={bubbleStyle}>
-                <span style={{ fontWeight: 600 }}>{m.autor_nombre}:</span> {m.mensaje}
-              </span>
-            </div>
-          );
-        })}
-        <div ref={msgEnd}></div>
-      </section>
-      <footer
-        style={{
-          borderTop: `1px solid ${COLORS.border}`,
-          padding: 8,
-          display: 'flex',
-          alignItems: 'flex-end',
-          gap: 4
-        }}
-      >
-        <textarea
-          rows={1}
-          placeholder="Escribe… Ctrl+Enter"
-          style={{
+    <div
+      className="chat-modal-overlay"
+      style={{
+        position: 'fixed',
+        bottom: '1rem',
+        right: '1rem',
+        width: '20rem',
+        borderRadius: '0.5rem',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        backgroundColor: COLORS.background,
+        color: COLORS.text,
+        border: `2px solid ${COLORS.border}`,
+        zIndex: 9998,
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0.75rem',
+        borderBottom: `2px solid ${COLORS.border}`,
+        backgroundColor: COLORS.secondary,
+        borderTopLeftRadius: '0.5rem',
+        borderTopRightRadius: '0.5rem'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <MessageCircle size={18} style={{ color: COLORS.accent }} />
+          <span style={{ fontWeight: 600 }}>CHAT GLOBAL EEVI</span>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={() => setIsMinimized(!isMinimized)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
+          </button>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            <X size={16} color={COLORS.text} />
+          </button>
+        </div>
+      </div>
+      {!isMinimized && (
+        <>
+          <div style={{
             flex: 1,
-            background: 'transparent',
-            resize: 'none',
-            outline: 'none',
-            color: COLORS.text
-          }}
-          value={text}
-          onChange={e => setText(e.target.value)}
-          onKeyDown={handleKey}
-        />
-        <button aria-label="Enviar" style={{ padding: '0 8px' }} onClick={send}>
-          ➤
-        </button>
-      </footer>
+            overflowY: 'auto',
+            padding: '0.75rem',
+          }}>
+            {messages.map(msg => (
+              <div key={msg.id} style={{ marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}>
+                  <User size={12} color={msg.isSystem ? COLORS.accent : COLORS.text} />
+                  <span style={{ fontWeight: 600 }}>{msg.sender}</span>
+                  <Clock size={10} color="#888" />
+                  <span style={{ color: '#888' }}>{formatTime(msg.timestamp)}</span>
+                </div>
+                <div style={{
+                  marginLeft: msg.sender === user.username ? '1rem' : 0,
+                  padding: '0.5rem',
+                  borderLeft: `4px solid ${msg.isSystem ? COLORS.accent : COLORS.border}`,
+                  backgroundColor: msg.isSystem ? COLORS.secondary : COLORS.border,
+                  borderRadius: '0.25rem',
+                  color: COLORS.text,
+                  fontSize: '0.875rem'
+                }}>
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <div style={{
+            borderTop: `2px solid ${COLORS.border}`,
+            padding: '0.75rem',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.75rem', color: COLORS.accent }}>Conectado como:</span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{user.username}</span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                ref={inputRef}
+                type="text"
+                value={inputMessage}
+                onChange={e => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Escribe tu mensaje..."
+                style={{
+                  flex: 1,
+                  padding: '0.5rem',
+                  borderRadius: '0.25rem',
+                  border: `2px solid ${COLORS.border}`,
+                  backgroundColor: COLORS.background,
+                  color: COLORS.text,
+                  fontSize: '0.875rem'
+                }}
+              />
+              <button onClick={handleSendMessage} disabled={!inputMessage.trim()}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.25rem',
+                  border: `2px solid ${COLORS.accent}`,
+                  backgroundColor: COLORS.accent,
+                  color: COLORS.background,
+                  cursor: inputMessage.trim() ? 'pointer' : 'not-allowed'
+                }}>
+                <Send size={16} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+      {isMinimized && (
+        <div style={{ padding: '1rem', textAlign: 'center' }}>
+          <MessageCircle size={20} style={{ color: COLORS.accent }} />
+          <div style={{ color: COLORS.text }}>Chat minimizado</div>
+        </div>
+      )}
     </div>
-  );
-}
-
-export function openChatWith(userId: string, name: string) {
-  const event = new CustomEvent('openChat', { detail: { chatId: userId, name } });
-  window.dispatchEvent(event);
-}

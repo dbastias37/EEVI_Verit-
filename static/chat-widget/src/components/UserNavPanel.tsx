@@ -2,27 +2,32 @@ import React from 'react';
 import { User, MessageCircle } from 'lucide-react';
 import COLORS from '../COLORS';
 
-export default function UserNavPanel({ onOpen }) {
+interface UserNavPanelProps {
+  onOpen: () => void;
+}
+
+export default function UserNavPanel({ onOpen }: UserNavPanelProps) {
   return (
     <button
       onClick={onOpen}
       style={{
         position: 'fixed',
-        top: 16,
-        right: 16,
+        top: '1rem',
+        right: '1rem',
         background: COLORS.secondary,
         border: `2px solid ${COLORS.border}`,
-        borderRadius: 8,
-        padding: '8px 12px',
-        color: COLORS.text,
+        borderRadius: '0.5rem',
+        padding: '0.5rem 1rem',
         display: 'flex',
         alignItems: 'center',
-        gap: '4px',
-        zIndex: 1000,
+        gap: '0.5rem',
+        color: COLORS.text,
+        zIndex: 9999,
         cursor: 'pointer'
       }}
     >
-      <User size={16} /> <MessageCircle size={16} />
+      <User size={16} />
+      <MessageCircle size={16} />
     </button>
   );
 }
