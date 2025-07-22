@@ -5,6 +5,31 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String
 
 app = Flask(__name__)
+# ——————— Registrar todos los Blueprints ———————
+from routes.admin       import admin_bp
+from routes.auth        import auth_bp
+from routes.chat        import chat_bp
+from routes.client      import client_bp
+from routes.forum_auth  import forum_auth_bp
+from routes.forum_stats import forum_bp
+from routes.friends     import friends_bp
+from routes.messages    import messages_bp
+from routes.packs       import packs_bp
+from routes.projects    import projects_bp
+from routes.user_status import status_bp
+
+app.register_blueprint(admin_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(chat_bp)
+app.register_blueprint(client_bp)
+app.register_blueprint(forum_auth_bp)
+app.register_blueprint(forum_bp)
+app.register_blueprint(friends_bp)
+app.register_blueprint(messages_bp)
+app.register_blueprint(packs_bp)
+app.register_blueprint(projects_bp)
+app.register_blueprint(status_bp)
+# ———————————————————————————
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BUILD_DIR = os.path.join(BASE_DIR, 'dist')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
