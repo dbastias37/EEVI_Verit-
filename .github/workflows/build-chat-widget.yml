@@ -1,0 +1,33 @@
+name: Build Chat Widget
+
+on:
+  push:
+    paths:
+      - 'static/chat-widget/**'
+      - '.github/workflows/build-chat-widget.yml'
+
+jobs:
+  build-widget:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install & Build
+      working-directory: static/chat-widget
+      run: |
+        npm ci
+        npm run build
+
+    - name: Commit dist folder
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "actions@github.com"
+        git add static/chat-widget/dist
+        git commit -m "chore: build chat-widget dist" || echo "No changes"
+        git push
