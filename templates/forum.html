@@ -223,8 +223,13 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 </div>
 
-<!-- Punto de montaje del chat widget -->
+
+<!-- Chat Widget Overlay -->
 <div id="eevi-chat-root"></div>
+<script type="module"
+  src="{{ url_for('static', filename='chat-widget/dist/index.js') }}">
+</script>
+<!-- /Chat Widget Overlay -->
 {% endblock %}
 
 {% block scripts %}
