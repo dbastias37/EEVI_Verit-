@@ -17,11 +17,11 @@
 </head>
 <body>
   <header class="header-unified">
-    <a class="logo-unified" href="{{ url_for('home') }}">VERITÉ</a>
+    <a class="logo-unified" href="{{ url_for('client.home') }}">VERITÉ</a>
     <nav>
-      <a href="{{ url_for('home') }}">INICIO</a>
-      <a href="{{ url_for('spa_routes', sub='packs') }}">PACKS</a>
-      <a href="{{ url_for('spa_routes', sub='services') }}">SERVICIOS</a>
+      <a href="{{ url_for('client.home') }}">INICIO</a>
+      <a href="{{ url_for('client.packs') }}">PACKS</a>
+      <a href="{{ url_for('client.services_page') }}">SERVICIOS</a>
       <a href="{{ url_for('forum_auth.vforum_auth') }}">COMUNIDAD</a>
       <a href="{{ url_for('list_forum') }}" data-action="open-projects-panel">BUSCAR PROYECTO</a>
     </nav>
@@ -46,6 +46,8 @@
     };
   </script>
   <div id="eevi-chat-root"></div>
+  {% if not config['DEBUG'] %}
   <script src="{{ url_for('static', filename='chat-widget.js') }}" defer></script>
+  {% endif %}
 </body>
 </html>

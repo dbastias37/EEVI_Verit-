@@ -10,7 +10,7 @@
     <img src="{{ pack.image_url }}" alt="{{ pack.name }}">
     <h2>{{ pack.name }}</h2>
     <p>{{ pack.description }}</p>
-    <a class="purchase-btn" href="{{ url_for('spa_routes', sub='packs/' ~ pack.id) }}">Comprar Ahora - {{ pack.price }}</a>
+    <a class="purchase-btn" href="{{ url_for('client.pack_detail', id=pack.id) }}">Comprar Ahora - {{ pack.price }}</a>
   </div>
   {% endfor %}
 </div>
