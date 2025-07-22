@@ -1,2 +1,14 @@
+{% set quotes = [
+  "La cultura es tu caja de realidad...",
+  "Lo que llamamos realidad es un consenso de la comunidad...",
+  "La naturaleza ama el coraje..."] %}
 <footer class="text-center mt-16 py-8 opacity-80">
+  <em id="quote">{{ quotes|first }}</em>
 </footer>
+<script>
+  const frases={{ quotes|tojson }};
+  let qi=0; setInterval(()=>{ 
+     qi=(qi+1)%frases.length; 
+     document.getElementById('quote').textContent=frases[qi]; 
+  },15000);
+</script>
