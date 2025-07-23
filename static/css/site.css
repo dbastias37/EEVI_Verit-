@@ -186,6 +186,13 @@ body {
 }
 
 .btn-chat-demo { display: none !important; }
-header { position: relative; z-index: 1000; }
+header { position: relative; z-index: 1100; }
 .chat-overlay { z-index: 500 !important; }
+/* Overlay de chat debe quedar bajo el header */
+#eevi-chat-root .chat-modal-overlay {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1000; /* menor que el header */
+}
 

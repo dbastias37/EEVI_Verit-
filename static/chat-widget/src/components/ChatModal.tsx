@@ -112,7 +112,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
         backgroundColor: COLORS.background,
         color: COLORS.text,
         border: `2px solid ${COLORS.border}`,
-        zIndex: 9998,
+        zIndex: 1000,
         display: 'flex',
         flexDirection: 'column'
       }}

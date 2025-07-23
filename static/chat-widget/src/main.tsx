@@ -2,5 +2,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import ChatOverlay from './components/ChatOverlay';
 
-const el = document.getElementById('eevi-chat-root');
-if (el) createRoot(el).render(<ChatOverlay />);
+const container = document.getElementById('eevi-chat-root');
+if (container) {
+  const root = createRoot(container);
+  root.render(<ChatOverlay />);
+}
