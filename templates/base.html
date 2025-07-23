@@ -22,7 +22,7 @@
   </script>
 </head>
 <body>
-  <header class="header-unified">
+  <header class="header-unified" style="position:relative; z-index:1100;">
     <a class="logo-unified" href="{{ url_for('client.home') }}">VERITÉ</a>
     <nav>
       <a href="{{ url_for('client.home') }}">INICIO</a>
@@ -44,7 +44,9 @@
   <script src="{{ url_for('static', filename='js/mobile_stability.js') }}"></script>
   {% endblock %}
   <script src="{{ url_for('static', filename='js/nav_unified.js') }}"></script>
+  <!-- Chat Widget Root -->
   <div id="eevi-chat-root"></div>
+  <!-- Carga del bundle compilado del chat -->
   <script>
     // Polyfill global de process para evitar 'ReferenceError: process is not defined'
     window.process = { env: { NODE_ENV: 'production' } };
