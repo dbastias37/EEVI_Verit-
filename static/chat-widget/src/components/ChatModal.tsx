@@ -1,34 +1,57 @@
-import React, { useEffect, useRef } from 'react';
-import 'react/jsx-runtime';
-import { X, Send, MessageCircle, User, Clock, Minimize2, Maximize2 } from 'lucide-react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  KeyboardEvent,
+} from 'react';
+import {
+  X,
+  Send,
+  MessageCircle,
+  User,
+  Clock,
+  Minimize2,
+  Maximize2,
+} from 'lucide-react';
 import { COLORS } from '../COLORS';
 
 interface Message {
   id: number;
   text: string;
   sender: string;
-  timestamp: Date;
+  timestamp: number;
   isSystem: boolean;
 }
 
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: {
-    username: string;
-  };
 }
 
-export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
-  const [messages, setMessages] = React.useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = React.useState('');
-  const [isMinimized, setIsMinimized] = React.useState(false);
+const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputMessage, setInputMessage] = useState<string>('');
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const [displayName, setDisplayName] = useState<string>('Anónimo');
+  const [editingName, setEditingName] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const current = (window as any).currentUser;
+    if (current && current.name) {
+      setDisplayName(current.name);
+    } else {
+      setDisplayName(localStorage.getItem('displayName') || 'Anónimo');
+    }
+    fetch('/api/messages')
+      .then((r) => r.json())
+      .then((data) => setMessages(data));
+  }, []);
 
   useEffect(() => {
     if (isOpen && !isMinimized) {
@@ -47,49 +70,32 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (): void => {
     if (!inputMessage.trim()) return;
-    const newMessage: Message = {
-      id: Date.now(),
-      text: inputMessage,
-      sender: user.username,
-      timestamp: new Date(),
-      isSystem: false,
-    };
-    setMessages((prev: Message[]) => [...prev, newMessage]);
+    fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: displayName, text: inputMessage })
+    })
+      .then((r) => r.json())
+      .then((msg) => {
+        setMessages((prev: Message[]) => [...prev, msg]);
+      });
     setInputMessage('');
-    setTimeout(() => {
-      const responses = [
-        '¡Interesante punto de vista! 🤔',
-        'Gracias por participar en la conversación 👍',
-        '¿Alguien más tiene experiencia con esto? 🙋‍♂️',
-        'Excelente aporte al debate 💭',
-        'Me gusta esa perspectiva 🎯',
-        'Buen punto para discutir 📝',
-      ];
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      setMessages((prev: Message[]) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          text: randomResponse,
-          sender: 'Bot_EEVI',
-          timestamp: new Date(),
-          isSystem: true,
-        },
-      ]);
-    }, 1500);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const formatTime = (timestamp: Date) =>
-    timestamp.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  const formatTime = (timestamp: number): string =>
+    new Date(timestamp).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   if (!isOpen) return null;
 
@@ -108,9 +114,10 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
         border: `2px solid ${COLORS.border}`,
         zIndex: 9998,
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'column'
       }}
     >
+      {/* Header */}
       <div
         style={{
           display: 'flex',
@@ -120,7 +127,7 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
           borderBottom: `2px solid ${COLORS.border}`,
           backgroundColor: COLORS.secondary,
           borderTopLeftRadius: '0.5rem',
-          borderTopRightRadius: '0.5rem',
+          borderTopRightRadius: '0.5rem'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -139,13 +146,15 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
           </button>
         </div>
       </div>
+
+      {/* Cuerpo */}
       {!isMinimized && (
         <>
           <div
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '0.75rem',
+              padding: '0.75rem'
             }}
           >
             {messages.map((msg: Message) => (
@@ -158,13 +167,13 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
                 </div>
                 <div
                   style={{
-                    marginLeft: msg.sender === user.username ? '1rem' : 0,
+                    marginLeft: msg.sender === displayName ? '1rem' : 0,
                     padding: '0.5rem',
                     borderLeft: `4px solid ${msg.isSystem ? COLORS.accent : COLORS.border}`,
                     backgroundColor: msg.isSystem ? COLORS.secondary : COLORS.border,
                     borderRadius: '0.25rem',
                     color: COLORS.text,
-                    fontSize: '0.875rem',
+                    fontSize: '0.875rem'
                   }}
                 >
                   {msg.text}
@@ -178,19 +187,38 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
               borderTop: `2px solid ${COLORS.border}`,
               padding: '0.75rem',
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'column'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '0.75rem', color: COLORS.accent }}>Conectado como:</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{user.username}</span>
+              {editingName ? (
+                <input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  onBlur={() => {
+                    setEditingName(false);
+                    localStorage.setItem('displayName', displayName);
+                  }}
+                  style={{ fontSize: '0.75rem' }}
+                />
+              ) : (
+                <span
+                  style={{ fontSize: '0.75rem', fontWeight: 600, cursor: (window as any).currentUser ? 'default' : 'pointer' }}
+                  onClick={() => {
+                    if (!(window as any).currentUser) setEditingName(true);
+                  }}
+                >
+                  {displayName}
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input
                 ref={inputRef}
                 type="text"
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Escribe tu mensaje..."
                 style={{
@@ -200,7 +228,7 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
                   border: `2px solid ${COLORS.border}`,
                   backgroundColor: COLORS.background,
                   color: COLORS.text,
-                  fontSize: '0.875rem',
+                  fontSize: '0.875rem'
                 }}
               />
               <button
@@ -212,7 +240,7 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
                   border: `2px solid ${COLORS.accent}`,
                   backgroundColor: COLORS.accent,
                   color: COLORS.background,
-                  cursor: inputMessage.trim() ? 'pointer' : 'not-allowed',
+                  cursor: inputMessage.trim() ? 'pointer' : 'not-allowed'
                 }}
               >
                 <Send size={16} />
@@ -221,6 +249,8 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
           </div>
         </>
       )}
+
+      {/* Minimizado */}
       {isMinimized && (
         <div style={{ padding: '1rem', textAlign: 'center' }}>
           <MessageCircle size={20} color={COLORS.accent} />
@@ -229,4 +259,6 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
       )}
     </div>
   );
-}
+};
+
+export default ChatModal;

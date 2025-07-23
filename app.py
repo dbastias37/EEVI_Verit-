@@ -85,7 +85,7 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(projects_bp, url_prefix='/projects')
 app.register_blueprint(messages_bp, url_prefix='/messages')
 app.register_blueprint(chat_bp, url_prefix='/chat')
-app.register_blueprint(chat_api_bp)
+app.register_blueprint(chat_api_bp, url_prefix='/api')
 
 if FRIENDS_AVAILABLE:
     app.register_blueprint(friends_bp, url_prefix='/friends')

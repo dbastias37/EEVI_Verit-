@@ -185,7 +185,7 @@ body {
     }
 }
 
-.header .btn-chat-demo { display: none !important; }
-header { z-index: 1000; position: relative; }
-.chat-overlay { z-index: 500; }
+.btn-chat-demo { display: none !important; }
+header { position: relative; z-index: 1000; }
+.chat-overlay { z-index: 500 !important; }
 
