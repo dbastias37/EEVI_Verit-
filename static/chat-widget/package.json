@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "esbuild src/ChatModal.tsx --bundle --outfile=dist/index.js --format=esm --minify"
+    "build": "esbuild src/ChatModal.tsx --bundle --outfile=dist/index.js --format=esm --minify --define:process.env.NODE_ENV=\\\"production\\\""
   },
   "dependencies": {
     "react": "^18.0.0",
