@@ -1,0 +1,9 @@
+{
+  "name": "eevi-verite",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "flask run",
+    "build:chat-widget": "cd static/chat-widget && npm ci && npm run build"
+  }
+}
