@@ -95,7 +95,7 @@ export default function ChatModal({ isOpen, onClose, user }: ChatModalProps) {
 
   return (
     <div
-      className="chat-modal-overlay"
+      className="chat-modal-overlay chat-overlay"
       style={{
         position: 'fixed',
         bottom: '1rem',
