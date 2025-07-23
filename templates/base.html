@@ -45,6 +45,10 @@
   {% endblock %}
   <script src="{{ url_for('static', filename='js/nav_unified.js') }}"></script>
   <div id="eevi-chat-root"></div>
+  <script>
+    // Polyfill global de process para evitar 'ReferenceError: process is not defined'
+    window.process = { env: { NODE_ENV: 'production' } };
+  </script>
   <script type="module" src="{{ url_for('static', filename='chat-widget/dist/index.js') }}"></script>
 </body>
 </html>
