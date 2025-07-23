@@ -13,6 +13,8 @@ import {
   Minimize2,
   Maximize2,
 } from 'lucide-react';
+import { io } from 'socket.io-client';
+const socket = io();
 import { COLORS } from './COLORS';
 
 interface Message {
@@ -51,6 +53,12 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     fetch('/api/messages')
       .then((r) => r.json())
       .then((data) => setMessages(data));
+    socket.on('new_message', (msg: Message) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+    return () => {
+      socket.off('new_message');
+    };
   }, []);
 
   useEffect(() => {

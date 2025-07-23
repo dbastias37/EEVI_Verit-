@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app
+from app import socketio
 from services.chat_manager import ChatManager
 
 chat_api_bp = Blueprint('chat_api', __name__)
@@ -22,4 +23,5 @@ def post_message():
     if not user or not text:
         return jsonify({'error': 'Invalid data'}), 400
     message = _mgr().add_message(user, text)
+    socketio.emit('new_message', message)
     return jsonify(message), 201
