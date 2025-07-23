@@ -184,3 +184,8 @@ body {
         overflow: hidden;
     }
 }
+
+.header .btn-chat-demo { display: none !important; }
+header { z-index: 1000; position: relative; }
+.chat-overlay { z-index: 500; }
+

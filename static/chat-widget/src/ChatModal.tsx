@@ -26,19 +26,32 @@ interface Message {
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: { username: string };
 }
 
-const ChatModal = ({ isOpen, onClose, user }: ChatModalProps): JSX.Element | null => {
+const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
+  const [displayName, setDisplayName] = useState<string>('Anónimo');
+  const [editingName, setEditingName] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const current = (window as any).currentUser;
+    if (current && current.name) {
+      setDisplayName(current.name);
+    } else {
+      setDisplayName(localStorage.getItem('displayName') || 'Anónimo');
+    }
+    fetch('/api/messages')
+      .then((r) => r.json())
+      .then((data) => setMessages(data));
+  }, []);
 
   useEffect(() => {
     if (isOpen && !isMinimized) {
@@ -59,36 +72,16 @@ const ChatModal = ({ isOpen, onClose, user }: ChatModalProps): JSX.Element | nul
 
   const handleSendMessage = (): void => {
     if (!inputMessage.trim()) return;
-    const newMessage: Message = {
-      id: Date.now(),
-      text: inputMessage,
-      sender: user.username,
-      timestamp: Date.now(),
-      isSystem: false
-    };
-    setMessages((prev: Message[]) => [...prev, newMessage]);
+    fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: displayName, text: inputMessage })
+    })
+      .then((r) => r.json())
+      .then((msg) => {
+        setMessages((prev: Message[]) => [...prev, msg]);
+      });
     setInputMessage('');
-    setTimeout(() => {
-      const responses = [
-        "¡Interesante punto de vista! 🤔",
-        "Gracias por participar en la conversación 👍",
-        "¿Alguien más tiene experiencia con esto? 🙋‍♂️",
-        "Excelente aporte al debate 💭",
-        "Me gusta esa perspectiva 🎯",
-        "Buen punto para discutir 📝"
-      ];
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      setMessages((prev: Message[]) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          text: randomResponse,
-          sender: 'Bot_EEVI',
-          timestamp: Date.now(),
-          isSystem: true
-        }
-      ]);
-    }, 1500);
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
@@ -108,7 +101,7 @@ const ChatModal = ({ isOpen, onClose, user }: ChatModalProps): JSX.Element | nul
 
   return (
     <div
-      className="chat-modal-overlay"
+      className="chat-modal-overlay chat-overlay"
       style={{
         position: 'fixed',
         bottom: '1rem',
@@ -174,7 +167,7 @@ const ChatModal = ({ isOpen, onClose, user }: ChatModalProps): JSX.Element | nul
                 </div>
                 <div
                   style={{
-                    marginLeft: msg.sender === user.username ? '1rem' : 0,
+                    marginLeft: msg.sender === displayName ? '1rem' : 0,
                     padding: '0.5rem',
                     borderLeft: `4px solid ${msg.isSystem ? COLORS.accent : COLORS.border}`,
                     backgroundColor: msg.isSystem ? COLORS.secondary : COLORS.border,
@@ -199,7 +192,26 @@ const ChatModal = ({ isOpen, onClose, user }: ChatModalProps): JSX.Element | nul
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '0.75rem', color: COLORS.accent }}>Conectado como:</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{user.username}</span>
+              {editingName ? (
+                <input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  onBlur={() => {
+                    setEditingName(false);
+                    localStorage.setItem('displayName', displayName);
+                  }}
+                  style={{ fontSize: '0.75rem' }}
+                />
+              ) : (
+                <span
+                  style={{ fontSize: '0.75rem', fontWeight: 600, cursor: (window as any).currentUser ? 'default' : 'pointer' }}
+                  onClick={() => {
+                    if (!(window as any).currentUser) setEditingName(true);
+                  }}
+                >
+                  {displayName}
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input

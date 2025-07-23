@@ -14,6 +14,7 @@ from routes.client import client_bp
 from routes.auth import auth_bp
 from routes.projects import projects_bp
 from routes.messages import messages_bp
+from routes.chat_api import chat_api_bp
 
 # Nuevos blueprints
 try:
@@ -83,7 +84,8 @@ app.register_blueprint(client_bp)
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(projects_bp, url_prefix='/projects')
 app.register_blueprint(messages_bp, url_prefix='/messages')
-app.register_blueprint(chat_bp, url_prefix='/chat') 
+app.register_blueprint(chat_bp, url_prefix='/chat')
+app.register_blueprint(chat_api_bp)
 
 if FRIENDS_AVAILABLE:
     app.register_blueprint(friends_bp, url_prefix='/friends')
