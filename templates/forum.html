@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forum_projects.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/solicitudes.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+<style>
+  /* Oculta el botón por defecto del widget de chat */
+  #eevi-chat-root > button { display: none; }
+</style>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('forum-page');
@@ -213,11 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="user-status" style="position: fixed; bottom: 20px; right: 20px; background: var(--bg-secondary); padding: 1rem; border-radius: 12px;">
         <img src="{{ session.forum_user.profile_pic }}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
         <span>{{ session.forum_user.username }}</span>
-        <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
         <button id="eevi-chat-toggle"
-                style="margin-left:1rem;padding:0.5rem;border:none;border-radius:50%;background:#4caf50;color:white;cursor:pointer;">
+                style="margin-left:10px;padding:0.5rem;border:none;border-radius:50%;background:#4caf50;color:white;cursor:pointer;">
           💬
         </button>
+        <a href="{{ url_for('forum_auth.vforum_logout') }}" style="margin-left: 10px; color: var(--text-muted);">Salir</a>
+        
     </div>
     {% endif %}
 
@@ -228,9 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>
 
 
-<!-- Chat widget mount point -->
-<div id="eevi-chat-root" style="display:none;"></div>
-<script type="module" src="{{ url_for('static', filename='chat-widget/dist/index.js') }}"></script>
 {% endblock %}
 
 {% block scripts %}
@@ -245,20 +247,15 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="{{ url_for('static', filename='js/forum_categories.js') }}"></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user_status.css') }}">
 
-<!-- Carga del chat widget standalone -->
-<script type="module" src="{{ url_for('static', filename='chat-widget/dist/index.js') }}"></script>
-
 {% if session.forum_user %}
 <div data-user-id="{{ session.forum_user.id }}" style="display: none;"></div>
 {% endif %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const chatRoot = document.getElementById('eevi-chat-root');
-    const toggle   = document.getElementById('eevi-chat-toggle');
-    if (!chatRoot || !toggle) return;
-    toggle.addEventListener('click', () => {
-      chatRoot.style.display = chatRoot.style.display === 'none' ? 'block' : 'none';
-    });
+    const customBtn  = document.getElementById('eevi-chat-toggle');
+    const widgetBtn  = document.querySelector('#eevi-chat-root > button');
+    if (!customBtn || !widgetBtn) return;
+    customBtn.addEventListener('click', () => widgetBtn.click());
   });
 </script>
 {% endblock %}
