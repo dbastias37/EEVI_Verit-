@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime
 from flask_login import LoginManager, current_user, UserMixin
-from flask_socketio import SocketIO, emit
+from flask_socketio import emit
 import os
 import logging
 import time
@@ -38,7 +38,8 @@ except ImportError:
 # Configuración
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
-socketio = SocketIO(app, cors_allowed_origins="*")
+from extensions import socketio
+socketio.init_app(app)
 
 # --- Autenticación mínima para evitar fallos de import ---
 login_manager = LoginManager(app)

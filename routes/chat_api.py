@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app
-from app import socketio
+from extensions import socketio
 from services.chat_manager import ChatManager
 
 chat_api_bp = Blueprint('chat_api', __name__)
