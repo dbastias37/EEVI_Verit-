@@ -6,13 +6,14 @@
     "build": "esbuild src/ChatModal.tsx --bundle --outfile=dist/index.js --format=esm --minify --define:process.env.NODE_ENV=\\\"production\\\""
   },
   "dependencies": {
+    "lucide-react": "^0.200.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "lucide-react": "^0.200.0"
+    "react-dom": "^18.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
     "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0"
+    "@types/react-dom": "^18.0.0",
+    "esbuild": "^0.25.8",
+    "typescript": "^5.0.0"
   }
 }

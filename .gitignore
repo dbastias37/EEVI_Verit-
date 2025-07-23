@@ -5,3 +5,5 @@ __pycache__/
 *.log
 logs/
 serviceAccountKey.json
+/package-lock.json
+static/chat-widget/node_modules/
