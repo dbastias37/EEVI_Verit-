@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFORUM - Comunidad EEVI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Paleta de colores Verité */
+            --verite-primary: #8B5CF6;
+            --verite-primary-dark: #7C3AED;
+            --verite-primary-light: #A78BFA;
+            --verite-secondary: #F59E0B;
+            --verite-secondary-dark: #D97706;
+            --verite-secondary-light: #FCD34D;
+            --verite-accent: #06B6D4;
+            --verite-accent-dark: #0891B2;
+            --verite-accent-light: #67E8F9;
+            --verite-success: #10B981;
+            --verite-warning: #F59E0B;
+            --verite-danger: #EF4444;
+            
+            /* Light Theme Variables */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8FAFC;
+            --bg-tertiary: #F1F5F9;
+            --bg-card: #FFFFFF;
+            --bg-hover: #F3F4F6;
+            --bg-dark: #1E293B;
+            --bg-gradient: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+            
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --text-white: #FFFFFF;
+            --text-accent: #8B5CF6;
+            
+            --shadow-soft: 0 1px 3px rgba(139, 92, 246, 0.1);
+            --shadow-medium: 0 4px 6px rgba(139, 92, 246, 0.15);
+            --shadow-strong: 0 10px 25px rgba(139, 92, 246, 0.2);
+            --shadow-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+            
+            /* Border radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 24px;
+            --space-2xl: 32px;
+        }
+
+        /* Dark Theme Variables */
+        body[data-theme="dark"] {
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-tertiary: #334155;
+            --bg-card: #1E293B;
+            --bg-hover: #334155;
+            --bg-dark: #0F172A;
+            --bg-gradient: linear-gradient(135deg, #A78BFA 0%, #67E8F9 100%);
+            
+            --text-primary: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --text-white: #FFFFFF;
+            --text-accent: #A78BFA;
+            
+            --shadow-soft: 0 1px 3px rgba(167, 139, 250, 0.2);
+            --shadow-medium: 0 4px 6px rgba(167, 139, 250, 0.25);
+            --shadow-strong: 0 10px 25px rgba(167, 139, 250, 0.3);
+            --shadow-glow: 0 0 20px rgba(167, 139, 250, 0.4);
+            
+            /* Dark theme specific overrides */
+            --verite-primary: #A78BFA;
+            --verite-primary-dark: #8B5CF6;
+            --verite-primary-light: #C4B5FD;
+            --verite-secondary: #FCD34D;
+            --verite-secondary-dark: #F59E0B;
+            --verite-secondary-light: #FEF3C7;
+            --verite-accent: #67E8F9;
+            --verite-accent-dark: #06B6D4;
+            --verite-accent-light: #A5F3FC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: #051f3b;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* ===== THEME TOGGLE BUTTON ===== */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: var(--space-sm);
+            box-shadow: var(--shadow-medium);
+            border: 2px solid var(--bg-tertiary);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            overflow: hidden;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: var(--verite-primary);
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .toggle-switch.dark::before {
+            transform: translateX(30px);
+            background: var(--verite-secondary);
+        }
+
+        .toggle-switch::after {
+            content: '☀️';
+            position: absolute;
+            top: 50%;
+            left: 8px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            transition: all 0.3s ease;
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .toggle-switch.dark::after {
+            content: '🌙';
+            left: auto;
+            right: 8px;
+            opacity: 1;
+        }
+
+        .forum-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            gap: var(--space-xl);
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR IZQUIERDA ===== */
+        .sidebar-left {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-soft);
+            height: fit-content;
+            position: sticky;
+            top: var(--space-xl);
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .nav-section, .categories-section, .tags-section {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .sidebar-nav, .categories-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .nav-item, .category-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            background: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover, .category-item:hover {
+            background: var(--bg-hover);
+            transform: translateY(-1px);
+        }
+
+        .nav-item.active, .category-item.active {
+            background: var(--bg-gradient);
+            color: var(--text-white);
+            border-color: var(--verite-primary-dark);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-1px);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .tags-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+
+        .tag-item {
+            background: var(--verite-secondary);
+            color: var(--text-white);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-xl);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .tag-item:hover {
+            transform: scale(1.05);
+            background: var(--verite-secondary-dark);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .tag-item:nth-child(even) {
+            background: var(--verite-accent);
+        }
+
+        .tag-item:nth-child(even):hover {
+            background: var(--verite-accent-dark);
+        }
+
+        /* ===== CONTENIDO PRINCIPAL ===== */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xl);
+        }
+
+        .hero-section {
+            background: var(--bg-gradient);
+            color: var(--text-white);
+            padding: var(--space-2xl);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-strong);
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(245, 158, 11, 0.1) 50%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: var(--space-lg);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            margin-bottom: var(--space-xl);
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            background: var(--verite-secondary);
+            color: var(--text-white);
+            padding: var(--space-lg) var(--space-2xl);
+            border: none;
+            border-radius: var(--radius-xl);
+            font-weight: 800;
+            font-size: 16px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 var(--verite-secondary-dark), var(--shadow-medium);
+            position: relative;
+            top: 0;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 0 var(--verite-secondary-dark), var(--shadow-strong);
+            background: linear-gradient(135deg, var(--verite-secondary), var(--verite-secondary-light));
+        }
+
+        .cta-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 0 var(--verite-secondary-dark), var(--shadow-soft);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* ===== FORMULARIO NUEVO TEMA ===== */
+        .new-topic-form {
+            background: var(--bg-card);
+            padding: var(--space-2xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .new-topic-form.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: var(--space-xl);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: var(--space-lg);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--verite-primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: var(--space-lg);
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            padding: var(--space-lg) var(--space-xl);
+            border: 2px solid var(--bg-tertiary);
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        /* ===== CONTENEDOR DE TEMAS ===== */
+        .topics-container {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-xl);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .topics-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topic-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-xl);
+            border-bottom: 1px solid var(--bg-tertiary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .topic-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--bg-gradient);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        .topic-card:hover {
+            background: var(--bg-hover);
+            transform: translateX(4px);
+        }
+
+        .topic-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .topic-header {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-lg);
+            flex: 1;
+        }
+
+        .topic-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--text-white);
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .topic-content {
+            flex: 1;
+        }
+
+        .topic-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            line-height: 1.3;
+        }
+
+        .topic-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .topic-tag {
+            background: var(--verite-accent);
+            color: var(--text-white);
+            padding: 2px var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 11px;
+        }
+
+        .topic-preview {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .topic-stats {
+            display: flex;
+            gap: var(--space-lg);
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+        }
+
+        .no-topics {
+            padding: var(--space-2xl);
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* ===== SIDEBAR DERECHA ===== */
+        .sidebar-right {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xl);
+            height: fit-content;
+            position: sticky;
+            top: var(--space-xl);
+        }
+
+        .widget {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .widget-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 2px solid var(--bg-tertiary);
+        }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            transition: background 0.2s ease;
+        }
+
+        .user-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-gradient);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .online-indicator {
+            width: 10px;
+            height: 10px;
+            background: var(--verite-success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .usuarios-conectados {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .usuarios-conectados h3 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+            padding: var(--space-lg);
+        }
+
+        /* ===== ESTADO DEL USUARIO ===== */
+        .user-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-strong);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            z-index: 1000;
+        }
+
+        .user-status img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--verite-primary);
+        }
+
+        #eevi-chat-toggle {
+            padding: var(--space-sm);
+            border: none;
+            border-radius: 50%;
+            background: var(--verite-primary);
+            color: var(--text-white);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        #eevi-chat-toggle:hover {
+            background: var(--verite-primary-dark);
+            transform: scale(1.1);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== PANEL DE PROYECTOS ===== */
+        .projects-panel {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            background: var(--bg-card);
+            box-shadow: var(--shadow-strong);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .projects-panel.active {
+            right: 0;
+        }
+
+        /* Dark theme specific adjustments */
+        body[data-theme="dark"] .hero-section::after {
+            background: linear-gradient(45deg, transparent 30%, rgba(252, 211, 77, 0.1) 50%, transparent 70%);
+        }
+
+        body[data-theme="dark"] .topic-card:hover {
+            background: var(--bg-hover);
+            box-shadow: var(--shadow-soft);
+        }
+
+        body[data-theme="dark"] .widget {
+            border: 1px solid var(--bg-tertiary);
+        }
+
+        body[data-theme="dark"] .form-input,
+        body[data-theme="dark"] .form-select,
+        body[data-theme="dark"] .form-textarea {
+            background: var(--bg-card);
+            border-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        body[data-theme="dark"] .form-input::placeholder,
+        body[data-theme="dark"] .form-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        body[data-theme="dark"] .trending-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--bg-hover);
+        }
+
+        body[data-theme="dark"] .trending-item:hover {
+            background: var(--bg-hover);
+            border-color: var(--verite-primary);
+        }
+
+        body[data-theme="dark"] .section-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        body[data-theme="dark"] .topic-card {
+            border-bottom: 1px solid var(--bg-tertiary);
+        }
+
+        body[data-theme="dark"] .user-status {
+            background: var(--bg-card);
+            box-shadow: var(--shadow-strong);
+            border: 1px solid var(--bg-tertiary);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .forum-layout {
+                grid-template-columns: 1fr;
+                gap: var(--space-lg);
+            }
+
+            .sidebar-left, .sidebar-right {
+                position: static;
+            }
+
+            .sidebar-left {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .forum-layout {
+                padding: var(--space-lg);
+                gap: var(--space-md);
+            }
+
+            .hero-title {
+                font-size: 28px;
+            }
+
+            .hero-subtitle {
+                font-size: 16px;
+            }
+
+            .topic-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-lg);
+            }
+
+            .topic-stats {
+                align-self: stretch;
+                justify-content: space-between;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: var(--space-lg);
+                align-items: stretch;
+            }
+        }
+
+        /* Animaciones adicionales */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CSS para animación de partículas */
+        @keyframes particleFloat {
+            to {
+                transform: translateY(-100vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="forum-page">
+    <div class="forum-layout">
+        <!-- Theme Toggle Button -->
+        <div class="theme-toggle">
+            <button class="toggle-switch" id="themeToggle" aria-label="Toggle theme">
+                <div class="toggle-icons">
+                    <span class="toggle-icon sun-icon">☀️</span>
+                    <span class="toggle-icon moon-icon">🌙</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- Sidebar Izquierda -->
+        <aside class="sidebar-left">
+            <div class="nav-section">
+                <h3 class="sidebar-title">NAVEGACIÓN</h3>
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-action="home">
+                        <span class="nav-icon">🏠</span> Inicio
+                    </a>
+                    <a href="#" id="newTopicBtnSidebar" class="nav-item">
+                        <span class="nav-icon">✏️</span> Nuevo Tema
+                    </a>
+                    <a href="#" id="projectsBtn" class="nav-item" data-action="projects">
+                        <span class="nav-icon">📁</span> Proyectos
+                    </a>
+                </nav>
+            </div>
+
+            <div class="categories-section">
+                <h3 class="sidebar-title">CATEGORÍAS</h3>
+                <nav class="categories-nav">
+                    <button class="category-item active" data-category="">📋 Todos los temas</button>
+                    <button class="category-item" data-category="cortometraje">🎬 Cortometrajes</button>
+                    <button class="category-item" data-category="documental">📺 Documentales</button>
+                    <button class="category-item" data-category="serie">🎭 Series</button>
+                    <button class="category-item" data-category="videoclip">🎵 Videoclips</button>
+                    <button class="category-item" data-category="comercial">💼 Comerciales</button>
+                    <button class="category-item" data-category="animation">🎨 Animación</button>
+                </nav>
+            </div>
+
+            <div class="tags-section">
+                <h3 class="sidebar-title">TAGS POPULARES</h3>
+                <div class="tags-grid">
+                    <span class="tag-item">#edicion</span>
+                    <span class="tag-item">#audio</span>
+                    <span class="tag-item">#colorgrading</span>
+                    <span class="tag-item">#motion</span>
+                    <span class="tag-item">#3d</span>
+                    <span class="tag-item">#freelance</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-title">Únete a VFORUM</h1>
+                    <p class="hero-subtitle">Conecta con creadores audiovisuales reales. Comparte conocimiento, resuelve problemas y colabora en proyectos únicos.</p>
+                    <button class="cta-button" id="newTopicBtn">
+                        <span>✏️</span>
+                        Crear Tema
+                    </button>
+                </div>
+            </section>
+
+            <!-- Formulario Nuevo Tema -->
+            <div class="new-topic-form" id="newTopicForm">
+                <form id="topicForm" action="#" method="post">
+                    <div class="form-group">
+                        <label class="form-label" for="autor">Nombre:</label>
+                        <input type="text" id="autor" name="autor" class="form-input" placeholder="Tu nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="categoria">Categoría:</label>
+                        <select id="categoria" name="categoria" class="form-select" required>
+                            <option value="">Selecciona una categoría</option>
+                            <option value="cortometraje">Cortometrajes</option>
+                            <option value="documental">Documentales</option>
+                            <option value="serie">Series</option>
+                            <option value="videoclip">Videoclips</option>
+                            <option value="comercial">Comerciales</option>
+                            <option value="animation">Animación</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="titulo">Título:</label>
+                        <input type="text" id="titulo" name="titulo" class="form-input" placeholder="Un título descriptivo para tu tema" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="contenido">Contenido:</label>
+                        <textarea id="contenido" name="contenido" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
+                        <button type="submit" class="cta-button">Publicar Tema</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="topics-container">
+                <div class="section-header">
+                    <h2 class="section-title">Temas Recientes</h2>
+                    <button class="cta-button" id="newTopicBtn2">+ Nuevo Tema</button>
+                </div>
+                <div class="topics-list">
+                    <!-- Tema de ejemplo 1 -->
+                    <div class="topic-card" data-topic-id="1">
+                        <div class="topic-header">
+                            <div class="topic-avatar">J</div>
+                            <div class="topic-content">
+                                <h3 class="topic-title">¿Cómo mejorar el audio en exteriores?</h3>
+                                <div class="topic-meta">
+                                    <span>Por Juan Pérez</span>
+                                    <span>•</span>
+                                    <span>Hace 2 horas</span>
+                                    <span class="topic-tag">cortometraje</span>
+                                </div>
+                                <p class="topic-preview">Estoy teniendo problemas con el audio en mis grabaciones exteriores. El viento interfiere mucho y necesito consejos para mejores técnicas de grabación...</p>
+                            </div>
+                        </div>
+                        <div class="topic-stats">
+                            <span class="stat-item">💬 5</span>
+                            <span class="stat-item">👍 12</span>
+                            <span class="stat-item">👁️ 45</span>
+                        </div>
+                    </div>
+
+                    <!-- Tema de ejemplo 2 -->
+                    <div class="topic-card" data-topic-id="2">
+                        <div class="topic-header">
+                            <div class="topic-avatar">M</div>
+                            <div class="topic-content">
+                                <h3 class="topic-title">Busco editor para proyecto documental</h3>
+                                <div class="topic-meta">
+                                    <span>Por María González</span>
+                                    <span>•</span>
+                                    <span>Hace 1 día</span>
+                                    <span class="topic-tag">documental</span>
+                                </div>
+                                <p class="topic-preview">Tengo un proyecto documental sobre cultura local y necesito un editor experimentado. El proyecto tiene un presupuesto definido y cronograma flexible...</p>
+                            </div>
+                        </div>
+                        <div class="topic-stats">
+                            <span class="stat-item">💬 15</span>
+                            <span class="stat-item">👍 8</span>
+                            <span class="stat-item">👁️ 89</span>
+                        </div>
+                    </div>
+
+                    <!-- Tema de ejemplo 3 -->
+                    <div class="topic-card" data-topic-id="3">
+                        <div class="topic-header">
+                            <div class="topic-avatar">C</div>
+                            <div class="topic-content">
+                                <h3 class="topic-title">Tutorial: Color grading con DaVinci Resolve</h3>
+                                <div class="topic-meta">
+                                    <span>Por Carlos Ruiz</span>
+                                    <span>•</span>
+                                    <span>Hace 3 días</span>
+                                    <span class="topic-tag">tutorial</span>
+                                </div>
+                                <p class="topic-preview">Comparto mi workflow completo para color grading en DaVinci Resolve. Incluye técnicas para corrección de color, LUTs personalizados y consejos profesionales...</p>
+                            </div>
+                        </div>
+                        <div class="topic-stats">
+                            <span class="stat-item">💬 23</span>
+                            <span class="stat-item">👍 45</span>
+                            <span class="stat-item">👁️ 156</span>
+                        </div>
+                    </div>
+
+                    <!-- Tema de ejemplo 4 -->
+                    <div class="topic-card" data-topic-id="4">
+                        <div class="topic-header">
+                            <div class="topic-avatar">A</div>
+                            <div class="topic-content">
+                                <h3 class="topic-title">Colaboración: Serie web sobre gaming</h3>
+                                <div class="topic-meta">
+                                    <span>Por Ana López</span>
+                                    <span>•</span>
+                                    <span>Hace 1 semana</span>
+                                    <span class="topic-tag">serie</span>
+                                </div>
+                                <p class="topic-preview">Estamos desarrollando una serie web sobre cultura gaming y buscamos colaboradores para diferentes roles: cámara, sonido, edición y motion graphics...</p>
+                            </div>
+                        </div>
+                        <div class="topic-stats">
+                            <span class="stat-item">💬 31</span>
+                            <span class="stat-item">👍 22</span>
+                            <span class="stat-item">👁️ 203</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Sidebar Derecha -->
+        <aside class="sidebar-right">
+            <!-- Widget Staff Online -->
+            <div class="widget">
+                <div class="widget-title"><span>🟢</span>Staff Online</div>
+                <div class="user-list">
+                    <div class="user-item">
+                        <div class="user-avatar"></div>
+                        <div class="user-info">
+                            <div class="user-name">Admin</div>
+                            <div class="user-role">Administrador</div>
+                        </div>
+                        <div class="online-indicator"></div>
+                    </div>
+                    <div class="user-item">
+                        <div class="user-avatar"></div>
+                        <div class="user-info">
+                            <div class="user-name">Moderador1</div>
+                            <div class="user-role">Moderador</div>
+                        </div>
+                        <div class="online-indicator"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget Estadísticas -->
+            <div class="widget">
+                <div class="widget-title"><span>📊</span>Estadísticas</div>
+                <div style="display:flex; flex-direction:column; gap:var(--space-md);">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-secondary);">Total temas:</span>
+                        <span style="font-weight:600;">156</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-secondary);">Total posts:</span>
+                        <span style="font-weight:600;">468</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-secondary);">Miembros:</span>
+                        <span style="font-weight:600;">89</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--text-secondary);">Online ahora:</span>
+                        <span style="font-weight:600; color:var(--verite-success);">12</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget Trending -->
+            <div class="widget">
+                <div class="widget-title"><span>🔥</span>Trending</div>
+                <div style="display:flex; flex-direction:column; gap:var(--space-md);">
+                    <div class="trending-item" style="padding: var(--space-md); background: var(--bg-hover); border-radius: var(--radius-md); cursor: pointer;">
+                        <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">IA en Post-producción</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">+25% esta semana</div>
+                    </div>
+                    <div class="trending-item" style="padding: var(--space-md); background: var(--bg-hover); border-radius: var(--radius-md); cursor: pointer;">
+                        <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Freelance Tips</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">+18% esta semana</div>
+                    </div>
+                    <div class="trending-item" style="padding: var(--space-md); background: var(--bg-hover); border-radius: var(--radius-md); cursor: pointer;">
+                        <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Equipment Reviews</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">+12% esta semana</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuarios Conectados -->
+            <div class="usuarios-conectados">
+                <h3>Miembros Conectados</h3>
+                <div id="usuarios-online-list">
+                    <div class="user-item">
+                        <div class="user-avatar" style="background: var(--bg-gradient);"></div>
+                        <div class="user-info">
+                            <div class="user-name">VideoMaker92</div>
+                            <div class="user-role">Activo</div>
+                        </div>
+                        <div class="online-indicator"></div>
+                    </div>
+                    <div class="user-item">
+                        <div class="user-avatar" style="background: linear-gradient(135deg, var(--verite-accent), var(--verite-primary));"></div>
+                        <div class="user-info">
+                            <div class="user-name">SoundExpert</div>
+                            <div class="user-role">Activo</div>
+                        </div>
+                        <div class="online-indicator"></div>
+                    </div>
+                    <div class="user-item">
+                        <div class="user-avatar" style="background: linear-gradient(135deg, var(--verite-secondary), var(--verite-danger));"></div>
+                        <div class="user-info">
+                            <div class="user-name">ColorGrader</div>
+                            <div class="user-role">Activo</div>
+                        </div>
+                        <div class="online-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Estado del Usuario (simulado) -->
+        <div class="user-status">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%238B5CF6;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%2306B6D4;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='20' cy='20' r='20' fill='url(%23grad)'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold' font-size='16'%3EU%3C/text%3E%3C/svg%3E" alt="Avatar">
+            <span style="font-weight: 600; color: var(--text-primary);">Usuario Demo</span>
+            <button id="eevi-chat-toggle">💬</button>
+            <a href="#" style="color: var(--text-muted); text-decoration: none; font-size: 14px;">Salir</a>
+        </div>
+
+        <!-- Panel de Proyectos -->
+        <div id="projectsPanel" class="projects-panel">
+            <div style="padding: var(--space-2xl); height: 100%; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2xl); border-bottom: 2px solid var(--bg-tertiary); padding-bottom: var(--space-lg);">
+                    <h2 style="font-size: 24px; font-weight: 800; color: var(--text-primary);">Proyectos Activos</h2>
+                    <button id="closeProjectsPanel" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary);">✕</button>
+                </div>
+                
+                <div style="flex: 1; overflow-y: auto;">
+                    <div style="background: var(--bg-secondary); padding: var(--space-xl); border-radius: var(--radius-lg); margin-bottom: var(--space-lg); border-left: 4px solid var(--verite-primary);">
+                        <h3 style="font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-sm);">Documental "Voces del Barrio"</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">Estado: En post-producción</p>
+                        <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+                            <span class="tag-item" style="font-size: 10px;">Edición</span>
+                            <span class="tag-item" style="font-size: 10px; background: var(--verite-accent);">Audio</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-secondary); padding: var(--space-xl); border-radius: var(--radius-lg); margin-bottom: var(--space-lg); border-left: 4px solid var(--verite-secondary);">
+                        <h3 style="font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-sm);">Serie Web "Tech Stories"</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">Estado: Pre-producción</p>
+                        <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+                            <span class="tag-item" style="font-size: 10px; background: var(--verite-warning);">Guión</span>
+                            <span class="tag-item" style="font-size: 10px; background: var(--verite-danger);">Casting</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="cta-button" style="margin-top: var(--space-lg);">
+                    <span>➕</span> Nuevo Proyecto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulación de funcionalidad del foro original
+        document.addEventListener('DOMContentLoaded', function() {
+            // Theme Toggle Functionality
+            const themeToggle = document.getElementById('themeToggle');
+            const body = document.body;
+            
+            // Check for saved theme preference or default to light mode
+            const savedTheme = localStorage.getItem('forum-theme') || 'light';
+            setTheme(savedTheme);
+            
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = body.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                setTheme(newTheme);
+            });
+            
+            function setTheme(theme) {
+                console.log('Setting theme to:', theme); // Debug
+                body.setAttribute('data-theme', theme);
+                themeToggle.classList.toggle('dark', theme === 'dark');
+                localStorage.setItem('forum-theme', theme);
+                
+                // Force repaint
+                body.style.display = 'none';
+                body.offsetHeight; // Trigger reflow
+                body.style.display = '';
+                
+                // Trigger a custom event for theme change
+                const event = new CustomEvent('themeChanged', { detail: { theme } });
+                document.dispatchEvent(event);
+            }
+
+            // Toggle formulario nuevo tema
+            const newTopicBtns = document.querySelectorAll('#newTopicBtn, #newTopicBtn2, #newTopicBtnSidebar');
+            const newTopicForm = document.getElementById('newTopicForm');
+            const cancelBtn = document.getElementById('cancelBtn');
+
+            newTopicBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    newTopicForm.classList.toggle('active');
+                    if (newTopicForm.classList.contains('active')) {
+                        newTopicForm.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+            cancelBtn.addEventListener('click', function() {
+                newTopicForm.classList.remove('active');
+            });
+
+            // Filtrado por categorías
+            const categoryBtns = document.querySelectorAll('.category-item');
+            const topicCards = document.querySelectorAll('.topic-card');
+
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remover active de todos
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    // Agregar active al clickeado
+                    this.classList.add('active');
+
+                    const selectedCategory = this.dataset.category;
+                    
+                    // Filtrar temas (simulado)
+                    topicCards.forEach(card => {
+                        const topicTag = card.querySelector('.topic-tag');
+                        if (!selectedCategory || (topicTag && topicTag.textContent === selectedCategory)) {
+                            card.style.display = 'flex';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Panel de proyectos
+            const projectsBtn = document.getElementById('projectsBtn');
+            const projectsPanel = document.getElementById('projectsPanel');
+            const closeProjectsBtn = document.getElementById('closeProjectsPanel');
+
+            projectsBtn.addEventListener('click', function() {
+                projectsPanel.classList.add('active');
+            });
+
+            closeProjectsBtn.addEventListener('click', function() {
+                projectsPanel.classList.remove('active');
+            });
+
+            // Chat toggle
+            const chatToggle = document.getElementById('eevi-chat-toggle');
+            chatToggle.addEventListener('click', function() {
+                alert('Chat widget activado!');
+            });
+
+            // Navegación
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (this.dataset.action === 'home') {
+                        navItems.forEach(n => n.classList.remove('active'));
+                        this.classList.add('active');
+                    }
+                });
+            });
+
+            // Click en temas
+            topicCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const topicId = this.dataset.topicId;
+                    console.log(`Navegando al tema ${topicId}`);
+                    // Aquí iría la navegación real
+                });
+            });
+
+            // Animaciones de entrada escalonadas
+            const animatedElements = document.querySelectorAll('.topic-card, .widget, .tag-item');
+            animatedElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // Efectos hover en trending items con consideración de tema
+            const trendingItems = document.querySelectorAll('.trending-item');
+            trendingItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    const currentTheme = body.getAttribute('data-theme') || 'light';
+                    if (currentTheme === 'dark') {
+                        this.style.boxShadow = 'var(--shadow-medium)';
+                    } else {
+                        this.style.boxShadow = 'var(--shadow-medium)';
+                    }
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Efectos de partículas en el hero mejorados para temas
+            document.addEventListener('themeChanged', function(e) {
+                // Recrear partículas con colores apropiados al tema
+                const particles = document.querySelectorAll('.hero-section .particle');
+                particles.forEach(p => p.remove());
+            });
+
+            // Efectos de scroll suave
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Simulación de envío de formulario
+            const topicForm = document.getElementById('topicForm');
+            topicForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Animación de éxito
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.innerHTML = '<span>✅</span> ¡Publicado!';
+                submitBtn.style.background = 'var(--verite-success)';
+                
+                setTimeout(() => {
+                    newTopicForm.classList.remove('active');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.style.background = '';
+                    topicForm.reset();
+                }, 2000);
+            });
+        });
+
+        // Función para simular actualizaciones en tiempo real
+        function updateOnlineCount() {
+            const onlineCount = document.querySelector('span[style*="color:var(--verite-success)"]');
+            if (onlineCount) {
+                const current = parseInt(onlineCount.textContent);
+                const newCount = Math.max(1, current + Math.floor(Math.random() * 3) - 1);
+                onlineCount.textContent = newCount;
+            }
+        }
+
+        // Actualizar contador cada 30 segundos
+        setInterval(updateOnlineCount, 30000);
+
+        // Efectos de partículas en el hero mejorados para ambos temas
+        function createParticle() {
+            const hero = document.querySelector('.hero-section');
+            const particle = document.createElement('div');
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            
+            particle.className = 'particle';
+            particle.style.position = 'absolute';
+            particle.style.width = '4px';
+            particle.style.height = '4px';
+            particle.style.background = currentTheme === 'dark' ? 
+                'rgba(252, 211, 77, 0.4)' : 'rgba(255,255,255,0.3)';
+            particle.style.borderRadius = '50%';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = '100%';
+            particle.style.pointerEvents = 'none';
+            particle.style.animation = 'particleFloat 3s linear forwards';
+            
+            hero.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 3000);
+        }
+
+        // Crear partículas periódicamente
+        setInterval(createParticle, 500);
+    </script>
+</body>
+</html>
