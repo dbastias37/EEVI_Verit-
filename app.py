@@ -7,7 +7,7 @@ import logging
 import time
 import uuid
 
-# Imports existentes
+# Imports existentes )necesito estructurar todo)
 from routes.chat import chat_bp
 from routes.admin import admin_bp
 from routes.client import client_bp
