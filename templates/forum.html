@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
 <style>
   /* Oculta el botón por defecto del widget de chat */
-  #eevi-chat-root > button { display: none; }
+  #chat-root > button { display: none; }
 </style>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const customBtn  = document.getElementById('eevi-chat-toggle');
-    const widgetBtn  = document.querySelector('#eevi-chat-root > button');
+    const widgetBtn  = document.querySelector('#chat-root > button');
     if (!customBtn || !widgetBtn) return;
     customBtn.addEventListener('click', () => widgetBtn.click());
   });

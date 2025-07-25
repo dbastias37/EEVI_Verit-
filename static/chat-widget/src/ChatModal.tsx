@@ -21,7 +21,8 @@ interface Message {
   id?: number;
   text: string;
   sender: string;
-  timestamp?: number;
+  timestamp: number;
+  isSystem?: boolean;
 }
 
 interface ChatModalProps {
@@ -47,7 +48,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     if (name) setDisplayName(name);
 
     socket.on('chat message', (msg: Message) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => [...prev, msg].sort((a, b) => a.timestamp - b.timestamp));
     });
 
     return () => {
