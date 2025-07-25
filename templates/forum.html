@@ -258,4 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
     customBtn.addEventListener('click', () => widgetBtn.click());
   });
 </script>
+<div id="chat-root"></div>
+<script src="{{ url_for('static', filename='dist/bundle.js') }}"></script>
 {% endblock %}

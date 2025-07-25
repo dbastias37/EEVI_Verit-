@@ -18,11 +18,10 @@ const socket = io();
 import { COLORS } from './COLORS';
 
 interface Message {
-  id: number;
+  id?: number;
   text: string;
   sender: string;
-  timestamp: number;
-  isSystem: boolean;
+  timestamp?: number;
 }
 
 interface ChatModalProps {
@@ -44,20 +43,15 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   };
 
   useEffect(() => {
-    const current = (window as any).currentUser;
-    if (current && current.name) {
-      setDisplayName(current.name);
-    } else {
-      setDisplayName(localStorage.getItem('displayName') || 'Anónimo');
-    }
-    fetch('/api/messages')
-      .then((r) => r.json())
-      .then((data) => setMessages(data));
-    socket.on('new_message', (msg: Message) => {
+    const name = localStorage.getItem('displayName');
+    if (name) setDisplayName(name);
+
+    socket.on('chat message', (msg: Message) => {
       setMessages((prev) => [...prev, msg]);
     });
+
     return () => {
-      socket.off('new_message');
+      socket.off('chat message');
     };
   }, []);
 
@@ -80,15 +74,8 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
   const handleSendMessage = (): void => {
     if (!inputMessage.trim()) return;
-    fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: displayName, text: inputMessage })
-    })
-      .then((r) => r.json())
-      .then((msg) => {
-        setMessages((prev: Message[]) => [...prev, msg]);
-      });
+    const msg: Message = { sender: displayName, text: inputMessage, timestamp: Date.now() };
+    socket.emit('chat message', msg);
     setInputMessage('');
   };
 
