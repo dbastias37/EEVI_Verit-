@@ -15,6 +15,7 @@ from routes.auth import auth_bp
 from routes.projects import projects_bp
 from routes.messages import messages_bp
 from routes.chat_api import chat_api_bp
+from routes.forum_stats import forum_bp as forum_stats_bp
 
 # Nuevos blueprints
 try:
@@ -96,6 +97,9 @@ if STATUS_AVAILABLE:
 
 if FORUM_AUTH_AVAILABLE:
     app.register_blueprint(forum_auth_bp, url_prefix='/forum')
+
+# Estadísticas del foro
+app.register_blueprint(forum_stats_bp, url_prefix='/forum')
 
 # ===== AGREGAR RUTAS DE FORUM FALTANTES =====
 from utils.template_filters import register_filters
