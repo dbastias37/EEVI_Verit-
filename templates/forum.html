@@ -252,12 +252,14 @@ document.addEventListener('DOMContentLoaded', () => {
 {% endif %}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const customBtn  = document.getElementById('eevi-chat-toggle');
-    const widgetBtn  = document.querySelector('#chat-root > button');
-    if (!customBtn || !widgetBtn) return;
-    customBtn.addEventListener('click', () => widgetBtn.click());
+    const toggleBtn = document.getElementById('eevi-chat-toggle');
+    if (!toggleBtn) return;
+
+    toggleBtn.addEventListener('click', () => {
+      const event = new CustomEvent('openChat', { detail: { chatId: null, name: 'Chat general' } });
+      window.dispatchEvent(event);
+    });
   });
 </script>
-<div id="chat-root"></div>
 <script src="{{ url_for('static', filename='dist/bundle.js') }}"></script>
 {% endblock %}
