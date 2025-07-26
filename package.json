@@ -4,6 +4,6 @@
   "private": true,
   "scripts": {
     "start": "flask run",
-    "build:chat-widget": "cd static/chat-widget && npm ci && npm run build"
+    "build:chat-widget": "npm --prefix static/chat-widget ci && npm --prefix static/chat-widget run build"
   }
 }

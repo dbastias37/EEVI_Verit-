@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
 
-# Compile the chat widget
-npx webpack --config webpack.config.js
+# Compila el chat widget con Vite
+npm --prefix static/chat-widget ci
+npm --prefix static/chat-widget run build
