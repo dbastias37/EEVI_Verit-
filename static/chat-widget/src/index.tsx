@@ -1,8 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import ChatModal from './ChatModal';
+import { createRoot } from 'react-dom/client';
+import ChatOverlay from './components/ChatOverlay';
 
 const container = document.getElementById('chat-root');
 if (container) {
-  ReactDOM.render(<ChatModal isOpen={true} onClose={() => {}} />, container);
+  const root = createRoot(container);
+  root.render(<ChatOverlay />);
 }
+
