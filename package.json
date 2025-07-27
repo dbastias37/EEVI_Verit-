@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "flask run",
-    "build": "esbuild static/chat-widget/src/index.tsx --bundle --minify --sourcemap --outfile=static/dist/bundle.js --tsconfig=static/chat-widget/tsconfig.json"
+    "build": "esbuild static/chat-widget/src/index.tsx --bundle --minify --sourcemap --outfile=static/dist/bundle.js --tsconfig=static/chat-widget/tsconfig.json",
+    "build:chat-widget": "npm run build"
   },
   "dependencies": {
     "lucide-react": "^0.200.0",
