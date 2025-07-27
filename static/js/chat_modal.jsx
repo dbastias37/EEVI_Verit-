@@ -13,9 +13,8 @@ import {
   Minimize2,
   Maximize2,
 } from 'lucide-react';
-import { io } from 'socket.io-client';
-const socket = io();
-import { COLORS } from './COLORS';
+import { COLORS } from '../COLORS';
+import { socket } from '../socket'; // <--- cambio clave
 
 interface Message {
   id?: number;
@@ -38,7 +37,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const [editingName, setEditingName] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const chatId = 'global'; // ID de la sala. Puedes hacerlo dinámico si quieres.
+  const chatId = 'global';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -96,7 +95,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       <div className="flex justify-between items-center p-2 border-b" style={{ backgroundColor: COLORS.header }}>
         <div className="flex items-center space-x-2">
           <MessageCircle />
-          <span>Chat</span>
+          <span>CHAT GLOBAL EEVI</span>
         </div>
         <div className="flex items-center space-x-2">
           <button onClick={() => setIsMinimized(!isMinimized)}>
