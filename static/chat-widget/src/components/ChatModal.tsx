@@ -14,7 +14,7 @@ import {
   Maximize2,
 } from 'lucide-react';
 import { COLORS } from '../COLORS';
-import socket from '../socket';
+import { socket } from '../socket';
 
 interface Message {
   id?: number;
