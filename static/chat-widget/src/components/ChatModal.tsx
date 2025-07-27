@@ -14,13 +14,14 @@ import {
   Maximize2,
 } from 'lucide-react';
 import { COLORS } from '../COLORS';
+import socket from '../socket';
 
 interface Message {
-  id: number;
+  id?: number;
   text: string;
   sender: string;
   timestamp: number;
-  isSystem: boolean;
+  isSystem?: boolean;
 }
 
 interface ChatModalProps {
@@ -36,6 +37,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const [editingName, setEditingName] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const chatId = 'global';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,9 +50,20 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     } else {
       setDisplayName(localStorage.getItem('displayName') || 'Anónimo');
     }
+
     fetch('/api/messages')
       .then((r) => r.json())
       .then((data) => setMessages(data));
+
+    socket.emit('join', { chat_id: chatId });
+    socket.on('message', (msg: Message) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    return () => {
+      socket.emit('leave', { chat_id: chatId });
+      socket.off('message');
+    };
   }, []);
 
   useEffect(() => {
@@ -72,15 +85,15 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
   const handleSendMessage = (): void => {
     if (!inputMessage.trim()) return;
-    fetch('/api/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: displayName, text: inputMessage })
-    })
-      .then((r) => r.json())
-      .then((msg) => {
-        setMessages((prev: Message[]) => [...prev, msg]);
-      });
+
+    const msg: Message = {
+      text: inputMessage.trim(),
+      sender: displayName,
+      timestamp: Date.now(),
+    };
+
+    setMessages((prev: Message[]) => [...prev, msg]);
+    socket.emit('new_message', { ...msg, chat_id: chatId });
     setInputMessage('');
   };
 

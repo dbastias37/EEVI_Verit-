@@ -335,7 +335,3 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = not os.environ.get('RENDER')
     socketio.run(app, host='0.0.0.0', port=port, debug=debug)
-
-if __name__ == '__main__':
-    socketio.init_app(app)
-    socketio.run(app, host='0.0.0.0', port=5000)
