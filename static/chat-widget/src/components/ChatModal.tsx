@@ -55,14 +55,21 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       .then((r) => r.json())
       .then((data) => setMessages(data));
 
-    socket.emit('join', { chat_id: chatId });
-    socket.on('message', (msg: Message) => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    const onMessage = (msg: Message) => {
       setMessages((prev) => [...prev, msg]);
-    });
+    };
+
+    socket.emit('join', { chat_id: chatId });
+    socket.on('message', onMessage);
 
     return () => {
       socket.emit('leave', { chat_id: chatId });
-      socket.off('message');
+      socket.off('message', onMessage);
+      socket.disconnect();
     };
   }, []);
 
