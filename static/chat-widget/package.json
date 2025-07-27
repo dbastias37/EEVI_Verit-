@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "vite build"
+  "dev": "vite",
+  "build": "vite build"
   },
   "dependencies": {
     "lucide-react": "^0.200.0",
