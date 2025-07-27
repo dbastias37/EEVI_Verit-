@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 from datetime import datetime
 from flask_login import LoginManager, current_user, UserMixin
 from flask_socketio import emit
+from sockets import socketio
+
 import os
 import logging
 import time
@@ -333,3 +335,7 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = not os.environ.get('RENDER')
     socketio.run(app, host='0.0.0.0', port=port, debug=debug)
+
+if __name__ == '__main__':
+    socketio.init_app(app)
+    socketio.run(app, host='0.0.0.0', port=5000)

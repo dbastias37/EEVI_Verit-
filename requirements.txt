@@ -5,9 +5,12 @@ SQLAlchemy>=2.0
 psycopg2-binary>=2.9
 gunicorn==22.0.0
 Werkzeug>=3.0
+Flask-CORS>=4.0.0
 Flask-SocketIO>=5.3
 eventlet>=0.33
 
+
+Flask-Session>=0.4.0
 Flask-Migrate==4.0.5
 Alembic>=1.13
 
