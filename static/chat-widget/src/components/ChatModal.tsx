@@ -265,12 +265,17 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
               <span style={{ fontSize: '0.75rem', color: COLORS.accent }}>Conectado como:</span>
               {editingName ? (
                 <input
+                  id="chat-display-name"
+                  name="displayName"
+                  type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   onBlur={() => {
                     setEditingName(false);
                     localStorage.setItem('displayName', displayName);
                   }}
+                  placeholder="Tu nombre"
+                  autoComplete="username"
                   style={{ fontSize: '0.75rem' }}
                 />
               ) : (
@@ -287,11 +292,15 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input
                 ref={inputRef}
+                id="chat-message-input"
+                name="message"
                 type="text"
                 value={inputMessage}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Escribe tu mensaje..."
+                autoComplete="off"
+                autoCapitalize="sentences"
                 style={{
                   flex: 1,
                   padding: '0.5rem',

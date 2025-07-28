@@ -20,7 +20,7 @@
     <header class="header">
       <h2>Panel Admin</h2>
       <form action="{{ url_for('admin.admin_logout') }}" method="post" class="inline-form">
-        <button type="submit" class="btn btn-danger">Salir</button>
+        <button id="admin-logout" name="submit" type="submit" class="btn btn-danger">Salir</button>
       </form>
     </header>
 
@@ -63,11 +63,11 @@
 
     <div class="dashboard-login mb-1">
       <form action="{{ url_for('admin.admin_add_project') }}" method="post">
-        <input type="text" name="title" placeholder="Título" required class="form-control full-input">
-        <input type="text" name="category" placeholder="Categoría" required class="form-control full-input">
-        <input type="text" name="video_url" placeholder="URL" required class="form-control full-input">
-        <input type="email" name="client_email" placeholder="Cliente" required class="form-control full-input">
-        <button type="submit" class="btn btn-primary">Agregar</button>
+        <input id="admin-project-title" name="title" type="text" placeholder="Título" autoComplete="off" required class="form-control full-input">
+        <input id="admin-project-category" name="category" type="text" placeholder="Categoría" autoComplete="off" required class="form-control full-input">
+        <input id="admin-project-video" name="video_url" type="text" placeholder="URL" autoComplete="off" required class="form-control full-input">
+        <input id="admin-project-email" name="client_email" type="email" placeholder="Cliente" autoComplete="email" required class="form-control full-input">
+        <button id="admin-project-submit" name="submit" type="submit" class="btn btn-primary">Agregar</button>
       </form>
     </div>
 
@@ -76,19 +76,19 @@
       <div class="project-card card">
         <h4>{{ p.title }}</h4>
         <form action="{{ url_for('admin.admin_update_project', project_id=p.id) }}" method="post">
-          <input type="text" name="video_url" value="{{ p.video_url }}" placeholder="URL de video" class="form-control full-input">
-          <input type="email" name="client_email" value="{{ p.client_email }}" placeholder="Cliente" class="form-control full-input">
-          <button type="submit" class="btn btn-primary">Guardar</button>
+          <input id="admin-project-video-url" name="video_url" type="text" value="{{ p.video_url }}" placeholder="URL de video" autoComplete="off" class="form-control full-input">
+          <input id="admin-project-client" name="client_email" type="email" value="{{ p.client_email }}" placeholder="Cliente" autoComplete="email" class="form-control full-input">
+          <button id="admin-project-save" name="submit" type="submit" class="btn btn-primary">Guardar</button>
         </form>
         <form action="{{ url_for('admin.admin_activate_payment', project_id=p.id) }}" method="post" class="mt-half">
           {% if not p.paid %}
-          <button type="submit" class="btn btn-success pay-btn">Activar 50%</button>
+          <button id="admin-activate-payment" name="submit" type="submit" class="btn btn-success pay-btn">Activar 50%</button>
           {% else %}
           <span>Pago activado</span>
           {% endif %}
         </form>
         <form action="{{ url_for('admin.admin_delete_video', project_id=p.id) }}" method="post" onsubmit="return confirmDelete();" class="mt-half">
-          <button type="submit" class="btn btn-danger">Eliminar Video</button>
+          <button id="admin-delete-video" name="submit" type="submit" class="btn btn-danger">Eliminar Video</button>
         </form>
       </div>
       {% endfor %}

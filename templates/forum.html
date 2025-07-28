@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <form id="topicForm" action="{{ url_for('create_new_forum') }}" method="post">
                 <div class="form-group">
                     <label class="form-label" for="autor">Nombre:</label>
-                    <input type="text" id="autor" name="autor" class="form-input" placeholder="Tu nombre" required>
+                    <input type="text" id="autor" name="autor" class="form-input" placeholder="Tu nombre" autoComplete="name" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="categoria">Categoría:</label>
@@ -109,15 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="titulo">Título:</label>
-                    <input type="text" id="titulo" name="titulo" class="form-input" placeholder="Un título descriptivo para tu tema" required>
+                    <input type="text" id="titulo" name="titulo" class="form-input" placeholder="Un título descriptivo para tu tema" autoComplete="off" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="contenido">Contenido:</label>
-                    <textarea id="contenido" name="contenido" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." required></textarea>
+                    <textarea id="contenido" name="contenido" class="form-textarea" placeholder="Describe tu problema, pregunta o comparte tu conocimiento..." autoComplete="off" required></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
-                    <button type="submit" class="cta-button">Publicar Tema</button>
+                    <button id="forum-submit" name="submit" type="submit" class="cta-button">Publicar Tema</button>
                 </div>
             </form>
         </div>

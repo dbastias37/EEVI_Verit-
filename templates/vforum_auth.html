@@ -184,18 +184,15 @@
         <div id="registerForm" class="form-container">
             <form id="register-form">
                 <div class="form-group">
-                    <input type="text" name="username" class="form-input" 
-                           placeholder="Nombre de usuario" required>
+                    <input id="auth-register-username" name="username" type="text" class="form-input" placeholder="Nombre de usuario" autoComplete="username" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" name="email" class="form-input" 
-                           placeholder="Correo electrónico" required>
+                    <input id="auth-register-email" name="email" type="email" class="form-input" placeholder="Correo electrónico" autoComplete="email" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" name="password" class="form-input" 
-                           placeholder="Contraseña" required minlength="6">
+                    <input id="auth-register-password" name="password" type="password" class="form-input" placeholder="Contraseña" autoComplete="new-password" required minlength="6">
                 </div>
-                <button type="submit" class="auth-button">Registrarme</button>
+                <button id="auth-register-submit" name="submit" type="submit" class="auth-button">Registrarme</button>
             </form>
             
             <div class="auth-toggle">
@@ -212,14 +209,12 @@
             </p>
             <form onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <input type="email" name="email" class="form-input" 
-                           placeholder="Correo electrónico" required>
+                    <input id="auth-login-email" name="email" type="email" class="form-input" placeholder="Correo electrónico" autoComplete="email" required>
                 </div>
                 <div class="form-group">
-                    <input type="password" name="password" class="form-input" 
-                           placeholder="Contraseña" required>
+                    <input id="auth-login-password" name="password" type="password" class="form-input" placeholder="Contraseña" autoComplete="current-password" required>
                 </div>
-                <button type="submit" class="auth-button">Ingresar</button>
+                <button id="auth-login-submit" name="submit" type="submit" class="auth-button">Ingresar</button>
             </form>
             
             <div class="auth-toggle">

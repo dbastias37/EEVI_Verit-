@@ -14,10 +14,10 @@
   </div>
   <div class="topic-content">{{ topic.description or topic.contenido }}</div>
   {% if show_delete %}
-  <form action="{{ url_for('delete_topic_route', topic_id=topic.id) }}" method="post">
+    <form action="{{ url_for('delete_topic_route', topic_id=topic.id) }}" method="post">
     <input type="hidden" name="password" value="borrar1">
-    <button type="submit" class="btn-delete">🗑 Eliminar</button>
-  </form>
+    <button id="forum-delete" name="submit" type="submit" class="btn-delete">🗑 Eliminar</button>
+    </form>
   {% endif %}
   <hr>
   {% for r in responses %}
@@ -30,8 +30,8 @@
   {% endfor %}
   <form class="reply-form" action="{{ url_for('forum_reply', topic_id=topic.id) }}" method="post">
     <input type="hidden" name="author" value="{{ session.get('user', 'Anónimo') }}">
-    <textarea name="content" rows="4" required></textarea>
-    <button type="submit" class="btn-primary">Responder</button>
+    <textarea id="forum-content" name="content" rows="4" placeholder="Contenido" autoComplete="off" required></textarea>
+    <button id="forum-submit" name="submit" type="submit" class="btn-primary">Responder</button>
   </form>
 </div>
 {% endblock %}
