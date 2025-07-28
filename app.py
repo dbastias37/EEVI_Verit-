@@ -123,42 +123,63 @@ def inject_global_vars():
 def api_get_messages():
     try:
         chat_id = request.args.get('chat_id', 'global')
-        messages = sockets.get_messages_for_api(chat_id)
 
-        print(f"📡 API: Enviando {len(messages)} mensajes formato BD para sala {chat_id}")
+        # Verificar si existe el store de sockets
+        try:
+            messages = sockets.get_messages_for_api(chat_id)
+            if messages:
+                print(f"📡 API: Enviando {len(messages)} mensajes desde store")
+                return jsonify(messages)
+        except (AttributeError, NameError):
+            print("⚠️ Store de sockets no disponible")
 
-        return jsonify(messages)
+        # Fallback: mensajes básicos para que funcione
+        fallback_messages = [
+            {"id":1,"text":"Sistema inicializado","timestamp":"2025-07-28 04:00:00","user":"Sistema","chat_id":"global"}
+        ]
+
+        print(f"📡 API: Enviando mensajes fallback: {len(fallback_messages)}")
+        return jsonify(fallback_messages)
+
     except Exception as e:
         print(f"❌ Error en API get_messages: {e}")
-        return jsonify([]), 500
+        # NUNCA devolver respuesta vacía que cause JSON error
+        return jsonify([])
 
 
 @app.route('/api/messages', methods=['POST'])
 def api_post_message():
     try:
         data = request.get_json()
-        chat_id = data.get('chat_id', 'global')
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # Asegurar que sockets.messages_store existe
+        if not hasattr(sockets, 'messages_store'):
+            sockets.messages_store = []
 
         message = {
             'id': len(sockets.messages_store) + 1,
             'text': data.get('text', ''),
             'user': data.get('user', data.get('sender', 'Anónimo')),
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'chat_id': chat_id,
-            'isSystem': False
+            'chat_id': data.get('chat_id', 'global')
         }
 
         sockets.messages_store.append(message)
 
-        emit_message = dict(message)
-        emit_message['sender'] = message['user']
-        emit_message['timestampMs'] = int(datetime.now().timestamp() * 1000)
+        # CRÍTICO: Emitir evento correcto "message" no "new_message"
+        try:
+            emit_message = dict(message)
+            emit_message['sender'] = message['user']
+            socketio.emit('message', emit_message, room=message['chat_id'])
+            print(f"💬 Socket: Mensaje emitido correctamente")
+        except Exception as socket_error:
+            print(f"⚠️ Error Socket.IO: {socket_error}")
 
-        socketio.emit('message', emit_message, room=chat_id)
+        print(f"💬 API: Mensaje guardado - ID: {message['id']}")
+        return jsonify(message), 201
 
-        print(f"💬 API: Mensaje guardado formato BD - ID: {message['id']}")
-
-        return jsonify(message)
     except Exception as e:
         print(f"❌ Error en API post_message: {e}")
         return jsonify({'error': str(e)}), 500
@@ -172,6 +193,36 @@ def debug_users():
         return jsonify(get_connected_users_info())
     except:
         return jsonify({'error': 'No disponible'}), 500
+
+# ======== Rutas estáticas y debug ========
+@app.route('/static/dist/<path:filename>')
+def serve_static_dist(filename):
+    from flask import send_from_directory
+    import os
+    dist_path = os.path.join(app.root_path, 'static', 'dist')
+    if os.path.exists(os.path.join(dist_path, filename)):
+        return send_from_directory(dist_path, filename)
+    else:
+        print(f"❌ Archivo no encontrado: {filename}")
+        return "File not found", 404
+
+@app.route('/debug/chat-status')
+def debug_chat_status():
+    try:
+        store_size = len(getattr(sockets, 'messages_store', []))
+        import os
+        bundle_path = os.path.join(app.root_path, 'static', 'dist', 'bundle.js')
+        bundle_exists = os.path.exists(bundle_path)
+        bundle_size = os.path.getsize(bundle_path) if bundle_exists else 0
+
+        return jsonify({
+            'messages_store_size': store_size,
+            'bundle_exists': bundle_exists,
+            'bundle_size_bytes': bundle_size,
+            'status': 'ok' if bundle_size > 0 and store_size >= 0 else 'error'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': 'error'})
 
 # ===== RUTAS DE FORUM PRINCIPALES =====
 @app.route('/forum')

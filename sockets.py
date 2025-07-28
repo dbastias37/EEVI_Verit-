@@ -173,3 +173,25 @@ def get_connected_users_info():
         'total': len(connected_users),
         'users': list(connected_users.values())
     }
+
+# Inicialización segura del store
+def ensure_messages_store():
+    global messages_store
+    if 'messages_store' not in globals():
+        globals()['messages_store'] = []
+    if not isinstance(messages_store, list):
+        messages_store = []
+    return messages_store
+
+# Función segura para API
+def get_messages_for_api(chat_id='global'):
+    try:
+        store = ensure_messages_store()
+        room_messages = [msg for msg in store if msg.get('chat_id', 'global') == chat_id]
+        return room_messages[-50:] if room_messages else []
+    except Exception as e:
+        print(f"❌ Error en get_messages_for_api: {e}")
+        return []
+
+# Inicializar al importar
+ensure_messages_store()
