@@ -9,7 +9,12 @@ export default defineConfig({
       '/socket.io': {
         target: 'http://localhost:5000',
         ws: true,
-        changeOrigin: true
+        changeOrigin: true,
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('Proxy error:', err);
+          });
+        }
       },
       '/api': {
         target: 'http://localhost:5000',

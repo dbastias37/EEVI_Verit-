@@ -51,50 +51,72 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       setDisplayName(localStorage.getItem('displayName') || 'Anónimo');
     }
 
-    // Conectar socket si no está conectado
-    if (!socket.connected) {
-      socket.connect();
+    console.log('🚀 Iniciando ChatModal...');
+
+    // Forzar nueva conexión
+    if (socket.connected) {
+      socket.disconnect();
     }
+    
+    socket.connect();
 
     // Cargar mensajes existentes del API
     fetch('/api/messages?chat_id=' + chatId)
       .then((r) => r.json())
       .then((data) => {
+        console.log('📥 Mensajes cargados del API:', data.length);
         setMessages(Array.isArray(data) ? data : []);
       })
       .catch((error) => {
-        console.error('Error loading messages:', error);
+        console.error('❌ Error cargando mensajes:', error);
         setMessages([]);
       });
 
-    const onMessage = (msg: Message) => {
-      console.log('Nuevo mensaje recibido:', msg);
-      setMessages((prev) => [...prev, msg]);
+    // Handlers de eventos Socket
+    const onMessage = (msg: any) => {
+      console.log('💬 MENSAJE RECIBIDO VIA SOCKET:', msg);
+      const formattedMsg: Message = {
+        id: msg.id || Date.now(),
+        text: msg.text || '',
+        sender: msg.sender || 'Anónimo',
+        timestamp: msg.timestamp || Date.now(),
+        isSystem: msg.isSystem || false
+      };
+      
+      setMessages((prevMessages) => {
+        console.log('📝 Agregando mensaje al estado. Total actual:', prevMessages.length);
+        const newMessages = [...prevMessages, formattedMsg];
+        console.log('📝 Nuevo total de mensajes:', newMessages.length);
+        return newMessages;
+      });
     };
 
-    const onMessageHistory = (history: Message[]) => {
-      console.log('Historial recibido:', history.length, 'mensajes');
+    const onMessageHistory = (history: any[]) => {
+      console.log('📚 Historial recibido:', history.length, 'mensajes');
       setMessages(Array.isArray(history) ? history : []);
     };
 
-    const onConnectionResponse = (data: any) => {
-      console.log('Conectado al servidor:', data);
+    const onConnect = () => {
+      console.log('✅ Socket conectado, uniéndose a sala:', chatId);
+      socket.emit('join', { chat_id: chatId });
     };
 
-    // Unirse a la sala
-    socket.emit('join', { chat_id: chatId });
-
     // Registrar eventos
+    socket.on('connect', onConnect);
     socket.on('message', onMessage);
     socket.on('message_history', onMessageHistory);
-    socket.on('connection_response', onConnectionResponse);
+
+    // Si ya está conectado, unirse inmediatamente
+    if (socket.connected) {
+      onConnect();
+    }
 
     return () => {
+      console.log('🧹 Limpiando eventos de socket...');
       socket.emit('leave', { chat_id: chatId });
+      socket.off('connect', onConnect);
       socket.off('message', onMessage);
       socket.off('message_history', onMessageHistory);
-      socket.off('connection_response', onConnectionResponse);
-      // No desconectar el socket para permitir reconexión
     };
   }, [chatId]);
 
@@ -118,14 +140,18 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const handleSendMessage = (): void => {
     if (!inputMessage.trim()) return;
 
-    const msg: Message = {
+    const msg = {
       text: inputMessage.trim(),
       sender: displayName,
       timestamp: Date.now(),
+      chat_id: chatId
     };
 
-    setMessages((prev: Message[]) => [...prev, msg]);
-    socket.emit('new_message', { ...msg, chat_id: chatId });
+    console.log('📤 Enviando mensaje:', msg);
+    
+    // Enviar via Socket
+    socket.emit('new_message', msg);
+    
     setInputMessage('');
   };
 

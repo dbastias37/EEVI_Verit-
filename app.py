@@ -44,7 +44,7 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
 from flask_cors import CORS
-CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"])
+CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173"])
 
 # --- Autenticación mínima para evitar fallos de import ---
 login_manager = LoginManager(app)
@@ -77,7 +77,6 @@ else:
 app.secret_key = os.environ.get('SECRET_KEY', 'tu_secret_key_aqui')
 
 socketio.init_app(app, cors_allowed_origins="*", async_mode='eventlet')
-sockets.register_socket_events(socketio)
 
 # Inicializar BD
 from utils.db import init_db
@@ -121,16 +120,14 @@ def inject_global_vars():
 
 # ----- APIs de chat -----
 @app.route('/api/messages', methods=['GET'])
-def get_messages():
-    """API para obtener mensajes del chat"""
+def api_get_messages():
     chat_id = request.args.get('chat_id', 'global')
-    messages = sockets.get_messages_for_room(chat_id, 50)
+    messages = sockets.get_messages_for_api(chat_id)
     return jsonify(messages)
 
 
 @app.route('/api/messages', methods=['POST'])
-def post_message():
-    """API para enviar mensaje (fallback para testing)"""
+def api_post_message():
     data = request.get_json()
     chat_id = data.get('chat_id', 'global')
 
