@@ -6,26 +6,25 @@ export const socket = io('/', {
   withCredentials: true,
   autoConnect: false,
   reconnection: true,
-  reconnectionAttempts: 5,
+  reconnectionAttempts: 10,
   reconnectionDelay: 1000,
-  timeout: 10000,
+  timeout: 20000,
+  forceNew: true
 });
 
-// Debug para desarrollo
-if (process.env.NODE_ENV === 'development') {
-  socket.on('connect', () => {
-    console.log('✅ Socket conectado:', socket.id);
-  });
+// Logs detallados para debug
+socket.on('connect', () => {
+  console.log('🟢 Socket CONECTADO:', socket.id);
+});
 
-  socket.on('disconnect', (reason) => {
-    console.log('❌ Socket desconectado:', reason);
-  });
+socket.on('disconnect', (reason) => {
+  console.log('🔴 Socket DESCONECTADO:', reason);
+});
 
-  socket.on('connect_error', (error) => {
-    console.error('🔥 Error de conexión:', error);
-  });
+socket.on('connect_error', (error) => {
+  console.error('❌ ERROR de conexión:', error.message);
+});
 
-  socket.on('reconnect', (attemptNumber) => {
-    console.log('🔄 Reconectado después de', attemptNumber, 'intentos');
-  });
-}
+socket.on('status', (data) => {
+  console.log('📊 Status del servidor:', data);
+});
