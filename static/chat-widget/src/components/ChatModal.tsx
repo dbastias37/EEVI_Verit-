@@ -12,9 +12,12 @@ import {
   Clock,
   Minimize2,
   Maximize2,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 import { COLORS } from '../COLORS';
 import { socket } from '../socket';
+import UserManager from '../utils/userManager';
 
 interface Message {
   id?: number;
@@ -35,46 +38,87 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [displayName, setDisplayName] = useState<string>('Anónimo');
   const [editingName, setEditingName] = useState<boolean>(false);
+  const [nameLocked, setNameLocked] = useState<boolean>(false);
+  const [lastMessageId, setLastMessageId] = useState<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const chatId = 'global';
+  const userManager = UserManager.getInstance();
+  const currentUser = userManager.getCurrentUser();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    const current = (window as any).currentUser;
-    if (current && current.name) {
-      setDisplayName(current.name);
-    } else {
-      setDisplayName(localStorage.getItem('displayName') || 'Anónimo');
-    }
-
-    console.log('🚀 Iniciando ChatModal...');
-
-    // Forzar nueva conexión
-    if (socket.connected) {
-      socket.disconnect();
-    }
+  // Polling para sincronización cada 2 segundos
+  const startPolling = () => {
+    if (pollingRef.current) clearInterval(pollingRef.current);
     
-    socket.connect();
+    pollingRef.current = setInterval(async () => {
+      try {
+        const response = await fetch('/api/messages?chat_id=' + chatId);
+        const data = await response.json();
+        
+        if (Array.isArray(data) && data.length > 0) {
+          const latestId = Math.max(...data.map(msg => msg.id || 0));
+          
+          if (latestId > lastMessageId) {
+            console.log('📊 Polling: Nuevos mensajes detectados');
+            setMessages(data);
+            setLastMessageId(latestId);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error en polling:', error);
+      }
+    }, 2000);
+  };
 
-    // Cargar mensajes existentes del API
+  const stopPolling = () => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  };
+
+  // Cargar configuración inicial y sockets
+  useEffect(() => {
+    const user = userManager.getCurrentUser() || userManager.initializeUser();
+    setDisplayName(user.displayName);
+    setNameLocked(user.isLocked);
+
+    console.log('🚀 ChatModal iniciado para usuario:', user.userId);
+
     fetch('/api/messages?chat_id=' + chatId)
       .then((r) => r.json())
       .then((data) => {
-        console.log('📥 Mensajes cargados del API:', data.length);
-        setMessages(Array.isArray(data) ? data : []);
+        console.log('📥 Mensajes iniciales cargados:', data.length);
+        if (Array.isArray(data)) {
+          setMessages(data);
+          if (data.length > 0) {
+            setLastMessageId(Math.max(...data.map(msg => msg.id || 0)));
+          }
+        }
       })
       .catch((error) => {
         console.error('❌ Error cargando mensajes:', error);
         setMessages([]);
       });
 
-    // Handlers de eventos Socket
+    if (!socket.connected) {
+      socket.auth = { userId: user.userId, displayName: user.displayName };
+      socket.connect();
+    }
+
     const onMessage = (msg: any) => {
-      console.log('💬 MENSAJE RECIBIDO VIA SOCKET:', msg);
+      console.log('💬 Mensaje recibido:', msg);
+
+      if (msg.userId === user.userId && msg.socketId === socket.id) {
+        console.log('🔄 Ignorando eco de nuestro propio mensaje');
+        return;
+      }
+
       const formattedMsg: Message = {
         id: msg.id || Date.now(),
         text: msg.text || '',
@@ -82,44 +126,90 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
         timestamp: msg.timestamp || Date.now(),
         isSystem: msg.isSystem || false
       };
-      
+
       setMessages((prevMessages) => {
-        console.log('📝 Agregando mensaje al estado. Total actual:', prevMessages.length);
+        const exists = prevMessages.some(m => m.id === formattedMsg.id);
+        if (exists) {
+          console.log('⚠️ Mensaje duplicado ignorado:', formattedMsg.id);
+          return prevMessages;
+        }
         const newMessages = [...prevMessages, formattedMsg];
-        console.log('📝 Nuevo total de mensajes:', newMessages.length);
+        setLastMessageId(Math.max(lastMessageId, formattedMsg.id || 0));
+        console.log('✅ Nuevo mensaje agregado. Total:', newMessages.length);
         return newMessages;
       });
     };
 
-    const onMessageHistory = (history: any[]) => {
+    const onMessageHistory = (data: any) => {
+      const history = data.messages || data;
       console.log('📚 Historial recibido:', history.length, 'mensajes');
-      setMessages(Array.isArray(history) ? history : []);
+      if (Array.isArray(history)) {
+        setMessages(history);
+        if (history.length > 0) {
+          setLastMessageId(Math.max(...history.map(msg => msg.id || 0)));
+        }
+      }
+    };
+
+    const onUserRegistered = (data: any) => {
+      console.log('✅ Usuario registrado en servidor:', data);
+    };
+
+    const onUserJoined = (data: any) => {
+      console.log('👥 Usuario se unió:', data.userId);
+    };
+
+    const onUserLeft = (data: any) => {
+      console.log('👋 Usuario salió:', data.userId);
     };
 
     const onConnect = () => {
       console.log('✅ Socket conectado, uniéndose a sala:', chatId);
-      socket.emit('join', { chat_id: chatId });
+      socket.emit('join', { chat_id: chatId, userId: user.userId });
     };
 
-    // Registrar eventos
     socket.on('connect', onConnect);
     socket.on('message', onMessage);
     socket.on('message_history', onMessageHistory);
+    socket.on('user_registered', onUserRegistered);
+    socket.on('user_joined', onUserJoined);
+    socket.on('user_left', onUserLeft);
 
-    // Si ya está conectado, unirse inmediatamente
     if (socket.connected) {
       onConnect();
     }
 
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/messages?chat_id=' + chatId);
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const latestId = Math.max(...data.map(msg => msg.id || 0));
+          if (latestId > lastMessageId) {
+            console.log('📊 Polling: Nuevos mensajes detectados');
+            setMessages(data);
+            setLastMessageId(latestId);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error en polling:', error);
+      }
+    }, 3000);
+
     return () => {
-      console.log('🧹 Limpiando eventos de socket...');
-      socket.emit('leave', { chat_id: chatId });
+      console.log('🧹 Limpiando ChatModal para usuario:', user.userId);
+      clearInterval(pollInterval);
+      socket.emit('leave', { chat_id: chatId, userId: user.userId });
       socket.off('connect', onConnect);
       socket.off('message', onMessage);
       socket.off('message_history', onMessageHistory);
+      socket.off('user_registered', onUserRegistered);
+      socket.off('user_joined', onUserJoined);
+      socket.off('user_left', onUserLeft);
     };
   }, [chatId]);
 
+  // Auto-scroll cuando hay nuevos mensajes
   useEffect(() => {
     if (isOpen && !isMinimized) {
       scrollToBottom();
@@ -127,6 +217,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     }
   }, [isOpen, isMinimized, messages]);
 
+  // Manejo de tecla Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -137,21 +228,25 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  const handleSendMessage = (): void => {
+  // Enviar mensaje
+  const handleSendMessage = async (): Promise<void> => {
     if (!inputMessage.trim()) return;
+
+    const user = userManager.getCurrentUser();
+    if (!user) return;
 
     const msg = {
       text: inputMessage.trim(),
       sender: displayName,
+      userId: user.userId,
       timestamp: Date.now(),
       chat_id: chatId
     };
 
-    console.log('📤 Enviando mensaje:', msg);
-    
-    // Enviar via Socket
+    console.log('📤 Enviando mensaje desde usuario:', user.userId);
+
     socket.emit('new_message', msg);
-    
+
     setInputMessage('');
   };
 
@@ -162,10 +257,38 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     }
   };
 
+  const handleNameLock = () => {
+    const user = userManager.getCurrentUser();
+    if (!user) return;
+
+    if (!nameLocked && displayName.trim()) {
+      userManager.updateDisplayName(displayName);
+      userManager.lockName();
+      setNameLocked(true);
+
+      socket.emit('update_user_info', {
+        displayName: displayName
+      });
+
+      console.log('🔒 Nombre bloqueado para usuario:', user.userId);
+    } else if (nameLocked && !(window as any).currentUser) {
+      userManager.unlockName();
+      setNameLocked(false);
+      console.log('🔓 Nombre desbloqueado para usuario:', user.userId);
+    }
+  };
+
   const formatTime = (timestamp: number): string =>
     new Date(timestamp).toLocaleTimeString('es-ES', {
       hour: '2-digit',
       minute: '2-digit',
+    });
+
+  const formatDate = (timestamp: number): string =>
+    new Date(timestamp).toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
 
   if (!isOpen) return null;
@@ -225,26 +348,42 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: '0.75rem'
+              padding: '0.75rem',
+              maxHeight: '300px'
             }}
           >
             {messages.map((msg: Message) => (
-              <div key={msg.id} style={{ marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem' }}>
+              <div key={msg.id || Math.random()} style={{ marginBottom: '0.75rem' }}>
+                {/* Header del mensaje: Usuario + Timestamp */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.5rem', 
+                  fontSize: '0.75rem',
+                  marginBottom: '0.25rem',
+                  color: '#888'
+                }}>
                   <User size={12} color={msg.isSystem ? COLORS.accent : COLORS.text} />
-                  <span style={{ fontWeight: 600 }}>{msg.sender}</span>
-                  <Clock size={10} color="#888" />
-                  <span style={{ color: '#888' }}>{formatTime(msg.timestamp)}</span>
+                  <span style={{ fontWeight: 600, color: COLORS.accent }}>
+                    {msg.sender}
+                  </span>
+                  <span>•</span>
+                  <Clock size={10} />
+                  <span>{formatTime(msg.timestamp)}</span>
+                  <span>{formatDate(msg.timestamp)}</span>
                 </div>
+                
+                {/* Contenido del mensaje */}
                 <div
                   style={{
-                    marginLeft: msg.sender === displayName ? '1rem' : 0,
-                    padding: '0.5rem',
-                    borderLeft: `4px solid ${msg.isSystem ? COLORS.accent : COLORS.border}`,
-                    backgroundColor: msg.isSystem ? COLORS.secondary : COLORS.border,
-                    borderRadius: '0.25rem',
+                    marginLeft: '1rem',
+                    padding: '0.5rem 0.75rem',
+                    borderLeft: `3px solid ${msg.isSystem ? COLORS.accent : COLORS.border}`,
+                    backgroundColor: msg.isSystem ? COLORS.secondary : 'rgba(255,255,255,0.05)',
+                    borderRadius: '0 0.25rem 0.25rem 0',
                     color: COLORS.text,
-                    fontSize: '0.875rem'
+                    fontSize: '0.875rem',
+                    lineHeight: '1.4'
                   }}
                 >
                   {msg.text}
@@ -253,6 +392,8 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
             ))}
             <div ref={messagesEndRef} />
           </div>
+          
+          {/* Footer */}
           <div
             style={{
               borderTop: `2px solid ${COLORS.border}`,
@@ -261,34 +402,80 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
               flexDirection: 'column'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.75rem', color: COLORS.accent }}>Conectado como:</span>
-              {editingName ? (
+            {/* Control de nombre */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem', 
+              marginBottom: '0.5rem',
+              padding: '0.5rem',
+              backgroundColor: 'rgba(255,255,255,0.05)',
+              borderRadius: '0.25rem'
+            }}>
+              <span style={{ fontSize: '0.75rem', color: COLORS.accent }}>Usuario:</span>
+              
+              {editingName && !nameLocked ? (
                 <input
                   id="chat-display-name"
                   name="displayName"
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  onBlur={() => {
-                    setEditingName(false);
-                    localStorage.setItem('displayName', displayName);
+                  onBlur={() => setEditingName(false)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      setEditingName(false);
+                      localStorage.setItem('displayName', displayName);
+                    }
                   }}
                   placeholder="Tu nombre"
                   autoComplete="username"
-                  style={{ fontSize: '0.75rem' }}
+                  style={{ 
+                    fontSize: '0.75rem',
+                    padding: '0.25rem',
+                    borderRadius: '0.25rem',
+                    border: '1px solid ' + COLORS.border,
+                    backgroundColor: COLORS.background,
+                    color: COLORS.text,
+                    flex: 1
+                  }}
+                  autoFocus
                 />
               ) : (
                 <span
-                  style={{ fontSize: '0.75rem', fontWeight: 600, cursor: (window as any).currentUser ? 'default' : 'pointer' }}
+                  style={{ 
+                    fontSize: '0.75rem', 
+                    fontWeight: 600, 
+                    cursor: nameLocked ? 'default' : 'pointer',
+                    flex: 1,
+                    color: nameLocked ? COLORS.text : COLORS.accent
+                  }}
                   onClick={() => {
-                    if (!(window as any).currentUser) setEditingName(true);
+                    if (!nameLocked) setEditingName(true);
                   }}
                 >
                   {displayName}
                 </span>
               )}
+              
+              <button
+                onClick={handleNameLock}
+                disabled={!(window as any).currentUser && (!displayName.trim() || editingName)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0.25rem',
+                  color: nameLocked ? COLORS.accent : COLORS.text,
+                  opacity: (!(window as any).currentUser && (!displayName.trim() || editingName)) ? 0.5 : 1
+                }}
+                title={nameLocked ? 'Nombre bloqueado' : 'Bloquear nombre'}
+              >
+                {nameLocked ? <Lock size={14} /> : <Unlock size={14} />}
+              </button>
             </div>
+            
+            {/* Input de mensaje */}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input
                 ref={inputRef}
@@ -301,6 +488,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
                 placeholder="Escribe tu mensaje..."
                 autoComplete="off"
                 autoCapitalize="sentences"
+                disabled={!displayName.trim()}
                 style={{
                   flex: 1,
                   padding: '0.5rem',
@@ -308,19 +496,20 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
                   border: `2px solid ${COLORS.border}`,
                   backgroundColor: COLORS.background,
                   color: COLORS.text,
-                  fontSize: '0.875rem'
+                  fontSize: '0.875rem',
+                  opacity: !displayName.trim() ? 0.5 : 1
                 }}
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!inputMessage.trim()}
+                disabled={!inputMessage.trim() || !displayName.trim()}
                 style={{
                   padding: '0.5rem 1rem',
                   borderRadius: '0.25rem',
                   border: `2px solid ${COLORS.accent}`,
-                  backgroundColor: COLORS.accent,
-                  color: COLORS.background,
-                  cursor: inputMessage.trim() ? 'pointer' : 'not-allowed'
+                  backgroundColor: (!inputMessage.trim() || !displayName.trim()) ? COLORS.border : COLORS.accent,
+                  color: (!inputMessage.trim() || !displayName.trim()) ? COLORS.text : COLORS.background,
+                  cursor: (!inputMessage.trim() || !displayName.trim()) ? 'not-allowed' : 'pointer'
                 }}
               >
                 <Send size={16} />
@@ -334,7 +523,12 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       {isMinimized && (
         <div style={{ padding: '1rem', textAlign: 'center' }}>
           <MessageCircle size={20} color={COLORS.accent} />
-          <div style={{ color: COLORS.text }}>Chat minimizado</div>
+          <div style={{ color: COLORS.text, fontSize: '0.875rem' }}>Chat minimizado</div>
+          {messages.length > 0 && (
+            <div style={{ color: '#888', fontSize: '0.75rem' }}>
+              {messages.length} mensajes
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -342,3 +536,4 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 };
 
 export default ChatModal;
+
