@@ -14,8 +14,8 @@
       <td>
         <a href="{{ url_for('admin.pack_edit', id=p.id) }}" class="btn btn-secondary">Editar</a>
         <form action="{{ url_for('admin.pack_delete', id=p.id) }}" method="post" style="display:inline">
-          <input type="password" name="password" placeholder="Clave" required>
-          <button class="btn btn-danger">Eliminar</button>
+          <input id="admin-pack-password" name="password" type="password" placeholder="Clave" autoComplete="current-password" required>
+          <button id="admin-pack-delete" name="submit" type="submit" class="btn btn-danger">Eliminar</button>
         </form>
       </td>
     </tr>

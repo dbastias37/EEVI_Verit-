@@ -4,8 +4,8 @@
 <form method="post">
   {% for field in ['name','slug','description','price','image_url'] %}
     <label>{{ field.replace('_',' ').title() }}</label>
-    <input name="{{ field }}" value="{{ pack[field] if pack else '' }}" required>
+    <input id="admin-{{ field }}" name="{{ field }}" value="{{ pack[field] if pack else '' }}" required>
   {% endfor %}
-  <button class="btn btn-primary">{{ pack and 'Actualizar' or 'Crear' }}</button>
+  <button id="admin-pack-submit" name="submit" type="submit" class="btn btn-primary">{{ pack and 'Actualizar' or 'Crear' }}</button>
 </form>
 {% endblock %}
