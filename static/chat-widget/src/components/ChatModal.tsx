@@ -27,6 +27,15 @@ interface Message {
   isSystem?: boolean;
 }
 
+interface RawMessage {
+  id?: number;
+  text: string;
+  user?: string;
+  sender?: string;
+  timestamp: string | number;
+  isSystem?: boolean;
+}
+
 interface ChatModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -47,6 +56,30 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const userManager = UserManager.getInstance();
   const currentUser = userManager.getCurrentUser();
 
+  // NUEVA FUNCIÓN: Normalizar mensajes de BD a formato interno
+  const normalizeMessage = (rawMsg: RawMessage): Message => {
+    let timestamp: number;
+
+    if (typeof rawMsg.timestamp === 'string') {
+      timestamp = new Date(rawMsg.timestamp).getTime();
+    } else {
+      timestamp = rawMsg.timestamp || Date.now();
+    }
+
+    return {
+      id: rawMsg.id,
+      text: rawMsg.text || '',
+      sender: rawMsg.sender || rawMsg.user || 'Anónimo',
+      timestamp,
+      isSystem: rawMsg.isSystem || false
+    };
+  };
+
+  const normalizeMessages = (rawMessages: RawMessage[]): Message[] => {
+    if (!Array.isArray(rawMessages)) return [];
+    return rawMessages.map(normalizeMessage);
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -58,14 +91,15 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     pollingRef.current = setInterval(async () => {
       try {
         const response = await fetch('/api/messages?chat_id=' + chatId);
-        const data = await response.json();
-        
-        if (Array.isArray(data) && data.length > 0) {
-          const latestId = Math.max(...data.map(msg => msg.id || 0));
-          
+        const rawData = await response.json();
+
+        if (Array.isArray(rawData) && rawData.length > 0) {
+          const normalized = normalizeMessages(rawData);
+          const latestId = Math.max(...normalized.map(msg => msg.id || 0));
+
           if (latestId > lastMessageId) {
             console.log('📊 Polling: Nuevos mensajes detectados');
-            setMessages(data);
+            setMessages(normalized);
             setLastMessageId(latestId);
           }
         }
@@ -92,13 +126,14 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
     fetch('/api/messages?chat_id=' + chatId)
       .then((r) => r.json())
-      .then((data) => {
-        console.log('📥 Mensajes iniciales cargados:', data.length);
-        if (Array.isArray(data)) {
-          setMessages(data);
-          if (data.length > 0) {
-            setLastMessageId(Math.max(...data.map(msg => msg.id || 0)));
-          }
+      .then((rawData) => {
+        console.log('📥 Mensajes raw de BD:', rawData.length);
+        const normalizedMessages = normalizeMessages(rawData);
+        console.log('📥 Mensajes normalizados:', normalizedMessages.length);
+
+        setMessages(normalizedMessages);
+        if (normalizedMessages.length > 0) {
+          setLastMessageId(Math.max(...normalizedMessages.map(msg => msg.id || 0)));
         }
       })
       .catch((error) => {
@@ -111,43 +146,39 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       socket.connect();
     }
 
-    const onMessage = (msg: any) => {
-      console.log('💬 Mensaje recibido:', msg);
+    const onMessage = (rawMsg: any) => {
+      console.log('💬 Mensaje raw recibido:', rawMsg);
 
-      if (msg.userId === user.userId && msg.socketId === socket.id) {
+      const msg = normalizeMessage(rawMsg);
+
+      if (rawMsg.userId === user.userId && rawMsg.socketId === socket.id) {
         console.log('🔄 Ignorando eco de nuestro propio mensaje');
         return;
       }
 
-      const formattedMsg: Message = {
-        id: msg.id || Date.now(),
-        text: msg.text || '',
-        sender: msg.sender || 'Anónimo',
-        timestamp: msg.timestamp || Date.now(),
-        isSystem: msg.isSystem || false
-      };
-
       setMessages((prevMessages) => {
-        const exists = prevMessages.some(m => m.id === formattedMsg.id);
+        const exists = prevMessages.some(m => m.id === msg.id);
         if (exists) {
-          console.log('⚠️ Mensaje duplicado ignorado:', formattedMsg.id);
+          console.log('⚠️ Mensaje duplicado ignorado:', msg.id);
           return prevMessages;
         }
-        const newMessages = [...prevMessages, formattedMsg];
-        setLastMessageId(Math.max(lastMessageId, formattedMsg.id || 0));
-        console.log('✅ Nuevo mensaje agregado. Total:', newMessages.length);
+        const newMessages = [...prevMessages, msg];
+        setLastMessageId(Math.max(lastMessageId, msg.id || 0));
+        console.log('✅ Nuevo mensaje normalizado agregado. Total:', newMessages.length);
         return newMessages;
       });
     };
 
     const onMessageHistory = (data: any) => {
-      const history = data.messages || data;
-      console.log('📚 Historial recibido:', history.length, 'mensajes');
-      if (Array.isArray(history)) {
-        setMessages(history);
-        if (history.length > 0) {
-          setLastMessageId(Math.max(...history.map(msg => msg.id || 0)));
-        }
+      const rawHistory = data.messages || data;
+      console.log('📚 Historial raw recibido:', rawHistory.length);
+
+      const normalizedHistory = normalizeMessages(rawHistory);
+      console.log('📚 Historial normalizado:', normalizedHistory.length);
+
+      setMessages(normalizedHistory);
+      if (normalizedHistory.length > 0) {
+        setLastMessageId(Math.max(...normalizedHistory.map(msg => msg.id || 0)));
       }
     };
 
@@ -182,12 +213,15 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     const pollInterval = setInterval(async () => {
       try {
         const response = await fetch('/api/messages?chat_id=' + chatId);
-        const data = await response.json();
-        if (Array.isArray(data) && data.length > 0) {
-          const latestId = Math.max(...data.map(msg => msg.id || 0));
+        const rawData = await response.json();
+
+        if (Array.isArray(rawData) && rawData.length > 0) {
+          const normalizedData = normalizeMessages(rawData);
+          const latestId = Math.max(...normalizedData.map(msg => msg.id || 0));
+
           if (latestId > lastMessageId) {
-            console.log('📊 Polling: Nuevos mensajes detectados');
-            setMessages(data);
+            console.log('📊 Polling: Nuevos mensajes detectados y normalizados');
+            setMessages(normalizedData);
             setLastMessageId(latestId);
           }
         }
@@ -237,13 +271,14 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
     const msg = {
       text: inputMessage.trim(),
+      user: displayName,
       sender: displayName,
       userId: user.userId,
-      timestamp: Date.now(),
+      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
       chat_id: chatId
     };
 
-    console.log('📤 Enviando mensaje desde usuario:', user.userId);
+    console.log('📤 Enviando mensaje formato BD desde usuario:', user.userId);
 
     socket.emit('new_message', msg);
 
