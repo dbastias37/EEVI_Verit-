@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from datetime import datetime
 from flask_login import LoginManager, current_user, UserMixin
-from flask_socketio import emit
-from sockets import socketio
 
 import os
 import logging
@@ -18,6 +16,9 @@ from routes.projects import projects_bp
 from routes.messages import messages_bp
 from routes.chat_api import chat_api_bp
 from routes.forum_stats import forum_bp as forum_stats_bp
+
+from extensions import socketio
+import sockets  # Importar el módulo de sockets
 
 # Nuevos blueprints
 try:
@@ -41,8 +42,9 @@ except ImportError:
 # Configuración
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
-from extensions import socketio
-socketio.init_app(app)
+
+from flask_cors import CORS
+CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"])
 
 # --- Autenticación mínima para evitar fallos de import ---
 login_manager = LoginManager(app)
@@ -73,6 +75,9 @@ else:
     app.config['DB_PATH'] = 'verite.db'
 
 app.secret_key = os.environ.get('SECRET_KEY', 'tu_secret_key_aqui')
+
+socketio.init_app(app, cors_allowed_origins="*", async_mode='eventlet')
+sockets.register_socket_events(socketio)
 
 # Inicializar BD
 from utils.db import init_db
@@ -113,6 +118,35 @@ def inject_global_vars():
     return {
         'get_random_quote': get_random_quote
     }
+
+# ----- APIs de chat -----
+@app.route('/api/messages', methods=['GET'])
+def get_messages():
+    """API para obtener mensajes del chat"""
+    chat_id = request.args.get('chat_id', 'global')
+    messages = sockets.get_messages_for_room(chat_id, 50)
+    return jsonify(messages)
+
+
+@app.route('/api/messages', methods=['POST'])
+def post_message():
+    """API para enviar mensaje (fallback para testing)"""
+    data = request.get_json()
+    chat_id = data.get('chat_id', 'global')
+
+    message = {
+        'id': len(sockets.messages_store) + 1,
+        'text': data.get('text', ''),
+        'sender': data.get('user', data.get('sender', 'Anónimo')),
+        'timestamp': int(datetime.now().timestamp() * 1000),
+        'chat_id': chat_id,
+        'isSystem': False
+    }
+
+    sockets.messages_store.append(message)
+    socketio.emit('message', message, room=chat_id)
+
+    return jsonify(message)
 
 # ===== RUTAS DE FORUM PRINCIPALES =====
 @app.route('/forum')
@@ -313,23 +347,7 @@ def index():
     return render_template('home.html')
 
 
-@socketio.on('connect')
-def handle_connect():
-    # optional: load and emit last 50 messages from DB here
-    pass
 
-
-@socketio.on('chat message')
-def handle_chat_message(data):
-    # data: { sender: str, text: str }
-    message = {
-        'id': generate_unique_id(),
-        'sender': data['sender'],
-        'text': data['text'],
-        'timestamp': current_timestamp(),
-    }
-    # optional: save to DB
-    emit('chat message', message, broadcast=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

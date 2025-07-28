@@ -51,27 +51,52 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       setDisplayName(localStorage.getItem('displayName') || 'Anónimo');
     }
 
-    fetch('/api/messages')
-      .then((r) => r.json())
-      .then((data) => setMessages(data));
-
+    // Conectar socket si no está conectado
     if (!socket.connected) {
       socket.connect();
     }
 
+    // Cargar mensajes existentes del API
+    fetch('/api/messages?chat_id=' + chatId)
+      .then((r) => r.json())
+      .then((data) => {
+        setMessages(Array.isArray(data) ? data : []);
+      })
+      .catch((error) => {
+        console.error('Error loading messages:', error);
+        setMessages([]);
+      });
+
     const onMessage = (msg: Message) => {
+      console.log('Nuevo mensaje recibido:', msg);
       setMessages((prev) => [...prev, msg]);
     };
 
+    const onMessageHistory = (history: Message[]) => {
+      console.log('Historial recibido:', history.length, 'mensajes');
+      setMessages(Array.isArray(history) ? history : []);
+    };
+
+    const onConnectionResponse = (data: any) => {
+      console.log('Conectado al servidor:', data);
+    };
+
+    // Unirse a la sala
     socket.emit('join', { chat_id: chatId });
+
+    // Registrar eventos
     socket.on('message', onMessage);
+    socket.on('message_history', onMessageHistory);
+    socket.on('connection_response', onConnectionResponse);
 
     return () => {
       socket.emit('leave', { chat_id: chatId });
       socket.off('message', onMessage);
-      socket.disconnect();
+      socket.off('message_history', onMessageHistory);
+      socket.off('connection_response', onConnectionResponse);
+      // No desconectar el socket para permitir reconexión
     };
-  }, []);
+  }, [chatId]);
 
   useEffect(() => {
     if (isOpen && !isMinimized) {
