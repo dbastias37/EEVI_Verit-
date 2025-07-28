@@ -121,29 +121,55 @@ def inject_global_vars():
 # ----- APIs de chat -----
 @app.route('/api/messages', methods=['GET'])
 def api_get_messages():
-    chat_id = request.args.get('chat_id', 'global')
-    messages = sockets.get_messages_for_api(chat_id)
-    return jsonify(messages)
+    try:
+        chat_id = request.args.get('chat_id', 'global')
+        messages = sockets.get_messages_for_api(chat_id)
+        
+        # Log para debugging
+        print(f"📡 API: Enviando {len(messages)} mensajes para sala {chat_id}")
+        
+        return jsonify(messages)
+    except Exception as e:
+        print(f"❌ Error en API get_messages: {e}")
+        return jsonify([]), 500
 
 
 @app.route('/api/messages', methods=['POST'])
 def api_post_message():
-    data = request.get_json()
-    chat_id = data.get('chat_id', 'global')
+    try:
+        data = request.get_json()
+        chat_id = data.get('chat_id', 'global')
+        
+        message = {
+            'id': len(sockets.messages_store) + 1,
+            'text': data.get('text', ''),
+            'sender': data.get('sender', 'Anónimo'),
+            'timestamp': data.get('timestamp', int(datetime.now().timestamp() * 1000)),
+            'chat_id': chat_id,
+            'isSystem': False
+        }
+        
+        sockets.messages_store.append(message)
+        
+        # Emitir via socket Y forzar polling update
+        socketio.emit('message', message, room=chat_id)
+        
+        print(f"💬 API: Mensaje guardado y emitido - ID: {message['id']}")
+        
+        return jsonify(message)
+    except Exception as e:
+        print(f"❌ Error en API post_message: {e}")
+        return jsonify({'error': str(e)}), 500
 
-    message = {
-        'id': len(sockets.messages_store) + 1,
-        'text': data.get('text', ''),
-        'sender': data.get('user', data.get('sender', 'Anónimo')),
-        'timestamp': int(datetime.now().timestamp() * 1000),
-        'chat_id': chat_id,
-        'isSystem': False
-    }
 
-    sockets.messages_store.append(message)
-    socketio.emit('message', message, room=chat_id)
-
-    return jsonify(message)
+@app.route('/api/debug/users')
+def debug_users():
+    """Debug: Ver usuarios conectados"""
+    try:
+        from sockets import get_connected_users_info
+        return jsonify(get_connected_users_info())
+    except:
+        return jsonify({'error': 'No disponible'}), 500
 
 # ===== RUTAS DE FORUM PRINCIPALES =====
 @app.route('/forum')
