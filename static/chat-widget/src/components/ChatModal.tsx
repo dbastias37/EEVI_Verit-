@@ -90,13 +90,29 @@ const ChatModal = () => {
     socket.auth = { userId: currentUser.userId, displayName: currentUser.displayName };
     socket.connect();
 
+    const onConnect = () => {
+      socket.emit('join', {
+        chat_id: chatId,
+        userId: currentUser.userId,
+        displayName: currentUser.displayName,
+      });
+    };
+
+    const onHistory = (data: { messages: RawMessage[] }) => {
+      if (Array.isArray(data?.messages)) {
+        const normalized = data.messages.map(normalizeMessage);
+        setMessages(normalized);
+      }
+    };
+
     socket.on('new_message', handleIncomingMessage);
-    socket.on('connect', () => {
-      socket.emit('join', { chat_id: chatId, userId: currentUser.userId });
-    });
+    socket.on('message_history', onHistory);
+    socket.on('connect', onConnect);
 
     return () => {
       socket.off('new_message', handleIncomingMessage);
+      socket.off('message_history', onHistory);
+      socket.off('connect', onConnect);
       socket.emit('leave', { chat_id: chatId, userId: currentUser.userId });
     };
   }, []);
