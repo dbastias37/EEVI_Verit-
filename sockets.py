@@ -56,54 +56,77 @@ def handle_disconnect():
 
 @socketio.on("join")
 def handle_join(data):
-    if not isinstance(data, dict):
-        print(f"⚠️ Datos inválidos en join: {data}")
-        return
+    """Maneja la suscripción de un usuario a una sala de chat."""
+    try:
+        if not isinstance(data, dict):
+            print(f"[JOIN ERROR] Invalid payload: {data}")
+            return
 
-    chat_id = str(data.get("chat_id", "global"))
-    user_id = data.get("userId") or f"anon_{request.sid}"
+        chat_id = data.get("chat_id")
+        user_id = data.get("userId")
+        display_name = data.get("displayName", "Anónimo")
 
-    join_room(chat_id)
+        if not chat_id or not user_id or not display_name:
+            print(f"[JOIN ERROR] Missing chat_id, userId or displayName in: {data}")
+            return
 
-    user_record = connected_users.setdefault(
-        request.sid,
-        {
-            "userId": user_id,
-            "displayName": data.get("displayName", "Anónimo"),
-            "rooms": [],
-            "connectedAt": _ms_to_str(int(time.time() * 1000)),
-        },
-    )
-    if chat_id not in user_record["rooms"]:
-        user_record["rooms"].append(chat_id)
+        chat_id = str(chat_id)
 
-    room_messages = [
-        m for m in messages_store if m.get("chat_id", "global") == chat_id
-    ][-50:]
-    history = [
-        {
-            "id": m.get("id"),
-            "text": m.get("text", ""),
-            "sender": m.get("user", "Anónimo"),
-            "timestamp": _to_ms(m.get("timestamp")),
-            "isSystem": m.get("isSystem", False),
-        }
-        for m in room_messages
-    ]
+        join_room(chat_id)
+        print(f"[JOIN] User {display_name} ({user_id}) joined chat '{chat_id}'")
 
-    emit(
-        "message_history", {"messages": history, "room": chat_id, "count": len(history)}
-    )
-    emit(
-        "user_joined",
-        {
-            "userId": user_id,
-            "room": chat_id,
-            "timestamp": _ms_to_str(int(time.time() * 1000)),
-        },
-        room=chat_id,
-        include_self=False,
-    )
+        user_record = connected_users.setdefault(
+            request.sid,
+            {
+                "userId": user_id,
+                "displayName": display_name,
+                "rooms": [],
+                "connectedAt": _ms_to_str(int(time.time() * 1000)),
+            },
+        )
+        if chat_id not in user_record["rooms"]:
+            user_record["rooms"].append(chat_id)
+
+        room_messages = [
+            m for m in messages_store if m.get("chat_id", "global") == chat_id
+        ][-50:]
+        history = [
+            {
+                "id": m.get("id"),
+                "text": m.get("text", ""),
+                "sender": m.get("user", "Anónimo"),
+                "timestamp": _to_ms(m.get("timestamp")),
+                "isSystem": m.get("isSystem", False),
+            }
+            for m in room_messages
+        ]
+
+        emit(
+            "message_history", {"messages": history, "room": chat_id, "count": len(history)}
+        )
+        emit(
+            "user_joined",
+            {
+                "userId": user_id,
+                "room": chat_id,
+                "timestamp": _ms_to_str(int(time.time() * 1000)),
+            },
+            room=chat_id,
+            include_self=False,
+        )
+
+        emit(
+            "new_message",
+            {
+                "text": f"{display_name} se ha unido al chat.",
+                "sender": "Sistema",
+                "timestamp": int(time.time() * 1000),
+                "isSystem": True,
+            },
+            to=chat_id,
+        )
+    except Exception as e:
+        print(f"[JOIN ERROR] {e}")
 
 
 @socketio.on("leave")
