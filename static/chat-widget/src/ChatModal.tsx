@@ -52,6 +52,11 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const chatId = 'global';
   const currentUser = userManager.getCurrentUser() || userManager.initializeUser();
 
+  useEffect(() => {
+    const user = userManager.getCurrentUser() || userManager.initializeUser();
+    setDisplayName(user.displayName);
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -257,7 +262,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
                   onChange={(e) => setDisplayName(e.target.value)}
                   onBlur={() => {
                     setEditingName(false);
-                    localStorage.setItem('displayName', displayName);
+                    userManager.updateDisplayName(displayName);
                   }}
                   style={{ fontSize: '0.75rem' }}
                 />
