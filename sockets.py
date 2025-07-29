@@ -162,6 +162,12 @@ def handle_update_user_info(data):
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
 
+# === Evento simple para reemitir mensajes ===
+@socketio.on('send_message')
+def handle_send_message(data):
+    """Recibe un mensaje del cliente y lo reenvía globalmente"""
+    emit('new_message', data, broadcast=True)
+
 # Función para API (mantener formato BD)
 
 def get_messages_for_api(chat_id='global'):
