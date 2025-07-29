@@ -16,8 +16,7 @@ import {
   Unlock,
 } from 'lucide-react';
 import { COLORS } from '../COLORS';
-import { socket } from '../socket';
-import UserManager from '../utils/userManager';
+import { socket, userManager } from '../socket';
 
 interface Message {
   id?: number;
@@ -29,9 +28,11 @@ interface Message {
 
 interface RawMessage {
   id?: number;
-  text: string;
+  text?: string;
+  content?: string;
   user?: string;
   sender?: string;
+  displayName?: string;
   timestamp: string | number;
   isSystem?: boolean;
 }
@@ -53,7 +54,6 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const inputRef = useRef<HTMLInputElement>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const chatId = 'global';
-  const userManager = UserManager.getInstance();
   const currentUser = userManager.getCurrentUser();
 
   // NUEVA FUNCIÓN: Normalizar mensajes de BD a formato interno
@@ -68,8 +68,8 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
     return {
       id: rawMsg.id,
-      text: rawMsg.text || '',
-      sender: rawMsg.sender || rawMsg.user || 'Anónimo',
+      text: rawMsg.text || rawMsg.content || '',
+      sender: rawMsg.sender || rawMsg.displayName || rawMsg.user || 'Anónimo',
       timestamp,
       isSystem: rawMsg.isSystem || false
     };
@@ -116,6 +116,21 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     }
   };
 
+  const handleIncomingMessage = (rawMsg: any) => {
+    const msg = normalizeMessage(rawMsg);
+
+    setMessages((prev) => {
+      const exists = prev.some(
+        (m) =>
+          m.timestamp === msg.timestamp &&
+          m.sender === msg.sender &&
+          m.text === msg.text
+      );
+      if (exists) return prev;
+      return [...prev, msg];
+    });
+  };
+
   // Cargar configuración inicial y sockets
   useEffect(() => {
     const user = userManager.getCurrentUser() || userManager.initializeUser();
@@ -145,29 +160,6 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       socket.auth = { userId: user.userId, displayName: user.displayName };
       socket.connect();
     }
-
-    const onMessage = (rawMsg: any) => {
-      console.log('💬 Mensaje raw recibido:', rawMsg);
-
-      const msg = normalizeMessage(rawMsg);
-
-      if (rawMsg.userId === user.userId && rawMsg.socketId === socket.id) {
-        console.log('🔄 Ignorando eco de nuestro propio mensaje');
-        return;
-      }
-
-      setMessages((prevMessages) => {
-        const exists = prevMessages.some(m => m.id === msg.id);
-        if (exists) {
-          console.log('⚠️ Mensaje duplicado ignorado:', msg.id);
-          return prevMessages;
-        }
-        const newMessages = [...prevMessages, msg];
-        setLastMessageId(Math.max(lastMessageId, msg.id || 0));
-        console.log('✅ Nuevo mensaje normalizado agregado. Total:', newMessages.length);
-        return newMessages;
-      });
-    };
 
     const onMessageHistory = (data: any) => {
       const rawHistory = data.messages || data;
@@ -200,7 +192,6 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     };
 
     socket.on('connect', onConnect);
-    socket.on('new_message', onMessage);
     socket.on('message_history', onMessageHistory);
     socket.on('user_registered', onUserRegistered);
     socket.on('user_joined', onUserJoined);
@@ -235,13 +226,20 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       clearInterval(pollInterval);
       socket.emit('leave', { chat_id: chatId, userId: user.userId });
       socket.off('connect', onConnect);
-      socket.off('new_message', onMessage);
       socket.off('message_history', onMessageHistory);
       socket.off('user_registered', onUserRegistered);
       socket.off('user_joined', onUserJoined);
       socket.off('user_left', onUserLeft);
     };
   }, [chatId]);
+
+  // Escuchar mensajes en tiempo real
+  useEffect(() => {
+    socket.on('new_message', handleIncomingMessage);
+    return () => {
+      socket.off('new_message', handleIncomingMessage);
+    };
+  }, []);
 
   // Auto-scroll cuando hay nuevos mensajes
   useEffect(() => {
@@ -262,25 +260,29 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  const sendMessage = (content: string): void => {
+    const user = userManager.getCurrentUser();
+    if (!user) return;
+
+    const payload = {
+      userId: user.userId,
+      displayName: user.displayName,
+      content,
+      timestamp: Date.now()
+    };
+
+    socket.emit('send_message', payload);
+    setMessages((prev) => [
+      ...prev,
+      { text: content, sender: user.displayName, timestamp: payload.timestamp }
+    ]);
+  };
+
   // Enviar mensaje
   const handleSendMessage = async (): Promise<void> => {
     if (!inputMessage.trim()) return;
 
-    const user = userManager.getCurrentUser();
-    if (!user) return;
-
-    const msg = {
-      text: inputMessage.trim(),
-      user: displayName,
-      sender: displayName,
-      userId: user.userId,
-      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      chat_id: chatId
-    };
-
-    console.log('📤 Enviando mensaje formato BD desde usuario:', user.userId);
-
-    socket.emit('send_message', msg);
+    sendMessage(inputMessage.trim());
 
     setInputMessage('');
   };
