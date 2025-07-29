@@ -199,5 +199,13 @@ def get_messages_for_api(chat_id='global'):
         print(f"❌ Error en get_messages_for_api: {e}")
         return []
 
+@socketio.on('send_message')
+def handle_send_message(data):
+    """
+    Recibe mensaje del frontend y lo emite a todos los usuarios conectados.
+    """
+    print(f"🔁 Recibido mensaje de {data.get('displayName')}: {data.get('content')}")
+    socketio.emit('new_message', data, broadcast=True)
+
 # Inicializar al importar
 ensure_messages_store()
