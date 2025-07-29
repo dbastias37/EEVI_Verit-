@@ -1,6 +1,7 @@
 from datetime import datetime
 import time
-from flask_socketio import emit, join_room, leave_room, request
+from flask_socketio import emit, join_room, leave_room
+from flask import request  # import request from Flask, not flask_socketio
 from extensions import socketio
 from pydantic import BaseModel, ValidationError
 
