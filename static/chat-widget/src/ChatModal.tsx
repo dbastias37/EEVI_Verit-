@@ -44,18 +44,13 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
-  const [displayName, setDisplayName] = useState<string>('Anónimo');
+  const currentUser = userManager.getCurrentUser() || userManager.initializeUser();
+  const [displayName, setDisplayName] = useState<string>(currentUser.displayName);
   const [editingName, setEditingName] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const chatId = 'global';
-  const currentUser = userManager.getCurrentUser() || userManager.initializeUser();
-
-  useEffect(() => {
-    const user = userManager.getCurrentUser() || userManager.initializeUser();
-    setDisplayName(user.displayName);
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -81,9 +76,10 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
+    const user = userManager.getCurrentUser() || currentUser;
     const payload = {
-      userId: currentUser.userId,
-      displayName: currentUser.displayName,
+      userId: user.userId,
+      displayName: user.displayName,
       content: inputMessage.trim(),
       timestamp: Date.now()
     };
@@ -105,11 +101,12 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
     fetchMessages();
 
-    socket.auth = { userId: currentUser.userId, displayName: currentUser.displayName };
-    socket.connect();
-
     const onConnect = () => {
-      socket.emit('join', { chat_id: chatId, userId: currentUser.userId, displayName: currentUser.displayName });
+      socket.emit('join', {
+        chat_id: chatId,
+        userId: currentUser.userId,
+        displayName: currentUser.displayName,
+      });
     };
 
     const onHistory = (data: { messages: RawMessage[] }) => {
@@ -121,6 +118,12 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     socket.on('new_message', handleIncomingMessage);
     socket.on('message_history', onHistory);
     socket.on('connect', onConnect);
+
+    socket.auth = {
+      userId: currentUser.userId,
+      displayName: currentUser.displayName,
+    };
+    socket.connect();
 
     return () => {
       socket.off('new_message', handleIncomingMessage);
