@@ -162,34 +162,16 @@ def handle_update_user_info(data):
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         })
 
-# === Evento simple para reemitir mensajes ===
 @socketio.on('send_message')
 def handle_send_message(data):
-    """Recibe un mensaje del cliente y lo reenvía globalmente"""
-    emit('new_message', data, broadcast=True)
-
-# Función para API (mantener formato BD)
-
-def get_messages_for_api(chat_id='global'):
-    room_messages = [msg for msg in messages_store if msg.get('chat_id', 'global') == chat_id]
-    return room_messages[-50:] if room_messages else []
-
-def get_connected_users_info():
-    return {
-        'total': len(connected_users),
-        'users': list(connected_users.values())
-    }
-
-# Inicialización segura del store
-def ensure_messages_store():
-    global messages_store
-    if 'messages_store' not in globals():
-        globals()['messages_store'] = []
-    if not isinstance(messages_store, list):
-        messages_store = []
-    return messages_store
+    """
+    Recibe mensaje del frontend y lo emite a todos los usuarios conectados.
+    """
+    print(f"🔁 Recibido mensaje de {data.get('displayName')}: {data.get('content')}")
+    socketio.emit('new_message', data, broadcast=True)
 
 # Función segura para API
+
 def get_messages_for_api(chat_id='global'):
     try:
         store = ensure_messages_store()
@@ -199,13 +181,14 @@ def get_messages_for_api(chat_id='global'):
         print(f"❌ Error en get_messages_for_api: {e}")
         return []
 
-@socketio.on('send_message')
-def handle_send_message(data):
-    """
-    Recibe mensaje del frontend y lo emite a todos los usuarios conectados.
-    """
-    print(f"🔁 Recibido mensaje de {data.get('displayName')}: {data.get('content')}")
-    socketio.emit('new_message', data, broadcast=True)
+# Inicialización segura del store
+def ensure_messages_store():
+    global messages_store
+    if 'messages_store' not in globals():
+        globals()['messages_store'] = []
+    if not isinstance(messages_store, list):
+        messages_store = []
+    return messages_store
 
 # Inicializar al importar
 ensure_messages_store()
