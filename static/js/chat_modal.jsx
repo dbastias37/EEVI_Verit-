@@ -1,9 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  KeyboardEvent,
-} from 'react';
+// ChatModal.tsx actualizado
+import React, { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import {
   X,
   Send,
@@ -12,15 +8,28 @@ import {
   Clock,
   Minimize2,
   Maximize2,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 import { COLORS } from '../COLORS';
-import { socket } from '../socket'; // <--- cambio clave
+import { socket, userManager } from '../socket';
 
 interface Message {
   id?: number;
   text: string;
   sender: string;
   timestamp: number;
+  isSystem?: boolean;
+}
+
+interface RawMessage {
+  id?: number;
+  text?: string;
+  content?: string;
+  user?: string;
+  sender?: string;
+  displayName?: string;
+  timestamp: string | number;
   isSystem?: boolean;
 }
 
@@ -32,55 +41,114 @@ interface ChatModalProps {
 const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
-  const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [displayName, setDisplayName] = useState<string>('Anónimo');
-  const [editingName, setEditingName] = useState<boolean>(false);
+  const [lastMessageId, setLastMessageId] = useState<number>(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const chatId = 'global';
+  const currentUser = userManager.getCurrentUser();
+
+  const normalizeMessage = (rawMsg: RawMessage): Message => {
+    let timestamp: number = typeof rawMsg.timestamp === 'string'
+      ? new Date(rawMsg.timestamp).getTime()
+      : rawMsg.timestamp || Date.now();
+
+    return {
+      id: rawMsg.id,
+      text: rawMsg.text || rawMsg.content || '',
+      sender: rawMsg.sender || rawMsg.displayName || rawMsg.user || 'Anónimo',
+      timestamp,
+      isSystem: rawMsg.isSystem || false
+    };
+  };
+
+  const normalizeMessages = (rawMessages: RawMessage[]): Message[] => {
+    if (!Array.isArray(rawMessages)) return [];
+    return rawMessages.map(normalizeMessage);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    const name = localStorage.getItem('displayName');
-    if (name) setDisplayName(name);
-  }, []);
-
-  useEffect(() => {
-    socket.emit('join', { chat_id: chatId });
-
-    socket.on('message', (data: Message) => {
-      setMessages(prev => [...prev, data]);
+  const handleNewMessage = (data: any) => {
+    const msg = normalizeMessage(data);
+    setMessages((prev) => {
+      const exists = prev.some(
+        (m) =>
+          m.timestamp === msg.timestamp &&
+          m.sender === msg.sender &&
+          m.text === msg.text
+      );
+      if (exists) return prev;
+      return [...prev, msg];
     });
+  };
+
+  useEffect(() => {
+    const user = userManager.getCurrentUser() || userManager.initializeUser();
+    setDisplayName(user.displayName);
+
+    fetch('/api/messages?chat_id=' + chatId)
+      .then((r) => r.json())
+      .then((rawData) => {
+        const normalizedMessages = normalizeMessages(rawData);
+        setMessages(normalizedMessages);
+        if (normalizedMessages.length > 0) {
+          setLastMessageId(Math.max(...normalizedMessages.map(msg => msg.id || 0)));
+        }
+      })
+      .catch(() => setMessages([]));
+
+    if (!socket.connected) {
+      socket.auth = { userId: user.userId, displayName: user.displayName };
+      socket.connect();
+    }
+
+    const onConnect = () => {
+      socket.emit('join', { chat_id: chatId, userId: user.userId });
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('new_message', handleNewMessage);
+
+    if (socket.connected) {
+      onConnect();
+    }
 
     return () => {
-      socket.emit('leave', { chat_id: chatId });
-      socket.off('message');
+      socket.emit('leave', { chat_id: chatId, userId: user.userId });
+      socket.off('connect', onConnect);
+      socket.off('new_message', handleNewMessage);
     };
-  }, []);
+  }, [chatId]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  const sendMessage = (content: string): void => {
+    const user = userManager.getCurrentUser();
+    if (!user) return;
 
-  const handleSendMessage = () => {
+    const payload = {
+      userId: user.userId,
+      displayName: user.displayName,
+      content,
+      timestamp: Date.now()
+    };
+
+    socket.emit('send_message', payload);
+    setMessages((prev) => [
+      ...prev,
+      { text: content, sender: user.displayName, timestamp: payload.timestamp }
+    ]);
+  };
+
+  const handleSendMessage = async (): Promise<void> => {
     if (!inputMessage.trim()) return;
-
-    const message: Message = {
-      text: inputMessage.trim(),
-      sender: displayName,
-      timestamp: Date.now(),
-    };
-
-    setMessages(prev => [...prev, message]);
-    socket.emit('new_message', { ...message, chat_id: chatId });
+    sendMessage(inputMessage.trim());
     setInputMessage('');
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSendMessage();
     }
   };
@@ -88,77 +156,20 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg w-80 z-50"
-      style={{ backgroundColor: COLORS.background, color: COLORS.text }}
-    >
-      <div className="flex justify-between items-center p-2 border-b" style={{ backgroundColor: COLORS.header }}>
-        <div className="flex items-center space-x-2">
-          <MessageCircle />
-          <span>CHAT GLOBAL EEVI</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button onClick={() => setIsMinimized(!isMinimized)}>
-            {isMinimized ? <Maximize2 /> : <Minimize2 />}
-          </button>
-          <button onClick={onClose}>
-            <X />
-          </button>
-        </div>
+    <div>
+      {/* UI simplificada para el ejemplo */}
+      <div>
+        {messages.map((msg, i) => (
+          <div key={i}><strong>{msg.sender}:</strong> {msg.text}</div>
+        ))}
+        <div ref={messagesEndRef} />
       </div>
-
-      {!isMinimized && (
-        <div className="flex flex-col p-2 space-y-2 max-h-96 overflow-y-auto">
-          {messages.map((msg, index) => (
-            <div key={index} className="text-sm flex flex-col">
-              <span className="font-bold">{msg.sender}</span>
-              <span>{msg.text}</span>
-              <span className="text-xs text-gray-400 flex items-center">
-                <Clock className="w-3 h-3 mr-1" />
-                {new Date(msg.timestamp).toLocaleTimeString()}
-              </span>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      )}
-
-      {!isMinimized && (
-        <div className="flex items-center p-2 border-t">
-          {editingName ? (
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              onBlur={() => {
-                setEditingName(false);
-                localStorage.setItem('displayName', displayName);
-              }}
-              className="border rounded p-1 mr-2 flex-1"
-            />
-          ) : (
-            <button
-              onClick={() => setEditingName(true)}
-              className="flex items-center text-xs text-blue-500 mr-2"
-            >
-              <User className="w-4 h-4 mr-1" />
-              {displayName}
-            </button>
-          )}
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder="Escribe un mensaje..."
-            className="border rounded p-1 flex-1 mr-2"
-          />
-          <button onClick={handleSendMessage} className="text-blue-500">
-            <Send />
-          </button>
-        </div>
-      )}
+      <input
+        value={inputMessage}
+        onChange={(e) => setInputMessage(e.target.value)}
+        onKeyPress={handleKeyPress}
+      />
+      <button onClick={handleSendMessage}>Enviar</button>
     </div>
   );
 };
