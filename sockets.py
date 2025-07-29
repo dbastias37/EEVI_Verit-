@@ -1,7 +1,6 @@
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask import session, request
+from flask import request
 from datetime import datetime
-import json
 import time
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode='eventlet')
@@ -58,26 +57,36 @@ def handle_disconnect():
 
 @socketio.on('join')
 def handle_join(data):
-    room = data.get('chat_id', 'global')
-    user_id = data.get('userId', 'unknown')
+    if not isinstance(data, dict):
+        print(f"⚠️ Datos inválidos en join: {data}")
+        return
+
+    room = data.get('chat_id') or 'global'
+    user_id = data.get('userId', f'anon_{request.sid}')
 
     join_room(room)
 
-    if request.sid in connected_users:
-        if room not in connected_users[request.sid]['rooms']:
-            connected_users[request.sid]['rooms'].append(room)
+    user_record = connected_users.get(request.sid)
+    if user_record:
+        if room not in user_record['rooms']:
+            user_record['rooms'].append(room)
+    else:
+        connected_users[request.sid] = {
+            'userId': user_id,
+            'displayName': data.get('displayName', 'Anónimo'),
+            'rooms': [room],
+            'connectedAt': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
 
     print(f'👥 Usuario {user_id} se unió a sala {room} - Socket: {request.sid}')
 
-    # Enviar historial normalizado
     room_messages = [msg for msg in messages_store if msg.get('chat_id', 'global') == room]
     recent_messages = room_messages[-50:] if room_messages else []
 
     normalized_messages = []
     for msg in recent_messages:
         normalized_msg = dict(msg)
-        if 'timestamp' in normalized_msg and isinstance(normalized_msg['timestamp'], str):
-            normalized_msg['timestampMs'] = timestamp_to_ms(normalized_msg['timestamp'])
+        normalized_msg['timestampMs'] = timestamp_to_ms(normalized_msg.get('timestamp'))
         normalized_messages.append(normalized_msg)
 
     emit('message_history', {
@@ -215,3 +224,16 @@ def ensure_messages_store():
 
 # Inicializar al importar
 ensure_messages_store()
+
+
+def get_connected_users_info():
+    """Devuelve un resumen de usuarios conectados y sus salas."""
+    info = {}
+    for sid, data in connected_users.items():
+        info[sid] = {
+            'userId': data.get('userId'),
+            'displayName': data.get('displayName'),
+            'rooms': list(data.get('rooms', [])),
+            'connectedAt': data.get('connectedAt'),
+        }
+    return info
