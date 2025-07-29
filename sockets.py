@@ -2,6 +2,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask import session, request
 from datetime import datetime
 import json
+import time
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode='eventlet')
 
@@ -164,11 +165,33 @@ def handle_update_user_info(data):
 
 @socketio.on('send_message')
 def handle_send_message(data):
-    """
-    Recibe mensaje del frontend y lo emite a todos los usuarios conectados.
-    """
-    print(f"🔁 Recibido mensaje de {data.get('displayName')}: {data.get('content')}")
-    socketio.emit('new_message', data, broadcast=True)
+    """Recibe un mensaje del cliente y lo envía a la sala especificada."""
+
+    if not isinstance(data, dict):
+        print('⚠️ Datos de mensaje invalidos:', data)
+        return
+
+    content = str(data.get('content', '')).strip()
+    if not content:
+        print('⚠️ Mensaje vacío, ignorado.')
+        return
+
+    display_name = data.get('displayName', 'Anónimo')
+    chat_id = data.get('chat_id', 'global')
+
+    try:
+        timestamp = int(data.get('timestamp', time.time() * 1000))
+    except Exception:
+        timestamp = int(time.time() * 1000)
+
+    msg_dict = {
+        'sender': display_name,
+        'text': content,
+        'timestamp': timestamp,
+    }
+
+    print(f"📤 Enviando mensaje a sala {chat_id}: {msg_dict}")
+    emit('new_message', msg_dict, room=chat_id)
 
 # Función segura para API
 
