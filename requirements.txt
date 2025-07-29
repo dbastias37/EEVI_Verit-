@@ -24,3 +24,5 @@ google-cloud-firestore>=2.16
 # Google API client (for Drive previews)
 google-api-python-client>=2.127
 flask-socketio>=5.3.0
+
+pydantic>=2.7

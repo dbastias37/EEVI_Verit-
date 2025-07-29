@@ -1,12 +1,21 @@
 from datetime import datetime
 import time
-from flask import request
-from flask_socketio import emit, join_room, leave_room
+from flask_socketio import emit, join_room, leave_room, request
 from extensions import socketio
+from pydantic import BaseModel, ValidationError
 
 # Almacén de mensajes en memoria y usuarios conectados
 messages_store: list[dict] = []
 connected_users: dict[str, dict] = {}
+
+
+class MessageModel(BaseModel):
+    """Valida la estructura de mensajes recibidos"""
+    chat_id: str
+    userId: str
+    displayName: str
+    content: str
+    timestamp: int
 
 
 def _ms_to_str(ms: int) -> str:
@@ -34,6 +43,7 @@ def handle_connect(auth):
     )
     display_name = auth.get("displayName", "Anónimo") if auth else "Anónimo"
 
+    print(f"✅ Cliente conectado: {request.sid}")
     connected_users[request.sid] = {
         "userId": user_id,
         "displayName": display_name,
@@ -51,7 +61,7 @@ def handle_connect(auth):
 def handle_disconnect():
     user_info = connected_users.pop(request.sid, None)
     if user_info:
-        print(f"❌ Usuario desconectado: {user_info['userId']} - Socket: {request.sid}")
+        print(f"❌ Cliente desconectado: {request.sid}")
 
 
 @socketio.on("join")
@@ -73,7 +83,7 @@ def handle_join(data):
         chat_id = str(chat_id)
 
         join_room(chat_id)
-        print(f"[JOIN] User {display_name} ({user_id}) joined chat '{chat_id}'")
+        print(f"[JOIN] Socket {request.sid} -> sala '{chat_id}'")
 
         user_record = connected_users.setdefault(
             request.sid,
@@ -194,10 +204,19 @@ def _process_incoming_message(data: dict) -> None:
 
 @socketio.on("send_message")
 def handle_send_message(data):
-    if isinstance(data, dict):
-        _process_incoming_message(data)
-    else:
-        print(f"⚠️ Datos de mensaje inválidos: {data}")
+    """Valida y reenvía el mensaje a la sala correspondiente"""
+    try:
+        msg = MessageModel(**data)
+    except ValidationError as e:
+        print(f"[MSG ERROR] {e}")
+        return
+
+    socketio.emit(
+        "new_message",
+        msg.model_dump(),
+        to=msg.chat_id,
+        skip_sid=request.sid,
+    )
 
 
 @socketio.on("new_message")

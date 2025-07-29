@@ -74,9 +74,13 @@ if os.environ.get('RENDER'):
 else:
     app.config['DB_PATH'] = 'verite.db'
 
-app.secret_key = os.environ.get('SECRET_KEY', 'tu_secret_key_aqui')
+# Configuración de la clave secreta usando variable de entorno
+app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "default-secret-key")
 
-socketio.init_app(app, cors_allowed_origins="*", async_mode='eventlet')
+# Configurar SocketIO con dominio permitido desde variables de entorno
+render_domain = os.getenv("RENDER_EXTERNAL_URL")
+cors_origins = [render_domain] if render_domain else "*"
+socketio.init_app(app, cors_allowed_origins=cors_origins, async_mode="eventlet")
 
 # Inicializar BD
 from utils.db import init_db
