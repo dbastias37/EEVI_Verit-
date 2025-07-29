@@ -13,8 +13,7 @@ import {
   Minimize2,
   Maximize2,
 } from 'lucide-react';
-import { io } from 'socket.io-client';
-const socket = io();
+import { socket, userManager } from './socket';
 import { COLORS } from './COLORS';
 
 interface Message {
@@ -22,6 +21,17 @@ interface Message {
   text: string;
   sender: string;
   timestamp: number;
+  isSystem?: boolean;
+}
+
+interface RawMessage {
+  id?: number;
+  text?: string;
+  content?: string;
+  user?: string;
+  sender?: string;
+  displayName?: string;
+  timestamp: string | number;
   isSystem?: boolean;
 }
 
@@ -39,22 +49,82 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const chatId = 'global';
+  const currentUser = userManager.getCurrentUser() || userManager.initializeUser();
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    const name = localStorage.getItem('displayName');
-    if (name) setDisplayName(name);
+  const normalizeMessage = (raw: RawMessage): Message => ({
+    id: raw.id,
+    text: raw.text || raw.content || '',
+    sender: raw.sender || raw.displayName || raw.user || 'Anónimo',
+    timestamp: typeof raw.timestamp === 'string' ? new Date(raw.timestamp).getTime() : raw.timestamp,
+    isSystem: raw.isSystem || false
+  });
 
-    socket.on('chat message', (msg: Message) => {
-      setMessages((prev) => [...prev, msg].sort((a, b) => a.timestamp - b.timestamp));
+  const fetchMessages = async () => {
+    try {
+      const res = await fetch(`/api/messages?chat_id=${chatId}`);
+      const data = await res.json();
+      setMessages(data.map(normalizeMessage));
+    } catch (err) {
+      console.error('Error loading messages', err);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!inputMessage.trim()) return;
+    const payload = {
+      userId: currentUser.userId,
+      displayName: currentUser.displayName,
+      content: inputMessage.trim(),
+      timestamp: Date.now()
+    };
+    socket.emit('send_message', payload);
+    setMessages(prev => [...prev, { text: payload.content, sender: payload.displayName, timestamp: payload.timestamp }]);
+    setInputMessage('');
+  };
+
+  const handleIncomingMessage = (raw: RawMessage) => {
+    const msg = normalizeMessage(raw);
+    setMessages(prev => {
+      const exists = prev.some(m => m.timestamp === msg.timestamp && m.sender === msg.sender && m.text === msg.text);
+      return exists ? prev : [...prev, msg];
     });
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    fetchMessages();
+
+    socket.auth = { userId: currentUser.userId, displayName: currentUser.displayName };
+    socket.connect();
+
+    const onConnect = () => {
+      socket.emit('join', { chat_id: chatId, userId: currentUser.userId, displayName: currentUser.displayName });
+    };
+
+    const onHistory = (data: { messages: RawMessage[] }) => {
+      if (Array.isArray(data?.messages)) {
+        setMessages(data.messages.map(normalizeMessage));
+      }
+    };
+
+    socket.on('new_message', handleIncomingMessage);
+    socket.on('message_history', onHistory);
+    socket.on('connect', onConnect);
 
     return () => {
-      socket.off('chat message');
+      socket.off('new_message', handleIncomingMessage);
+      socket.off('message_history', onHistory);
+      socket.off('connect', onConnect);
+      socket.emit('leave', { chat_id: chatId, userId: currentUser.userId });
+      socket.disconnect();
     };
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && !isMinimized) {
@@ -72,13 +142,6 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
-
-  const handleSendMessage = (): void => {
-    if (!inputMessage.trim()) return;
-    const msg: Message = { sender: displayName, text: inputMessage, timestamp: Date.now() };
-    socket.emit('chat message', msg);
-    setInputMessage('');
-  };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
