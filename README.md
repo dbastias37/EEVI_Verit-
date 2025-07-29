@@ -1,7 +1,7 @@
 #  EEVI — Empresa de Ecosistema Vivo en Internet
 
 ## 🌌 Qué es EEVI y por qué existe
-
+1
 EEVI es una entidad digital viva, diseñada no como una app tradicional ni una plataforma de servicios, sino como una criatura simbiótica que habita Internet. Nace desde Verité Producciones como respuesta radical a la cultura digital vacía, al desgaste de los creadores reales y a la mercantilización de los espacios creativos.
 
 En lugar de replicar modelos basados en algoritmos, explotación de datos o generación de contenido artificial, EEVI se construye sobre tres pilares fundamentales:
