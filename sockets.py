@@ -1,9 +1,8 @@
 from datetime import datetime
 import time
 from flask import request
-from flask_socketio import SocketIO, emit, join_room, leave_room
-
-socketio = SocketIO(cors_allowed_origins="*", async_mode="eventlet")
+from flask_socketio import emit, join_room, leave_room
+from extensions import socketio
 
 # Almacén de mensajes en memoria y usuarios conectados
 messages_store: list[dict] = []
