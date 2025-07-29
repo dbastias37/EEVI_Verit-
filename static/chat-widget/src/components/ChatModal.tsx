@@ -200,7 +200,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     };
 
     socket.on('connect', onConnect);
-    socket.on('message', onMessage);
+    socket.on('new_message', onMessage);
     socket.on('message_history', onMessageHistory);
     socket.on('user_registered', onUserRegistered);
     socket.on('user_joined', onUserJoined);
@@ -235,7 +235,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
       clearInterval(pollInterval);
       socket.emit('leave', { chat_id: chatId, userId: user.userId });
       socket.off('connect', onConnect);
-      socket.off('message', onMessage);
+      socket.off('new_message', onMessage);
       socket.off('message_history', onMessageHistory);
       socket.off('user_registered', onUserRegistered);
       socket.off('user_joined', onUserJoined);
@@ -280,7 +280,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
 
     console.log('📤 Enviando mensaje formato BD desde usuario:', user.userId);
 
-    socket.emit('new_message', msg);
+    socket.emit('send_message', msg);
 
     setInputMessage('');
   };
