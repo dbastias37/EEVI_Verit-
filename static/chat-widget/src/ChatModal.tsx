@@ -13,7 +13,8 @@ import {
   Minimize2,
   Maximize2,
 } from 'lucide-react';
-import { socket, userManager } from './socket';
+import { io } from 'socket.io-client';
+const socket = io();
 import { COLORS } from './COLORS';
 
 interface Message {
@@ -21,17 +22,6 @@ interface Message {
   text: string;
   sender: string;
   timestamp: number;
-  isSystem?: boolean;
-}
-
-interface RawMessage {
-  id?: number;
-  text?: string;
-  content?: string;
-  user?: string;
-  sender?: string;
-  displayName?: string;
-  timestamp: string | number;
   isSystem?: boolean;
 }
 
@@ -44,95 +34,27 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>('');
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
-  const currentUser = userManager.getCurrentUser() || userManager.initializeUser();
-  const [displayName, setDisplayName] = useState<string>(currentUser.displayName);
+  const [displayName, setDisplayName] = useState<string>('Anónimo');
   const [editingName, setEditingName] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const chatId = 'global';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const normalizeMessage = (raw: RawMessage): Message => ({
-    id: raw.id,
-    text: raw.text || raw.content || '',
-    sender: raw.sender || raw.displayName || raw.user || 'Anónimo',
-    timestamp: typeof raw.timestamp === 'string' ? new Date(raw.timestamp).getTime() : raw.timestamp,
-    isSystem: raw.isSystem || false
-  });
-
-  const fetchMessages = async () => {
-    try {
-      const res = await fetch(`/api/messages?chat_id=${chatId}`);
-      const data = await res.json();
-      setMessages(data.map(normalizeMessage));
-    } catch (err) {
-      console.error('Error loading messages', err);
-    }
-  };
-
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
-    const user = userManager.getCurrentUser() || currentUser;
-    const payload = {
-      userId: user.userId,
-      displayName: user.displayName,
-      content: inputMessage.trim(),
-      timestamp: Date.now()
-    };
-    socket.emit('send_message', payload);
-    setMessages(prev => [...prev, { text: payload.content, sender: payload.displayName, timestamp: payload.timestamp }]);
-    setInputMessage('');
-  };
-
-  const handleIncomingMessage = (raw: RawMessage) => {
-    const msg = normalizeMessage(raw);
-    setMessages(prev => {
-      const exists = prev.some(m => m.timestamp === msg.timestamp && m.sender === msg.sender && m.text === msg.text);
-      return exists ? prev : [...prev, msg];
-    });
-  };
-
   useEffect(() => {
-    if (!isOpen) return;
+    const name = localStorage.getItem('displayName');
+    if (name) setDisplayName(name);
 
-    fetchMessages();
-
-    const onConnect = () => {
-      socket.emit('join', {
-        chat_id: chatId,
-        userId: currentUser.userId,
-        displayName: currentUser.displayName,
-      });
-    };
-
-    const onHistory = (data: { messages: RawMessage[] }) => {
-      if (Array.isArray(data?.messages)) {
-        setMessages(data.messages.map(normalizeMessage));
-      }
-    };
-
-    socket.on('new_message', handleIncomingMessage);
-    socket.on('message_history', onHistory);
-    socket.on('connect', onConnect);
-
-    socket.auth = {
-      userId: currentUser.userId,
-      displayName: currentUser.displayName,
-    };
-    socket.connect();
+    socket.on('chat message', (msg: Message) => {
+      setMessages((prev) => [...prev, msg].sort((a, b) => a.timestamp - b.timestamp));
+    });
 
     return () => {
-      socket.off('new_message', handleIncomingMessage);
-      socket.off('message_history', onHistory);
-      socket.off('connect', onConnect);
-      socket.emit('leave', { chat_id: chatId, userId: currentUser.userId });
-      socket.disconnect();
+      socket.off('chat message');
     };
-  }, [isOpen]);
+  }, []);
 
   useEffect(() => {
     if (isOpen && !isMinimized) {
@@ -150,6 +72,13 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
+
+  const handleSendMessage = (): void => {
+    if (!inputMessage.trim()) return;
+    const msg: Message = { sender: displayName, text: inputMessage, timestamp: Date.now() };
+    socket.emit('chat message', msg);
+    setInputMessage('');
+  };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -265,7 +194,7 @@ const ChatModal = ({ isOpen, onClose }: ChatModalProps): JSX.Element | null => {
                   onChange={(e) => setDisplayName(e.target.value)}
                   onBlur={() => {
                     setEditingName(false);
-                    userManager.updateDisplayName(displayName);
+                    localStorage.setItem('displayName', displayName);
                   }}
                   style={{ fontSize: '0.75rem' }}
                 />
