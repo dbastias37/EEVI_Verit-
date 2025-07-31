@@ -423,7 +423,7 @@ def close_db(error):
 # ===== RUTA PRINCIPAL =====
 @app.route('/')
 def index():
-    """Renderiza la página principal utilizando el nuevo diseño."""
+    """Renderiza la vista inicial Home Enhanced."""
     return render_template('home.html')
 
 
