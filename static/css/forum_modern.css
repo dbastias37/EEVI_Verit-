@@ -327,6 +327,7 @@ body {
     flex-direction: column;
     gap: var(--space-md);
     margin-top: var(--space-lg);
+    width: 100%;
 }
 
 .topic-card {
@@ -338,10 +339,11 @@ body {
     cursor: pointer;
     text-decoration: none;
     color: inherit;
-    margin-bottom: var(--space-md);
+    margin: 0 0 var(--space-md);
     display: flex;
     align-items: center;
     gap: var(--space-lg);
+    width: 100%;
 }
 
 .topic-card:hover {

@@ -307,6 +307,48 @@ def create_new_forum():
         logging.error(f"Error creating forum topic: {e}")
         return redirect(url_for('list_forum'))
 
+@app.route('/create_topic', methods=['POST'])
+def api_create_topic():
+    """Crear tema via JSON"""
+    data = request.get_json() or {}
+    try:
+        from services.fs_client import fs_client
+        from google.cloud import firestore
+
+        if not fs_client:
+            return jsonify({'success': False, 'error': 'Servicio no disponible'}), 503
+
+        titulo = data.get('titulo') or data.get('title')
+        categoria = data.get('categoria') or data.get('category')
+        contenido = data.get('contenido') or data.get('description')
+        autor = data.get('autor') or data.get('author', 'Anónimo')
+
+        if not titulo or not contenido:
+            return jsonify({'success': False, 'error': 'Datos incompletos'}), 400
+
+        tema_data = {
+            'titulo': titulo,
+            'categoria': categoria,
+            'contenido': contenido,
+            'autor': autor,
+            'created_at': firestore.SERVER_TIMESTAMP
+        }
+        doc_ref = fs_client.collection('foro').add(tema_data)
+        new_doc = fs_client.collection('foro').document(doc_ref[1].id).get()
+        topic = new_doc.to_dict()
+        topic['id'] = new_doc.id
+        return jsonify({'success': True, 'topic': {
+            'id': topic['id'],
+            'title': topic.get('titulo'),
+            'author': topic.get('autor', 'Anónimo'),
+            'category': topic.get('categoria'),
+            'preview': (topic.get('contenido') or '')[:100],
+            'created_at': topic.get('created_at')
+        }})
+    except Exception as e:
+        logging.error(f"Error creating topic via API: {e}")
+        return jsonify({'success': False, 'error': 'Error inesperado'}), 500
+
 @app.route('/forum/topic/<topic_id>')
 def forum_topic_view(topic_id):
     """Ver tema específico del foro"""
