@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const header = document.querySelector('.header-unified');
+  const header = document.querySelector('.header-unified, #glass-nav');
 
   const handleScroll = () => {
+    if (!header) return;
     if (window.scrollY > 50) {
       header.classList.add('scrolled');
     } else {
