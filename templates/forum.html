@@ -29,7 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="{{ url_for('list_forum') }}" class="nav-item active" data-action="home">
                     <span class="nav-icon">🏠</span> Inicio
                 </a>
-                {% if not session.forum_user %}
+                {% if session.forum_user %}
+                <a href="#" id="newTopicBtnSidebar" class="nav-item">
+                    <span class="nav-icon">✏️</span> Nuevo Tema
+                </a>
+                {% else %}
                 <a href="{{ url_for('forum_auth.vforum_auth') }}" class="nav-item">
                     <span class="nav-icon">🔒</span> Inicia sesión
                 </a>

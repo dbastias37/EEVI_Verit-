@@ -114,6 +114,7 @@ const ChatModal = () => {
       socket.off('message_history', onHistory);
       socket.off('connect', onConnect);
       socket.emit('leave', { chat_id: chatId, userId: currentUser.userId });
+      socket.disconnect();
     };
   }, []);
 
