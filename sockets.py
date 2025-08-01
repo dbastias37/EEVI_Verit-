@@ -1,7 +1,6 @@
 from datetime import datetime
 import time
-from flask_socketio import emit, join_room, leave_room
-from flask import request  # request se importa desde Flask para evitar errores
+from flask_socketio import emit, join_room, leave_room, request
 from extensions import socketio
 from pydantic import BaseModel, ValidationError
 

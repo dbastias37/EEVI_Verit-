@@ -49,60 +49,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Duplicate spanish form fields to english names for backend compatibility
     if (topicForm) {
-        topicForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const payload = {
-                autor: document.getElementById('autor').value,
-                categoria: document.getElementById('categoria').value,
-                titulo: document.getElementById('titulo').value,
-                contenido: document.getElementById('contenido').value
-            };
-
-            try {
-                const response = await fetch('/create_topic', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                if (data.success) {
-                    addTopicCard(data.topic);
-                    topicForm.reset();
-                    newTopicForm.classList.remove('show');
-                    if (newTopicBtn) newTopicBtn.style.display = 'inline-flex';
-                }
-            } catch (err) {
-                console.error('Error creating topic:', err);
-            }
+        topicForm.addEventListener('submit', () => {
+            copyField('autor', 'author');
+            copyField('titulo', 'title');
+            copyField('contenido', 'description');
         });
     }
 
-    function addTopicCard(topic) {
-        const list = document.querySelector('.topics-list');
-        if (!list) return;
-        const card = document.createElement('div');
-        card.className = 'topic-card';
-        card.dataset.topicId = topic.id;
-        card.innerHTML = `
-            <div class="topic-header">
-                <div class="topic-avatar">${(topic.author || 'A')[0].toUpperCase()}</div>
-                <div class="topic-content">
-                    <h3 class="topic-title">${topic.title}</h3>
-                    <div class="topic-meta">
-                        <span>Por ${topic.author || 'Anónimo'}</span>
-                        <span>•</span>
-                        <span>${new Date().toLocaleString()}</span>
-                        ${topic.category ? `<span class="topic-tag">${topic.category}</span>` : ''}
-                    </div>
-                    <p class="topic-preview">${topic.preview}</p>
-                </div>
-            </div>
-            <div class="topic-stats">
-                <span class="stat-item">💬 0</span>
-                <span class="stat-item">👍 0</span>
-                <span class="stat-item">👁️ 0</span>
-            </div>`;
-        list.prepend(card);
+    function copyField(fromName, toName) {
+        const field = topicForm.querySelector(`[name="${fromName}"]`);
+        if (!field) return;
+        let hidden = topicForm.querySelector(`input[name="${toName}"]`);
+        if (!hidden) {
+            hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = toName;
+            topicForm.appendChild(hidden);
+        }
+        hidden.value = field.value;
     }
 });
