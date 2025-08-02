@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "bash scripts/start.sh",
+    "start": "node -e \"require('child_process').spawn('bash', ['scripts/start.sh'], {stdio: 'inherit'})\"",
     "build": "npm run build:chat-widget",
     "build:chat-widget": "cd static/chat-widget && npm install && npm run build"
   },
