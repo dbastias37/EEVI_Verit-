@@ -6,8 +6,8 @@
     <h2>Verificar email</h2>
     <form method="POST">
       <input type="hidden" name="email" value="{{ email }}">
-      <input type="text" name="code" placeholder="Codigo" required>
-      <button type="submit">Verificar</button>
+      <input id="auth-code" name="code" type="text" placeholder="Codigo" autoComplete="off" required>
+      <button id="auth-verify-submit" name="submit" type="submit">Verificar</button>
     </form>
   </div>
 </div>

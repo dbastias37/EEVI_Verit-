@@ -5,10 +5,10 @@
   <div class="dashboard-login">
     <h2>Crear cuenta</h2>
     <form method="POST">
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="text" name="username" placeholder="Nombre de usuario" required>
-      <input type="password" name="password" placeholder="Contraseña" required>
-      <button type="submit">Registrar</button>
+      <input id="auth-email" name="email" type="email" placeholder="Email" autoComplete="email" required>
+      <input id="auth-username" name="username" type="text" placeholder="Nombre de usuario" autoComplete="username" required>
+      <input id="auth-password" name="password" type="password" placeholder="Contraseña" autoComplete="new-password" required>
+      <button id="auth-register-submit" name="submit" type="submit">Registrar</button>
     </form>
   </div>
 </div>

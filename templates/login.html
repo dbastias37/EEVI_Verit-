@@ -4,11 +4,11 @@
 <div class="dashboard-container">
   <div class="dashboard-login">
     <h2>Ingresar</h2>
-    <form method="POST">
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="password" name="password" placeholder="Contraseña" required>
-      <button type="submit">Entrar</button>
-    </form>
+      <form method="POST">
+        <input id="auth-email" name="email" type="email" placeholder="Email" autoComplete="email" required>
+        <input id="auth-password" name="password" type="password" placeholder="Contraseña" autoComplete="current-password" required>
+        <button id="auth-login-submit" name="submit" type="submit">Entrar</button>
+      </form>
   </div>
 </div>
 {% endblock %}

@@ -175,3 +175,6 @@ Se incorporaron nuevos blueprints que exponen rutas básicas para amistad, chat 
 - `/status/get_online_users`
 
 Actualiza tus dependencias con `pip install -r requirements.txt` y ejecuta `flask run` para probarlas.
+
+
+Se deben agregar los ultimos cambios realizados mas un mapa de la web total

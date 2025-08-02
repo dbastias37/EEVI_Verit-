@@ -29,7 +29,7 @@
     <div class="header-actions">
       <button id="theme-toggle" class="dash-btn dash-btn-secondary">🌙 Modo</button>
       <form action="{{ url_for('client.logout') }}" method="post" style="display:inline;">
-        <button type="submit" class="dash-btn dash-btn-primary">Salir</button>
+        <button id="auth-logout" name="submit" type="submit" class="dash-btn dash-btn-primary">Salir</button>
       </form>
     </div>
   </div>
@@ -99,8 +99,8 @@
         <h3>Mi Perfil</h3>
         <img src="{{ user.profile_pic or url_for('static', filename='img/avatar.png') }}" alt="Foto de perfil" class="profile-pic">
         <form action="{{ url_for('client.upload_profile') }}" method="post" enctype="multipart/form-data">
-          <input type="file" name="photo" accept="image/*" required style="margin-bottom: 1rem;">
-          <button type="submit" class="dash-btn dash-btn-primary" style="width: 100%;">Actualizar foto</button>
+          <input id="profile-photo" name="photo" type="file" accept="image/*" required style="margin-bottom: 1rem;">
+          <button id="profile-submit" name="submit" type="submit" class="dash-btn dash-btn-primary" style="width: 100%;">Actualizar foto</button>
         </form>
       </div>
     </aside>

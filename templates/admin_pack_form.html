@@ -3,11 +3,11 @@
 {% block admin_content %}
 <h2>{{ 'Editar' if pack else 'Nuevo' }} Pack</h2>
 <form method="post">
-  <input type="text" name="slug" placeholder="Slug" value="{{ pack['slug'] if pack else '' }}" {% if pack %}readonly{% endif %} required class="form-control full-input">
-  <input type="text" name="name" placeholder="Nombre" value="{{ pack['name'] if pack else '' }}" required class="form-control full-input">
-  <textarea name="description" placeholder="Descripción" class="form-control full-input">{{ pack['description'] if pack else '' }}</textarea>
-  <input type="text" name="price" placeholder="Precio" value="{{ pack['price'] if pack else '' }}" required class="form-control full-input">
-  <input type="text" name="image" placeholder="Imagen" value="{{ pack['image'] if pack else '' }}" class="form-control full-input">
-  <button type="submit" class="btn btn-primary">Guardar</button>
+  <input id="admin-pack-slug" name="slug" type="text" placeholder="Slug" value="{{ pack['slug'] if pack else '' }}" {% if pack %}readonly{% endif %} required class="form-control full-input">
+  <input id="admin-pack-name" name="name" type="text" placeholder="Nombre" value="{{ pack['name'] if pack else '' }}" required class="form-control full-input">
+  <textarea id="admin-pack-description" name="description" placeholder="Descripción" class="form-control full-input">{{ pack['description'] if pack else '' }}</textarea>
+  <input id="admin-pack-price" name="price" type="text" placeholder="Precio" value="{{ pack['price'] if pack else '' }}" required class="form-control full-input">
+  <input id="admin-pack-image" name="image" type="text" placeholder="Imagen" value="{{ pack['image'] if pack else '' }}" class="form-control full-input">
+  <button id="admin-pack-submit" name="submit" type="submit" class="btn btn-primary">Guardar</button>
 </form>
 {% endblock %}
