@@ -7,3 +7,4 @@ logs/
 serviceAccountKey.json
 /package-lock.json
 static/chat-widget/node_modules/
+.env
