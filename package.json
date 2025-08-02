@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "flask run",
+    "start": "bash scripts/start.sh",
     "build": "npm run build:chat-widget",
     "build:chat-widget": "cd static/chat-widget && npm install && npm run build"
   },
