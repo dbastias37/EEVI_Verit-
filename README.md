@@ -164,7 +164,7 @@ La criatura no duerme. Solo espera al próximo paso.
 ### Sistema interconectado inicial
 
 Se incorporaron nuevos blueprints que exponen rutas básicas para amistad, chat y estados de usuario. Las rutas principales son:
-
+#escribo aqui por que debo mantener el gusto por escribir xd, quiza ya no pesco el repositorio pero almenos debe mantenerse intacto los dias que he comiteado jajajsdj
 - `/friends/send_friend_request`
 - `/friends/respond_friend_request`
 - `/friends/get_friends`
