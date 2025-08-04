@@ -178,3 +178,5 @@ Actualiza tus dependencias con `pip install -r requirements.txt` y ejecuta `flas
 
 
 Se deben agregar los ultimos cambios realizados mas un mapa de la web total
+
+he fallado
